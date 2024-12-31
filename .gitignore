@@ -1,0 +1,7 @@
+.env
+catalog.json
+*.tif
+S2A*.json
+S2B*.json
+*.zarr
+*.json

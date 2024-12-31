@@ -1,0 +1,5 @@
+odc-stac
+ipykernel
+cwltool
+zarr
+matplotlib

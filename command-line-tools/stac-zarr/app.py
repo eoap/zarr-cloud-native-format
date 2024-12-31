@@ -5,7 +5,7 @@ from datetime import datetime
 from loguru import logger
 from odc.stac import stac_load
 from pystac.extensions.datacube import DatacubeExtension
-
+from shutil import move
 
 @click.command(
     short_help="Creates a zarr from a STAC catalog",
@@ -67,6 +67,11 @@ def to_zarr(stac_catalog):
     dc_item.variables = {"data": pystac.extensions.datacube.Variable(properties={"type": "bands", "description": "water bodies", "dimensions": ["y", "x", "time"]})}
 
     output_item.add_asset(key="data", asset=pystac.Asset(href=output_zarr, media_type=pystac.MediaType.ZARR, roles=["data"]))
+
+    os.makedirs(output_item.id, exist_ok=True)
+
+    # Move the zarr file to the item folder
+    move(output_zarr, os.path.join(output_item.id, output_zarr))
 
     output_cat = pystac.Catalog(id="water-bodies", description="Water bodies catalog", title="Water bodies catalog")
 

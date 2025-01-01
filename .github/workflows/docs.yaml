@@ -40,4 +40,4 @@ jobs:
             docker pull ghcr.io/eoap/mastering-app-package/otsu@sha256:0541948f46a7a1a9f30f17973b7833482660f085700ccc98bb743a35a37dabae
             docker pull ghcr.io/eoap/mastering-app-package/stac@sha256:e2ee1914cd06a0abc369034a8c8ef9ecf9b8e872b2efbc864d41c741e9faa392
             docker pull ghcr.io/eoap/zarr-cloud-native-format/stac-zarr@sha256:092de23d9454812fc2ab7339295b1decb36ba3cbf2337f8b92a23808d6a4e232
-      - run: mkdocs gh-deploy --force
+            mkdocs gh-deploy --force

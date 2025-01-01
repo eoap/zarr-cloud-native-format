@@ -30,6 +30,10 @@ jobs:
         with:
           python-version: 3.x
       - run: pip install mkdocs-material mkdocs-mermaid2-plugin mkdocs-jupyter odc-stac ipykernel cwltool zarr matplotlib
+      
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      
       - run: |
             docker pull ghcr.io/eoap/mastering-app-package/crop@sha256:324a0735cc4998f3f790c0e9b7a7df28e8ce8987d5f0798bd2d63c0e72d17dca    
             docker pull ghcr.io/eoap/mastering-app-package/merge@sha256:324a0735cc4998f3f790c0e9b7a7df28e8ce8987d5f0798bd2d63c0e72d17dca

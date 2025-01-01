@@ -19,6 +19,10 @@ plugins:
   - search
   - mermaid2:
       version: 10.6.0
+  - mkdocs-jupyter:
+    execute: true
+    show_input: True
+    no_input: False
 
 markdown_extensions:
   - pymdownx.details

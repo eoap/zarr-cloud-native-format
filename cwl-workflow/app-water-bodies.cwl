@@ -34,10 +34,6 @@ $graph:
     outputs:
       - id: stac_catalog
         outputSource:
-          - node_stac/stac_catalog
-        type: Directory
-      - id: zarr_stac_catalog
-        outputSource:
           - node_stac_zarr/zarr_stac_catalog
         type: Directory
     steps:
@@ -59,12 +55,12 @@ $graph:
           rasters:
             source: node_water_bodies/detected_water_body
         out:
-          - stac_catalog
+          - temp_stac_catalog
       node_stac_zarr:
         run: "#stac-zarr"
         in:
           stac_catalog:
-            source: node_stac/stac_catalog
+            source: node_stac/temp_stac_catalog
         out:
           - zarr_stac_catalog
   - class: Workflow
@@ -238,7 +234,8 @@ $graph:
           inputBinding:
             prefix: --water-body
     outputs:
-      stac_catalog:
+      temp_stac_catalog:
+        label: temporary STAC catalog with COG outputs
         outputBinding:
           glob: .
         type: Directory

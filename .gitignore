@@ -5,3 +5,4 @@ S2A*.json
 S2B*.json
 *.zarr
 *.json
+params.yaml

@@ -17,7 +17,6 @@ from shutil import move
     "stac_catalog",
     help="STAC Catalog folder",
     required=True,
-    multiple=False,
 )
 def to_zarr(stac_catalog):
 

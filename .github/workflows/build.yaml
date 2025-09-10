@@ -7,6 +7,7 @@ on:
     paths:
     # Only rebuild website when apps have changed
     - 'command-line-tools/**'
+    - '.github/workflows/**'
 
     
 jobs:
@@ -87,9 +88,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        for step in stac-zarr
+        for step in crop norm_diff ostu stac stac-zarr
         do
-          tag="ghcr.io/eoap/zarr-cloud-native-format/${step}:${{needs.version.outputs.app-version}}"
+          if [ "$step" = "stac-zarr" ]; then 
+            tag="ghcr.io/eoap/zarr-cloud-native-format/${step}:${{needs.version.outputs.app-version}}"
+          else
+            upstream_version="1.1.0"
+            tag="ghcr.io/eoap/mastering-app-package/${step}:${upstream_version}"
+          fi
           docker pull ${tag}
           shatag=$( docker inspect ${tag} | yq -r '.[0]["RepoDigests"][0]' )
           for cwl in $(ls cwl-workflow/*.cwl)

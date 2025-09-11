@@ -50,7 +50,7 @@ $graph:
         in:
           api_endpoint: stac_api_endpoint
           search_request: search_request
-        run: https://github.com/eoap/schemas/releases/download/0.1.0/stac-api-client.0.1.0.cwl
+        run: https://github.com/eoap/schemas/releases/download/0.2.0/stac-api-client.0.2.0.cwl
         out:
         - search_output
       

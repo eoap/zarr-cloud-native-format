@@ -64,7 +64,7 @@ jobs:
     - name: build & push image
       run: |
         IMAGE_ID=ghcr.io/eoap/zarr-cloud-native-format/yq
-        docker build command-line-tools/yq --file command-line-tools/yq/Dockerfile --tag yq
+        docker build containers/yq --file containers/yq/Dockerfile --tag yq
         docker tag yq $IMAGE_ID:${{needs.version.outputs.app-version}}
         docker push $IMAGE_ID:${{needs.version.outputs.app-version}}
 
@@ -72,6 +72,7 @@ jobs:
 
     needs:
     - container-build
+    - container-yq-build
     - version
 
     runs-on: ubuntu-latest

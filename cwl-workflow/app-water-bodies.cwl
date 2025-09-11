@@ -102,10 +102,8 @@ $graph:
     id: convert-search
     label: Gets the item self hrefs
     doc: Gets the item self hrefs from a STAC search result
-
     baseCommand: ["/bin/sh", "run.sh"]
     arguments: []
-   
     hints:
       DockerRequirement:
         dockerPull: docker.io/library/yq

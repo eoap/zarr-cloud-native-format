@@ -12,7 +12,23 @@ on:
       - .github/**
 
 jobs:
+
+  version:
+  
+    runs-on: ubuntu-latest
+
+    outputs:
+      app-version: ${{ steps.set-version.outputs.version }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: echo "APP_VERSION=$(cat codemeta.json | jq -r .version )" >> $GITHUB_ENV
+    - run: echo app version is $APP_VERSION
+    - id: set-version
+      run: echo "::set-output name=version::$APP_VERSION"
+
   deploy:
+    needs: version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout master
@@ -35,9 +51,15 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       
       - run: |
-            docker pull ghcr.io/eoap/mastering-app-package/crop@sha256:324a0735cc4998f3f790c0e9b7a7df28e8ce8987d5f0798bd2d63c0e72d17dca    
-            docker pull ghcr.io/eoap/mastering-app-package/norm_diff@sha256:632991ef2c15e98c46cfa1ac7dd35a638bbe4e5c434d7503a76cf3570b17383f
-            docker pull ghcr.io/eoap/mastering-app-package/otsu@sha256:0541948f46a7a1a9f30f17973b7833482660f085700ccc98bb743a35a37dabae
-            docker pull ghcr.io/eoap/mastering-app-package/stac@sha256:e2ee1914cd06a0abc369034a8c8ef9ecf9b8e872b2efbc864d41c741e9faa392
-            docker pull ghcr.io/eoap/zarr-cloud-native-format/stac-zarr@sha256:092de23d9454812fc2ab7339295b1decb36ba3cbf2337f8b92a23808d6a4e232
+            for step in crop norm_diff otsu stac stac-zarr
+            do
+              if [ "$step" = "stac-zarr" ]; then 
+                tag="ghcr.io/eoap/zarr-cloud-native-format/${step}:${{needs.version.outputs.app-version}}"
+              else
+                upstream_version="1.1.0"
+                tag="ghcr.io/eoap/mastering-app-package/${step}:${upstream_version}"
+              fi
+              docker pull ${tag}
+            fi
+            
             mkdocs gh-deploy --force

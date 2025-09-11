@@ -105,10 +105,11 @@ $graph:
 
     baseCommand: ["/bin/sh", "run.sh"]
     arguments: []
-
+   
+    hints:
+      DockerRequirement:
+        dockerPull: docker.io/library/yq
     requirements:
-    - class: DockerRequirement
-      dockerPull: docker.io/library/yq
     - class: InlineJavascriptRequirement
     - class: SchemaDefRequirement
       types:

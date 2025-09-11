@@ -4,12 +4,16 @@ on:
     branches:
       - develop
       - main
+      - feature-stac-api
     paths:
       # Only rebuild website when docs have changed
       - 'README.md'
       - 'docs/**'
       - 'mkdocs.yml'
       - .github/**
+      - 'notebooks/**'
+      - 'command-line-tools/**'
+      - 'cwl-workflow/**'
 
 jobs:
 
@@ -60,6 +64,6 @@ jobs:
                 tag="ghcr.io/eoap/mastering-app-package/${step}:${upstream_version}"
               fi
               docker pull ${tag}
-            fi
-            
+            done
+
             mkdocs gh-deploy --force

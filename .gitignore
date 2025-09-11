@@ -6,3 +6,5 @@ S2B*.json
 *.zarr
 *.json
 params.yaml
+*.pyc
+__pycache__/

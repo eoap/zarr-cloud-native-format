@@ -2,13 +2,17 @@ name: build
 on:
   push:
     branches:
-    - main
+      - develop
+      - main
+      - feature-stac-api
 
     paths:
     # Only rebuild website when apps have changed
     - 'command-line-tools/**'
     - '.github/workflows/**'
-
+    - 'containers/**'
+    - 'notebooks/**'
+    
     
 jobs:
   
@@ -115,6 +119,7 @@ jobs:
             upstream_version="1.1.0"
             tag="ghcr.io/eoap/mastering-app-package/${step}:${upstream_version}"
           fi
+          echo "Processing $step with tag $tag"
           docker pull ${tag}
           shatag=$( docker inspect ${tag} | yq -r '.[0]["RepoDigests"][0]' )
           for cwl in $(ls cwl-workflow/*.cwl)

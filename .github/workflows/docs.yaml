@@ -60,6 +60,6 @@ jobs:
                 tag="ghcr.io/eoap/mastering-app-package/${step}:${upstream_version}"
               fi
               docker pull ${tag}
-            fi
+            done
             
             mkdocs gh-deploy --force

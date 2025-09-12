@@ -61,7 +61,7 @@ $graph:
           search_request: search_request
         run: "#convert-search"
         out:
-        - items
+        - item
         - aoi
         
       water_bodies:
@@ -69,7 +69,7 @@ $graph:
         run: "#detect_water_body"
         in:
           item: 
-            source: convert_search/items
+            source: convert_search/item
           aoi:  
             source: convert_search/aoi
           bands: bands
@@ -139,7 +139,7 @@ $graph:
         type: File
 
     outputs:
-      items:
+      item:
         type: Any
         outputBinding:
           glob: items.json

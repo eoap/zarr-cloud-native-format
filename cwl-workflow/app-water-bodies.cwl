@@ -83,7 +83,7 @@ $graph:
         run: "#stac"
         in:
           item: 
-            source: convert_search/items
+            source: convert_search/item
           rasters:
             source: water_bodies/detected_water_body
         out:

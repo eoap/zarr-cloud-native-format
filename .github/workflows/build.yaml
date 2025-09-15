@@ -117,6 +117,8 @@ jobs:
             tag="ghcr.io/eoap/zarr-cloud-native-format/${step}:${{needs.version.outputs.app-version}}"
           elif [ "$step" = "convert-search" ]; then 
             tag="ghcr.io/eoap/zarr-cloud-native-format/yq:${{needs.version.outputs.app-version}}"
+          elif [ "$step" = "occurrence"]; then 
+            tag="ghcr.io/eoap/zarr-cloud-native-format/yq:${{needs.version.outputs.app-version}}"
           else
             upstream_version="1.1.0"
             tag="ghcr.io/eoap/mastering-app-package/${step}:${upstream_version}"

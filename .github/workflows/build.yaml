@@ -106,7 +106,7 @@ jobs:
 
     strategy:
       matrix:
-        step: ["app-water-bodies"]
+        step: ["app-water-bodies", "app-water-bodies-occurrence"]
 
     steps:
     - uses: actions/checkout@v2

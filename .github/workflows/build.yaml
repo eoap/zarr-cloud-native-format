@@ -111,6 +111,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
+        set -x
         for step in crop norm_diff otsu stac stac-zarr convert-search occurrence
         do
           if [ "$step" = "stac-zarr" ]; then 
@@ -132,6 +133,7 @@ jobs:
           done
         done
     - run: |
+        set -x
         for cwl in $(ls cwl-workflow/*.cwl)
         do
           r=$( cat codemeta.json | jq -r ".codeRepository" ) yq -i eval '."s:codeRepository" = {"URL" : env(r)}' $cwl
@@ -144,6 +146,7 @@ jobs:
     - name: Cleanup downloads folder
       run: rm -rf downloads/*
     - run: |
+        set -x
         mkdir downloads
         for cwl in "app-water-bodies" "app-water-bodies-occurrence"
         do

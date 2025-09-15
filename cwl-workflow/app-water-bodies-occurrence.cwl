@@ -35,7 +35,7 @@ $graph:
     label: Water bodies occurrence
     doc: Water bodies occurrence based on NDWI and otsu threshold
     hints:
-      DockerRequirement
+      DockerRequirement:
         dockerPull: occ:latest
     requirements:
       - class: EnvVarRequirement

@@ -39,7 +39,7 @@ jobs:
 
     strategy:
       matrix:
-        step: [stac-zarr]
+        step: [stac-zarr, occurrence]
 
     steps:
     - uses: actions/checkout@v2
@@ -111,7 +111,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        for step in crop norm_diff otsu stac stac-zarr convert-search
+        for step in crop norm_diff otsu stac stac-zarr convert-search occurrence
         do
           if [ "$step" = "stac-zarr" ]; then 
             tag="ghcr.io/eoap/zarr-cloud-native-format/${step}:${{needs.version.outputs.app-version}}"
@@ -143,7 +143,7 @@ jobs:
       run: rm -rf downloads/*
     - run: |
         mkdir downloads
-        for cwl in "app-water-bodies"
+        for cwl in "app-water-bodies" "app-water-bodies-occurrence"
         do
           cp cwl-workflow/${cwl}.cwl downloads/${cwl}.${{needs.version.outputs.app-version}}.cwl
         done

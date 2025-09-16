@@ -14,7 +14,7 @@ $graph:
       zarr-stac-catalog:
         type: Directory
         doc: Input STAC catalog with datacube
-        label: STAC catalog
+        label: Zarr store STAC Catalog
     outputs:
       stac-catalog:
         type: Directory
@@ -24,6 +24,8 @@ $graph:
         label: STAC catalog
     steps:
       step_occurrence:
+        label: Water bodies occurrence
+        doc: Water bodies occurrence based on NDWI and otsu threshold
         run: "#occurrence"
         in:
           zarr-stac-catalog: zarr-stac-catalog

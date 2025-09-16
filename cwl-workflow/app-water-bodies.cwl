@@ -46,7 +46,8 @@ $graph:
         type: Directory
     steps:
       discovery:
-        label: Discovery Step
+        label: STAC API discovery
+        doc: Discover STAC items from a STAC API endpoint based on a search request
         in:
           api_endpoint: stac_api_endpoint
           search_request: search_request
@@ -55,7 +56,8 @@ $graph:
         - search_output
       
       convert_search:
-        label: Convert Search Step
+        label: Convert Search
+        doc: Convert Search results to get the item self hrefs and the area of interest 
         in:
           search_results: discovery/search_output
           search_request: search_request
@@ -65,7 +67,8 @@ $graph:
         - aoi
         
       water_bodies:
-        label: Water bodies detection based on NDWI and otsu threshold
+        label: Water bodies detection
+        doc: Water bodies detection based on NDWI and otsu threshold applied to each STAC item (sub-workflow)
         run: "#detect_water_body"
         in:
           item: 
@@ -80,6 +83,7 @@ $graph:
 
       stac:
         label: Create a STAC catalog with COG outputs
+        doc: Create a STAC catalog with the detected water bodies COG outputs
         run: "#stac"
         in:
           item: 
@@ -90,7 +94,8 @@ $graph:
           - temp_stac_catalog
       
       stac_zarr:
-        label: Create a STAC Zarr catalog
+        label: Create a STAC Catalog for the Zarr store
+        doc: Create a STAC Catalog for the Zarr store from the STAC catalog with COG outputs
         run: "#stac-zarr"
         in:
           stac_catalog:

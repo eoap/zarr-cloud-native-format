@@ -36,7 +36,10 @@ class WorkflowViewer:
     def _display_parameters(self, parameters_name, entrypoint=None):
         md = self._prepare_headers(["Id", "Type", "Label", "Doc"])
 
-        wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow) if entrypoint is not None else self.workflow
+        if entrypoint is None:
+            entrypoint = self.entrypoint
+
+        wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow)
 
         for p in getattr(wf, parameters_name, []):
             md += f"| `{p.id}` | `{type_to_string(p.type_)}` | {p.label} | {p.doc} |\n"
@@ -61,7 +64,10 @@ class WorkflowViewer:
 
     def _display_puml(self, diagram_type: DiagramType, entrypoint=None):
 
-        wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow) if entrypoint is not None else self.workflow
+        if entrypoint is None:
+            entrypoint = self.entrypoint
+
+        wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow)
 
         out = StringIO()
         to_puml(

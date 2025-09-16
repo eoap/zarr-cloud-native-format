@@ -36,7 +36,7 @@ dependencies = [
   "matplotlib",
   "graphviz",
   "pillow",
-  "cwl-loader",
+  "cwl-loader>=0.5.0",
   "eoap-cwlwrap",
   "plantuml",
   "cwl2puml>=0.5.0",

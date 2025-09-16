@@ -50,6 +50,7 @@ jobs:
         with:
           python-version: 3.x
       - run: pip install mkdocs-material mkdocs-mermaid2-plugin mkdocs-jupyter odc-stac ipykernel cwltool zarr matplotlib graphviz pillow cwl-loader eoap-cwlwrap plantuml cwl2puml
+      - run: sudo apt update && sudo apt install -y graphviz wget
       
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin

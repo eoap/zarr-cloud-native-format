@@ -9,3 +9,4 @@ params.yaml
 *.pyc
 __pycache__/
 runs
+*-params.yaml

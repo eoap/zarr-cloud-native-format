@@ -32,6 +32,14 @@ dependencies = [
   "zarr==3.1.2",
   "matplotlib==3.10.6",
   "loguru==0.7.3",
+  "zarr",
+  "matplotlib",
+  "graphviz",
+  "pillow",
+  "cwl-loader",
+  "eoap-cwlwrap",
+  "plantuml",
+  "cwl2puml",
 ]
 
 [project.urls]

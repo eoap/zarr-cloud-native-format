@@ -5,13 +5,12 @@ from cwltool.context import LoadingContext, RuntimeContext
 from cwltool.executors import NoopJobExecutor
 from io import StringIO, BytesIO
 from IPython.display import Markdown, display
-from eoap_cwlwrap import _search_workflow, wrap
+from eoap_cwlwrap import _search_workflow
 from eoap_cwlwrap.types import type_to_string
 from cwl_loader import load_cwl_from_location
 from PIL import Image
 from plantuml import deflate_and_encode
 from urllib.request import urlopen
-import cwl_utils
 
 
 class WorkflowViewer:
@@ -34,21 +33,21 @@ class WorkflowViewer:
     def _prepare_headers(self, headers: list[str]):
         return f"| {' | '.join(headers)} |\n| {' | '.join(["---"] * len(headers))} |\n"
 
-    def _display_parameters(self, parameters_name):
+    def _display_parameters(self, parameters_name, entrypoint=None):
         md = self._prepare_headers(["Id", "Type", "Label", "Doc"])
 
-        wf = _search_workflow(workflow_id=self.entrypoint, workflow=self.workflow)
+        wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow) if entrypoint is not None else self.workflow
 
         for p in getattr(wf, parameters_name, []):
             md += f"| `{p.id}` | `{type_to_string(p.type_)}` | {p.label} | {p.doc} |\n"
 
         display(Markdown(md))
 
-    def display_inputs(self):
-        self._display_parameters("inputs")
+    def display_inputs(self, entrypoint=None):
+        self._display_parameters("inputs", entrypoint=entrypoint)
 
-    def display_outputs(self):
-        self._display_parameters("outputs")
+    def display_outputs(self, entrypoint=None):
+        self._display_parameters("outputs", entrypoint=entrypoint)
 
     def display_steps(self):
         md = self._prepare_headers(["Id", "Runs", "Label", "Doc"])
@@ -60,21 +59,33 @@ class WorkflowViewer:
 
         display(Markdown(md))
 
-    def display_components_diagram(self):
+    def _display_puml(self, diagram_type: DiagramType, entrypoint=None):
+
+        wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow) if entrypoint is not None else self.workflow
+
         out = StringIO()
         to_puml(
-            cwl_document=self.workflow,
-            diagram_type=DiagramType.COMPONENTS,
+            cwl_document=wf,
+            diagram_type=diagram_type,
             output_stream=out,
         )
 
         clear_output = out.getvalue()
         encoded = deflate_and_encode(clear_output)
+
         diagram_url = f"https://img.plantuml.biz/plantuml/png/{encoded}"
 
         with urlopen(diagram_url) as url:
             img = Image.open(BytesIO(url.read()))
         display(img)
+
+    def display_components_diagram(self, entrypoint=None):
+
+        self._display_puml(DiagramType.COMPONENTS, entrypoint=entrypoint)
+
+    def display_class_diagram(self, entrypoint=None):
+
+        self._display_puml(DiagramType.CLASS, entrypoint=entrypoint)
 
     def plot(self):
         args = ["--print-dot", f"{self.cwl_file}#{self.entrypoint}"]

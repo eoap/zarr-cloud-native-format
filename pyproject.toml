@@ -39,7 +39,7 @@ dependencies = [
   "cwl-loader>=0.5.0",
   "eoap-cwlwrap",
   "plantuml",
-  "cwl2puml>=0.5.0",
+  "cwl2puml>=0.7.0",
 ]
 
 [project.urls]

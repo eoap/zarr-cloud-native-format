@@ -62,12 +62,7 @@ class WorkflowViewer:
 
         display(Markdown(md))
 
-    def _display_puml(self, diagram_type: DiagramType, entrypoint=None):
-
-        if entrypoint is None:
-            entrypoint = self.entrypoint
-
-        wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow)
+    def _display_puml(self, diagram_type: DiagramType, wf):
 
         out = StringIO()
         to_puml(
@@ -86,12 +81,15 @@ class WorkflowViewer:
         display(img)
 
     def display_components_diagram(self, entrypoint=None):
-
-        self._display_puml(DiagramType.COMPONENTS, entrypoint=entrypoint)
+        
+        self._display_puml(DiagramType.COMPONENTS, wf=self.workflow)
 
     def display_class_diagram(self, entrypoint=None):
+        if entrypoint is None:
+            entrypoint = self.entrypoint
 
-        self._display_puml(DiagramType.CLASS, entrypoint=entrypoint)
+        wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow)
+        self._display_puml(DiagramType.CLASS, wf=wf)
 
     def plot(self):
         args = ["--print-dot", f"{self.cwl_file}#{self.entrypoint}"]

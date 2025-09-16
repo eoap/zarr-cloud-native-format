@@ -8,3 +8,4 @@ S2B*.json
 params.yaml
 *.pyc
 __pycache__/
+runs

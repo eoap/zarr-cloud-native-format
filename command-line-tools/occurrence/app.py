@@ -3,11 +3,12 @@ import os
 import pystac
 from loguru import logger
 from pystac.extensions.datacube import DatacubeExtension
-import shutil 
+import shutil
 import xarray as xr
 import rioxarray
 import rio_stac
 import pandas as pd
+
 
 @click.command(
     short_help="Derives water occurrence from datacube encoded in the Zarr format",
@@ -24,14 +25,10 @@ def occurrence(stac_catalog):
     logger.info("Water occurrence")
 
     logger.info(f"Reading STAC catalog from {stac_catalog}")
-    
-    cat = pystac.Catalog.from_file(
-        os.path.join(stac_catalog, "catalog.json")
-    )
+
+    cat = pystac.Catalog.from_file(os.path.join(stac_catalog, "catalog.json"))
 
     collection = cat.get_child("water-bodies")
-
-    
 
     dc_collection = DatacubeExtension.ext(collection)
 
@@ -39,14 +36,16 @@ def occurrence(stac_catalog):
         logger.info(f"Dimension: {key}, Type: {dim.dim_type}, Extent: {dim.extent}")
 
     for key, variable in dc_collection.variables.items():
-        logger.info(f"Variable: {key}, Description: {variable.description}, Dimensions: {','.join(variable.dimensions)}, Type: {variable.var_type}")
+        logger.info(
+            f"Variable: {key}, Description: {variable.description}, Dimensions: {','.join(variable.dimensions)}, Type: {variable.var_type}"
+        )
 
     zarr_asset = collection.get_assets()["data"]
     water_bodies = xr.open_zarr(zarr_asset.get_absolute_href(), consolidated=True)
 
     logger.info(f"EPSG code: {str(water_bodies.data_vars['spatial_ref'].values)}")
 
-    agg = water_bodies.mean(dim="time").to_array("data") 
+    agg = water_bodies.mean(dim="time").to_array("data")
 
     agg = agg.rio.write_crs(f"EPSG:{str(water_bodies.data_vars['spatial_ref'].values)}")
 
@@ -80,6 +79,7 @@ def occurrence(stac_catalog):
         root_href="./", catalog_type=pystac.CatalogType.SELF_CONTAINED
     )
     logger.info("Done!")
+
 
 if __name__ == "__main__":
     occurrence()

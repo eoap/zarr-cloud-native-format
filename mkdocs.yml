@@ -65,7 +65,6 @@ nav:
     - stac-zarr: 'cwl-cli/stac-zarr.ipynb'
   - CWL Sub-workflows:
     - water-bodies-detection: 'sub-workflow/water-bodies-detection.ipynb'
-  - Exploitation: 'exploitation.ipynb'
   - CWL Workflows:
      - producer: 'cwl-workflows/producer.ipynb'
      - consumer: 'cwl-workflows/consumer.ipynb'

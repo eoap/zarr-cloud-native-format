@@ -6,15 +6,18 @@ from loguru import logger
 from odc.stac import stac_load
 from pystac.extensions.datacube import DatacubeExtension
 from shutil import move
+import zarr
 
 def extract_crs(item):
     """Extract CRS from a STAC item."""
-    if 'proj:epsg' in item.properties:
-        return f"epsg:{item.properties['proj:epsg']}"
-    elif 'proj:code' in item.properties:
-        return item.properties['proj:code'].replace("EPSG:", "")
-    else:
-        raise ValueError("CRS not found in item properties")
+    epsg = item.properties.get("proj:epsg")
+    if epsg:
+        return f"epsg:{epsg}"
+    code = item.properties.get("proj:code")
+    if code and code.upper().startswith("EPSG:"):
+        return code.lower()  # "epsg:32633"
+    raise ValueError("CRS not found in item properties")
+
 
 def get_temporal_extent(items):
     """Get temporal extent from a list of STAC items."""
@@ -22,6 +25,7 @@ def get_temporal_extent(items):
     if not times:
         raise ValueError("No datetime found in item properties")
     return [min(times), max(times)]
+
 
 def get_spatial_extent(items):
     """Get spatial extent from a list of STAC items."""
@@ -33,6 +37,7 @@ def get_spatial_extent(items):
     max_x = max(bbox[2] for bbox in bboxes)
     max_y = max(bbox[3] for bbox in bboxes)
     return [min_x, min_y, max_x, max_y]
+
 
 @click.command(
     short_help="Creates a zarr from a STAC catalog",
@@ -58,7 +63,7 @@ def to_zarr(stac_catalog):
 
     xx = stac_load(
         items,
-        bands=("data"),
+        bands=["data"],
         crs=crs,
         resolution=10,
         chunks={"x": 512, "y": 512, "time": 1},
@@ -68,12 +73,16 @@ def to_zarr(stac_catalog):
     output_zarr = "result.zarr"
 
     xx.to_zarr(output_zarr, mode="w")
+    zarr.consolidate_metadata(output_zarr)
 
     output_collection = pystac.Collection(
         id="water-bodies",
         description="Collection of detected water bodies",
         title="Detected water bodies",
-        extent=pystac.Extent(spatial=pystac.SpatialExtent(bboxes=[get_spatial_extent(items)]), temporal=pystac.TemporalExtent([get_temporal_extent(items)]))
+        extent=pystac.Extent(
+            spatial=pystac.SpatialExtent(bboxes=[get_spatial_extent(items)]),
+            temporal=pystac.TemporalExtent([get_temporal_extent(items)]),
+        ),
     )
 
     dc_item = DatacubeExtension.ext(output_collection, add_if_missing=True)
@@ -118,8 +127,8 @@ def to_zarr(stac_catalog):
     dc_item.variables = {
         "data": pystac.extensions.datacube.Variable(
             properties={
-                "type": "bands",
-                "name": "data",
+                "type": "data",
+                "name": "water-bodies",
                 "description": "detected water bodies",
                 "dimensions": ["y", "x", "time"],
                 "chunks": [512, 512, 1],
@@ -130,11 +139,13 @@ def to_zarr(stac_catalog):
     output_collection.add_asset(
         key="data",
         asset=pystac.Asset(
-            href=output_zarr, media_type=pystac.MediaType.ZARR, roles=["data", "zarr"], title="Detected water bodies", description="Detected water bodies in Zarr cloud-native format", extra_fields={"xarray:open_kwargs": {
-        "consolidated": True
-      }}
+            href=output_zarr,
+            media_type=pystac.MediaType.ZARR,
+            roles=["data", "zarr"],
+            title="Detected water bodies",
+            description="Detected water bodies in Zarr cloud-native format",
+            extra_fields={"xarray:open_kwargs": {"consolidated": True}},
         ),
-
     )
 
     os.makedirs(output_collection.id, exist_ok=True)

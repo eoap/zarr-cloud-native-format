@@ -60,5 +60,14 @@ nav:
   - TL;DR: exploitation.ipynb
   - CWL CommandLineTools:
     - discovery: 'cwl-cli/discovery.ipynb'
-    
+    - convert-search: 'cwl-cli/convert-search.ipynb'
+    - stac: 'cwl-cli/stac.ipynb'
+    - stac-zarr: 'cwl-cli/stac-zarr.ipynb'
+  - CWL Sub-workflows:
+    - water-bodies-detection: 'sub-workflow/water-bodies-detection.ipynb'
+  - Exploitation: 'exploitation.ipynb'
+  - CWL Workflows:
+     - downstream: 'cwl-workflows/downstream.ipynb'
+  
+
 copyright: <a href="https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg">License CC BY-SA 4.0</a>, by <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons</a>

@@ -82,7 +82,12 @@ class WorkflowViewer:
 
     def display_components_diagram(self, entrypoint=None):
         
-        self._display_puml(DiagramType.COMPONENTS, wf=self.workflow)
+        if entrypoint is not None: 
+            wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow)
+        else:
+            wf = self.workflow
+
+        self._display_puml(DiagramType.COMPONENTS, wf=wf)
 
     def display_class_diagram(self, entrypoint=None):
         if entrypoint is None:

@@ -46,10 +46,12 @@ def occurrence(stac_catalog):
     logger.info(f"EPSG code: {str(water_bodies.data_vars['spatial_ref'].values)}")
 
     agg = water_bodies.mean(dim="time").to_array("data")
-
     agg = agg.rio.write_crs(f"EPSG:{str(water_bodies.data_vars['spatial_ref'].values)}")
 
-    agg.rio.to_raster("water_bodies_mean.tif")
+    agg_single = agg.sel(data="data")
+    agg_single = agg_single.rio.set_spatial_dims(x_dim="x", y_dim="y")
+    agg_single = agg_single.rio.write_crs(f"EPSG:{str(water_bodies.data_vars['spatial_ref'].values)}")
+    agg_single.rio.to_raster("water_bodies_mean.tif")
 
     logger.info(f"Creating a STAC Catalog for the output")
     cat = pystac.Catalog(id="catalog", description="water-bodies-mean")

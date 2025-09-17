@@ -12,57 +12,152 @@ $graph:
     requirements:
       - class: ScatterFeatureRequirement
       - class: SubworkflowFeatureRequirement
+      - class: SchemaDefRequirement
+        types:
+        - $import: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml
+        - $import: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml
+        - $import: |-
+            https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml
+        - $import: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml
     inputs:
-      aoi:
-        label: area of interest
-        doc: area of interest as a bounding box
-        type: string
-      epsg:
-        label: EPSG code
-        doc: EPSG code
-        type: string
-        default: "EPSG:4326"
-      stac_items:
-        label: Sentinel-2 STAC items
-        doc: list of Sentinel-2 COG STAC items
-        type: string[]
+      stac_api_endpoint:
+        label: STAC API endpoint
+        doc: STAC API endpoint
+        type: |-
+          https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
+      search_request:
+        label: STAC search request
+        doc: STAC search request
+        type: |-
+          https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
       bands:
         label: bands used for the NDWI
         doc: bands used for the NDWI
         type: string[]
         default: ["green", "nir"]
     outputs:
+      - id: zarr_stac_catalog
+        outputSource:
+          - stac_zarr/zarr_stac_catalog
+        type: Directory
       - id: stac_catalog
         outputSource:
-          - node_stac_zarr/zarr_stac_catalog
+          - stac/temp_stac_catalog
         type: Directory
     steps:
-      node_water_bodies:
+      discovery:
+        label: STAC API discovery
+        doc: Discover STAC items from a STAC API endpoint based on a search request
+        in:
+          api_endpoint: stac_api_endpoint
+          search_request: search_request
+        run: https://github.com/eoap/schemas/releases/download/0.2.0/stac-api-client.0.2.0.cwl
+        out:
+        - search_output
+      
+      convert_search:
+        label: Convert Search
+        doc: Convert Search results to get the item self hrefs and the area of interest 
+        in:
+          search_results: discovery/search_output
+          search_request: search_request
+        run: "#convert-search"
+        out:
+        - items
+        - aoi
+        
+      water_bodies:
+        label: Water bodies detection
+        doc: Water bodies detection based on NDWI and otsu threshold applied to each STAC item (sub-workflow)
         run: "#detect_water_body"
         in:
-          item: stac_items
-          aoi: aoi
-          epsg: epsg
+          item: 
+            source: convert_search/items
+          aoi:  
+            source: convert_search/aoi
           bands: bands
         out:
           - detected_water_body
         scatter: item
         scatterMethod: dotproduct
-      node_stac:
+
+      stac:
+        label: Create a STAC catalog with COG outputs
+        doc: Create a STAC catalog with the detected water bodies COG outputs
         run: "#stac"
         in:
-          item: stac_items
+          item: 
+            source: convert_search/items
           rasters:
-            source: node_water_bodies/detected_water_body
+            source: water_bodies/detected_water_body
         out:
           - temp_stac_catalog
-      node_stac_zarr:
+      
+      stac_zarr:
+        label: Create a STAC Catalog for the Zarr store
+        doc: Create a STAC Catalog for the Zarr store from the STAC catalog with COG outputs
         run: "#stac-zarr"
         in:
           stac_catalog:
-            source: node_stac/temp_stac_catalog
+            source: stac/temp_stac_catalog
         out:
           - zarr_stac_catalog
+  
+  - class: CommandLineTool
+    id: convert-search
+    label: Gets the item self hrefs
+    doc: Gets the item self hrefs from a STAC search result
+    baseCommand: ["/bin/sh", "run.sh"]
+    arguments: []
+    hints:
+      DockerRequirement:
+        dockerPull: docker.io/library/yq
+    requirements:
+    - class: InlineJavascriptRequirement
+    - class: SchemaDefRequirement
+      types:
+      - $import: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml
+      - $import: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml
+      - $import: |-
+          https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml
+      - $import: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml
+    - class: InitialWorkDirRequirement
+      listing:
+      - entryname: run.sh
+        entry: |-
+          #!/usr/bin/env sh
+          set -x
+          set -euo pipefail
+
+          yq '[.features[].links[] | select(.rel=="self") | .href]' "$(inputs.search_results.path)" > items.json
+
+          echo "$(inputs.search_request)" | yq '.bbox | @csv' - > aoi.txt
+
+    inputs:
+      search_request:
+        label: Search Request
+        doc: Search request from the discovery step
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
+      search_results:
+        label: Search Results
+        doc: Search results from the discovery step
+        type: File
+
+    outputs:
+      items:
+        type: Any
+        outputBinding:
+          glob: items.json
+          loadContents: true
+          outputEval: ${ return JSON.parse(self[0].contents); }
+  
+      aoi: 
+        type: string
+        outputBinding:
+          glob: aoi.txt
+          loadContents: true
+          outputEval: ${ return self[0].contents.trim(); }
+
   - class: Workflow
     id: detect_water_body
     label: Water body detection based on NDWI and otsu threshold
@@ -86,10 +181,10 @@ $graph:
     outputs:
       - id: detected_water_body
         outputSource:
-          - node_otsu/binary_mask_item
+          - otsu/binary_mask_item
         type: File
     steps:
-      node_crop:
+      crop:
         run: "#crop"
         in:
           item: item
@@ -100,18 +195,18 @@ $graph:
           - cropped
         scatter: band
         scatterMethod: dotproduct
-      node_normalized_difference:
+      normalized_difference:
         run: "#norm_diff"
         in:
           rasters:
-            source: node_crop/cropped
+            source: crop/cropped
         out:
           - ndwi
-      node_otsu:
+      otsu:
         run: "#otsu"
         in:
           raster:
-            source: node_normalized_difference/ndwi
+            source: normalized_difference/ndwi
         out:
           - binary_mask_item
   - class: CommandLineTool

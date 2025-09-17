@@ -1,10 +1,23 @@
-aoi: -121.399,39.834,-120.74,40.472
 bands:
 - green
 - nir
-epsg: EPSG:4326
-stac_items:
-- https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2A_10TFK_20210708_0_L2A
-- https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20210713_0_L2A
-- https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20210723_0_L2A
+search_request:
+  bbox:
+  - -121.399
+  - 39.834
+  - -120.74
+  - 40.472
+  collections:
+  - sentinel-2-l2a
+  datetime_interval:
+    end:
+      value: '2021-07-31T23:59:59'
+    start:
+      value: '2021-06-01T00:00:00'
+  limit: 20
+  max-items: 10
+stac_api_endpoint:
+  headers: []
+  url:
+    value: https://earth-search.aws.element84.com/v1/
 

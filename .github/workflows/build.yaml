@@ -2,13 +2,18 @@ name: build
 on:
   push:
     branches:
-    - main
+      - develop
+      - main
+      - feature-stac-api
 
     paths:
     # Only rebuild website when apps have changed
     - 'command-line-tools/**'
-    - '.github/workflows/**'
-
+    - '.github/workflows/build.yaml'
+    - 'containers/**'
+    - 'notebooks/**'
+    - 'cwl-workflow/**'
+    
     
 jobs:
   
@@ -34,7 +39,7 @@ jobs:
 
     strategy:
       matrix:
-        step: [stac-zarr]
+        step: [stac-zarr, occurrence]
 
     steps:
     - uses: actions/checkout@v2
@@ -47,10 +52,28 @@ jobs:
         docker tag ${{ matrix.step }} $IMAGE_ID:${{needs.version.outputs.app-version}}
         docker push $IMAGE_ID:${{needs.version.outputs.app-version}}
 
+  container-yq-build:
+
+    needs: version
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: echo version ${{needs.version.outputs.app-version}}
+    - run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+    - name: build & push image
+      run: |
+        IMAGE_ID=ghcr.io/eoap/zarr-cloud-native-format/yq
+        docker build containers/yq --file containers/yq/Dockerfile --tag yq
+        docker tag yq $IMAGE_ID:${{needs.version.outputs.app-version}}
+        docker push $IMAGE_ID:${{needs.version.outputs.app-version}}
+
   create-release:
 
     needs:
     - container-build
+    - container-yq-build
     - version
 
     runs-on: ubuntu-latest
@@ -83,19 +106,25 @@ jobs:
 
     strategy:
       matrix:
-        step: ["app-water-bodies"]
+        step: ["app-water-bodies", "app-water-bodies-occurrence"]
 
     steps:
     - uses: actions/checkout@v2
     - run: |
-        for step in crop norm_diff otsu stac stac-zarr
+        set -x
+        for step in crop norm_diff otsu stac stac-zarr convert-search occurrence
         do
           if [ "$step" = "stac-zarr" ]; then 
+            tag="ghcr.io/eoap/zarr-cloud-native-format/${step}:${{needs.version.outputs.app-version}}"
+          elif [ "$step" = "convert-search" ]; then 
+            tag="ghcr.io/eoap/zarr-cloud-native-format/yq:${{needs.version.outputs.app-version}}"
+          elif [ "$step" = "occurrence" ]; then
             tag="ghcr.io/eoap/zarr-cloud-native-format/${step}:${{needs.version.outputs.app-version}}"
           else
             upstream_version="1.1.0"
             tag="ghcr.io/eoap/mastering-app-package/${step}:${upstream_version}"
           fi
+          echo "Processing $step with tag $tag"
           docker pull ${tag}
           shatag=$( docker inspect ${tag} | yq -r '.[0]["RepoDigests"][0]' )
           for cwl in $(ls cwl-workflow/*.cwl)
@@ -104,6 +133,7 @@ jobs:
           done
         done
     - run: |
+        set -x
         for cwl in $(ls cwl-workflow/*.cwl)
         do
           r=$( cat codemeta.json | jq -r ".codeRepository" ) yq -i eval '."s:codeRepository" = {"URL" : env(r)}' $cwl
@@ -116,8 +146,9 @@ jobs:
     - name: Cleanup downloads folder
       run: rm -rf downloads/*
     - run: |
+        set -x
         mkdir downloads
-        for cwl in "app-water-bodies"
+        for cwl in "app-water-bodies" "app-water-bodies-occurrence"
         do
           cp cwl-workflow/${cwl}.cwl downloads/${cwl}.${{needs.version.outputs.app-version}}.cwl
         done

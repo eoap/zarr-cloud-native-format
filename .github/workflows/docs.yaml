@@ -63,4 +63,3 @@ jobs:
               docker pull ${tag}
             done
 
-            mkdocs gh-deploy --force

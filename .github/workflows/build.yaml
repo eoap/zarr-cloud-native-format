@@ -9,7 +9,7 @@ on:
     paths:
     # Only rebuild website when apps have changed
     - 'command-line-tools/**'
-    - '.github/workflows/**'
+    - '.github/workflows/build.yaml'
     - 'containers/**'
     - 'notebooks/**'
     - 'cwl-workflow/**'

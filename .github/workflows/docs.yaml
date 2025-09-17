@@ -7,13 +7,9 @@ on:
       - feature-stac-api
     paths:
       # Only rebuild website when docs have changed
-      - 'README.md'
       - 'docs/**'
       - 'mkdocs.yml'
-      - .github/**
-      - 'notebooks/**'
-      - 'command-line-tools/**'
-      - 'cwl-workflow/**'
+      - .github/workflows/docs.yaml
 
 jobs:
 

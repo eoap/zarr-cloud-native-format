@@ -50,11 +50,11 @@ The workflow reads the produced STAC Catalog describing the detected water bodie
 
 There's a single step that:
 
-1. **Read STAC Catalog**: read the STAC Catalog and inspect the STAC Collection
-2. **Read the Zarr store**: read the Zarr store STAC Asset
-3. **mean calculation**: use `xarray` to calculate the mean over the time dimension
-4. **export to GeoTIFF**: user `rioxarray` to write a GeoTIFF
-5. **Generate STAC Catalog**: create a STAC Catalog describing the result
+1. **Reads STAC Catalog**: read the STAC Catalog and inspect the STAC Collection
+2. **Reads the Zarr store**: read the Zarr store STAC Asset
+3. **Calculates the mean**: use `xarray` to calculate the mean over the time dimension
+4. **Exports to GeoTIFF**: user `rioxarray` to write a GeoTIFF
+5. **Generates STAC Catalog**: create a STAC Catalog describing the result
 
 ## Running the Application Packages and notebooks
 

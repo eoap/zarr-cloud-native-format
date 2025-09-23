@@ -5,9 +5,9 @@ from cwltool.context import LoadingContext, RuntimeContext
 from cwltool.executors import NoopJobExecutor
 from io import StringIO, BytesIO
 from IPython.display import Markdown, display
-from eoap_cwlwrap import _search_workflow
 from eoap_cwlwrap.types import type_to_string
 from cwl_loader import load_cwl_from_location
+from cwl_loader.utils import search_process
 from PIL import Image
 from plantuml import deflate_and_encode
 from urllib.request import urlopen
@@ -39,7 +39,7 @@ class WorkflowViewer:
         if entrypoint is None:
             entrypoint = self.entrypoint
 
-        wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow)
+        wf = search_process(process_id=entrypoint, process=self.workflow)
 
         for p in getattr(wf, parameters_name, []):
             md += f"| `{p.id}` | `{type_to_string(p.type_)}` | {p.label} | {p.doc} |\n"
@@ -55,20 +55,21 @@ class WorkflowViewer:
     def display_steps(self):
         md = self._prepare_headers(["Id", "Runs", "Label", "Doc"])
 
-        for step in _search_workflow(
-            workflow_id=self.entrypoint, workflow=self.workflow
+        for step in search_process(
+            process_id=self.entrypoint, process=self.workflow
         ).steps:
             md += f"| `{step.id.replace(f'file:///#{self.entrypoint}/', '')}` | `{step.run}` | {step.label} | {step.doc} |\n"
 
         display(Markdown(md))
 
-    def _display_puml(self, diagram_type: DiagramType, wf):
+    def _display_puml(self, diagram_type: DiagramType, wf, workflow_id=None):
 
         out = StringIO()
         to_puml(
             cwl_document=wf,
             diagram_type=diagram_type,
             output_stream=out,
+            workflow_id=workflow_id,
         )
 
         clear_output = out.getvalue()
@@ -81,20 +82,21 @@ class WorkflowViewer:
         display(img)
 
     def display_components_diagram(self, entrypoint=None):
-        
-        if entrypoint is not None: 
-            wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow)
+
+        if entrypoint is not None:
+            wf = search_process(process_id=entrypoint, process=self.workflow)
         else:
             wf = self.workflow
+            entrypoint = self.entrypoint
 
-        self._display_puml(DiagramType.COMPONENTS, wf=wf)
+        self._display_puml(DiagramType.COMPONENT, wf=wf, workflow_id=entrypoint)
 
     def display_class_diagram(self, entrypoint=None):
         if entrypoint is None:
             entrypoint = self.entrypoint
 
-        wf = _search_workflow(workflow_id=entrypoint, workflow=self.workflow)
-        self._display_puml(DiagramType.CLASS, wf=wf)
+        wf = search_process(process_id=entrypoint, process=self.workflow)
+        self._display_puml(DiagramType.CLASS, wf=wf, workflow_id=entrypoint)
 
     def plot(self):
         args = ["--print-dot", f"{self.cwl_file}#{self.entrypoint}"]

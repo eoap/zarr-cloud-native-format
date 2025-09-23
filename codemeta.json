@@ -7,7 +7,7 @@
     "datePublished": "2022-09-25",
     "dateModified": "2025-09-11",
     "name": "Water Bodies Detection",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "The Water Bodies Detection is an Application that uses the NDWI index and the Otsu threshold to detect water bodies using Sentinel-2 or Landsat-9 data",
     "developmentStatus": "active",
     "downloadUrl": "https://github.com/eoap/mastering-app-package/releases/tag/1.1.0",

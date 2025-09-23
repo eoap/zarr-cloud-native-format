@@ -13,6 +13,8 @@ on:
     - 'containers/**'
     - 'notebooks/**'
     - 'cwl-workflow/**'
+    - pyproject.toml
+    - codemeta.json
     
     
 jobs:

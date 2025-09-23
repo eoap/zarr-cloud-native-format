@@ -10,3 +10,4 @@ params.yaml
 __pycache__/
 runs
 *-params.yaml
+*.aux.xml

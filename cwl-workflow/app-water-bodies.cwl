@@ -102,6 +102,16 @@ $graph:
             source: stac/temp_stac_catalog
         out:
           - zarr_stac_catalog
+
+      stac_eopf_product:
+        label: Create a EOPF Zarr store from a STAC catalog
+        doc: Create a EOPF Zarr store from a STAC catalog with COG products
+        run: "#stac-eopf-product"
+        in:
+          stac_catalog:
+            source: stac/temp_stac_catalog
+        out:
+          - eopf_product_stac_catalog
   
   - class: CommandLineTool
     id: convert-search
@@ -357,6 +367,35 @@ $graph:
           prefix: --stac-catalog
     outputs:
       zarr_stac_catalog:
+        outputBinding:
+          glob: .
+        type: Directory
+
+  - class: CommandLineTool
+    id: stac-eopf-product
+    label: Create a EOPF Zarr store from a STAC catalog
+    doc: Create a EOPF Zarr store from a STAC catalog with COG products
+    requirements:
+      InlineJavascriptRequirement: {}
+      EnvVarRequirement:
+        envDef:
+          PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          PYTHONPATH: /app
+      ResourceRequirement:
+        coresMax: 1
+        ramMax: 512
+    hints:
+      DockerRequirement:
+        dockerPull: docker.io/library/zarr-eopf-product
+    baseCommand: ["python", "-m", "app"]
+    arguments: []
+    inputs:
+      stac_catalog:
+        type: Directory
+        inputBinding:
+          prefix: --stac-catalog
+    outputs:
+      eopf_product_stac_catalog:
         outputBinding:
           glob: .
         type: Directory

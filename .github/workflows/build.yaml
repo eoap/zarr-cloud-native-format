@@ -41,7 +41,7 @@ jobs:
 
     strategy:
       matrix:
-        step: [stac-zarr, occurrence]
+        step: [stac-zarr, stac-eopf-product, occurrence]
 
     steps:
     - uses: actions/checkout@v2

@@ -1,11 +1,33 @@
-import click
-import os
-import pystac
 from datetime import datetime
 from loguru import logger
 from odc.stac import stac_load
-from pystac.extensions.datacube import DatacubeExtension
+from pathlib import Path
+from pystac import (
+    Asset,
+    Catalog,
+    CatalogType,
+    Collection,
+    Extent,
+    Item,
+    MediaType,
+    SpatialExtent,
+    STACObject,
+    TemporalExtent,
+    read_file as read_stac_file
+)
+from pystac.extensions.datacube import (
+    DatacubeExtension,
+    Dimension,
+    Variable
+)
 from shutil import move
+from typing import (
+    Any,
+    List
+)
+from xarray import Dataset
+
+import click
 import zarr
 
 def extract_crs(item):
@@ -45,23 +67,54 @@ def get_spatial_extent(items):
 )
 @click.option(
     "--stac-catalog",
-    "stac_catalog",
-    help="STAC Catalog folder",
+    type=click.Path(
+        path_type=Path,
+        exists=True,
+        readable=True,
+        file_okay=True,
+        dir_okay=False,
+        resolve_path=True
+    ),
+    help="STAC Catalog file",
     required=True,
 )
-def to_zarr(stac_catalog):
+@click.option(
+    "--collection-id",
+    type=click.STRING,
+    required=True,
+    help="The target STAC Collection ID",
+)
+@click.option(
+    "--output-dir",
+    type=click.Path(
+        path_type=Path,
+        exists=True,
+        readable=True,
+        file_okay=False,
+        dir_okay=True,
+        resolve_path=True
+    ),
+    default=Path('.'),
+    required=True,
+    help="Output directory path",
+)
+def to_zarr(
+    stac_catalog: Path,
+    collection_id: str,
+    output_dir: Path
+):
+    logger.info(f"Reading STAC catalog from {stac_catalog}...")
+    cat: STACObject = read_stac_file(stac_catalog)
 
-    logger.info("Creating zarr from STAC catalog")
+    if not isinstance(cat, Catalog):
+        raise Exception(f"{stac_catalog} is not a valid STAC Catalog instance, found {type(cat)}")
 
-    logger.info(f"Reading STAC catalog from {stac_catalog}")
-    cat = pystac.read_file(os.path.join(stac_catalog, "catalog.json"))
+    items: List[Item] = list(cat.get_all_items())
 
-    items = list(cat.get_all_items())
-
-    logger.info(f"STAC catalog contains {len(items)} items")
+    logger.info(f"Found {len(items)} STAC Items in {stac_catalog} STAC Catalog")
     crs = extract_crs(items[0])
 
-    xx = stac_load(
+    stac_catalog_dataset: Dataset = stac_load(
         items,
         bands=["data"],
         crs=crs,
@@ -70,54 +123,68 @@ def to_zarr(stac_catalog):
         groupby="time",
     )
 
-    output_zarr = "result.zarr"
-
-    xx.to_zarr(output_zarr, mode="w")
-    zarr.consolidate_metadata(output_zarr)
-
-    output_collection = pystac.Collection(
-        id="water-bodies",
-        description="Collection of detected water bodies",
-        title="Detected water bodies",
-        extent=pystac.Extent(
-            spatial=pystac.SpatialExtent(bboxes=[get_spatial_extent(items)]),
-            temporal=pystac.TemporalExtent([get_temporal_extent(items)]),
+    output_collection: Collection = Collection(
+        id=collection_id,
+        description=f"Collection of detected {collection_id}",
+        title=f"Detected {collection_id}",
+        extent=Extent(
+            spatial=SpatialExtent(bboxes=[get_spatial_extent(items)]),
+            temporal=TemporalExtent([get_temporal_extent(items)]),
         ),
     )
 
+    output_collection_dir = Path(output_dir, output_collection.id)
+
+    output_collection_dir.mkdir(parents=True, exist_ok=True)
+    output_zarr: Path = Path(output_collection_dir, "result.zarr")
+
+    stac_catalog_dataset.to_zarr(output_zarr, mode="w")
+    zarr.consolidate_metadata(output_zarr)
+
+    # Datacube Extension v2.x
+
     dc_item = DatacubeExtension.ext(output_collection, add_if_missing=True)
 
+    def _get_values(name: str) -> Any:
+        return stac_catalog_dataset.coords.get(name).values # type: ignore
+
+    def _get_min(name: str) -> Any:
+        return min(_get_values(name))
+
+    def _get_max(name: str) -> Any:
+        return max(_get_values(name))
+
     dc_item.dimensions = {
-        "x": pystac.extensions.datacube.Dimension(
+        "x": Dimension(
             properties={
                 "type": "spatial",
                 "axis": "x",
                 "extent": [
-                    float(min(xx.coords.get("x").values)),
-                    float(max(xx.coords.get("x").values)),
+                    float(_get_min("x")),
+                    float(_get_max("x")),
                 ],
                 "reference_system": crs,
                 "description": "X coordinate of projection",
             }
         ),
-        "y": pystac.extensions.datacube.Dimension(
+        "y": Dimension(
             properties={
                 "type": "spatial",
                 "axis": "y",
                 "extent": [
-                    float(min(xx.coords.get("y").values)),
-                    float(max(xx.coords.get("y").values)),
+                    float(_get_min("y")),
+                    float(_get_max("y")),
                 ],
                 "reference_system": crs,
                 "description": "Y coordinate of projection",
             }
         ),
-        "time": pystac.extensions.datacube.Dimension(
+        "time": Dimension(
             properties={
                 "type": "temporal",
                 "extent": [
-                    str(min(xx.coords.get("time").values)),
-                    str(max(xx.coords.get("time").values)),
+                    str(_get_min("time")),
+                    str(_get_max("time")),
                 ],
                 "description": "Time dimension",
             }
@@ -125,7 +192,7 @@ def to_zarr(stac_catalog):
     }
 
     dc_item.variables = {
-        "data": pystac.extensions.datacube.Variable(
+        "data": Variable(
             properties={
                 "type": "data",
                 "name": "water-bodies",
@@ -138,9 +205,9 @@ def to_zarr(stac_catalog):
 
     output_collection.add_asset(
         key="data",
-        asset=pystac.Asset(
-            href=output_zarr,
-            media_type=pystac.MediaType.ZARR,
+        asset=Asset(
+            href=output_zarr.name,
+            media_type=f"{MediaType.ZARR}; version=3",
             roles=["data", "zarr"],
             title="Detected water bodies",
             description="Detected water bodies in Zarr cloud-native format",
@@ -148,12 +215,7 @@ def to_zarr(stac_catalog):
         ),
     )
 
-    os.makedirs(output_collection.id, exist_ok=True)
-
-    # Move the zarr file to the item folder
-    move(output_zarr, os.path.join(output_collection.id, output_zarr))
-
-    output_cat = pystac.Catalog(
+    output_cat = Catalog(
         id="water-bodies",
         description="Water bodies catalog",
         title="Water bodies catalog",
@@ -162,7 +224,8 @@ def to_zarr(stac_catalog):
     output_cat.add_child(output_collection)
 
     output_cat.normalize_and_save(
-        root_href="./", catalog_type=pystac.CatalogType.SELF_CONTAINED
+        root_href=str(output_dir.absolute()),
+        catalog_type=CatalogType.SELF_CONTAINED
     )
     logger.info("Done!")
 

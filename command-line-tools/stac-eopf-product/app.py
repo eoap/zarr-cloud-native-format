@@ -29,6 +29,11 @@ from pystac.extensions.datacube import (
     VariableType
 )
 from pystac.extensions.projection import ProjectionExtension
+from pystac.extensions.raster import (
+    RasterExtension,
+    RasterBand,
+    DataType
+)
 from shapely.geometry import (
     mapping,
     shape
@@ -37,13 +42,75 @@ from typing import (
     Any,
     List
 )
-from xarray import Dataset
+from xarray import (
+    DataArray,
+    Dataset
+)
 
 import eopf.common.constants as c
 import numpy as np
 import click, os, pystac, zarr
 from loguru import logger
 from odc.stac import stac_load
+
+DTYPE_TO_RASTER = {
+    np.dtype("int8"): DataType.INT8,
+    np.dtype("int16"): DataType.INT16,
+    np.dtype("int32"): DataType.INT32,
+    np.dtype("int64"): DataType.INT64,
+    np.dtype("uint8"): DataType.UINT8,
+    np.dtype("uint16"): DataType.UINT16,
+    np.dtype("uint32"): DataType.UINT32,
+    np.dtype("uint64"): DataType.UINT64,
+    np.dtype("float16"): DataType.FLOAT16,
+    np.dtype("float32"): DataType.FLOAT32,
+    np.dtype("float64"): DataType.FLOAT64,
+}
+
+def to_raster_datatype(dtype: np.dtype) -> DataType:
+    return DTYPE_TO_RASTER.get(np.dtype(dtype), DataType.OTHER)
+
+def raster_band_from_dataarray(da: DataArray) -> RasterBand:
+    nodata = (
+        da.encoding.get("_FillValue")
+        or da.attrs.get("_FillValue")
+        or da.attrs.get("nodata")
+    )
+
+    scale = da.encoding.get("scale_factor") or da.attrs.get("scale_factor")
+    offset = da.encoding.get("add_offset") or da.attrs.get("add_offset")
+    unit = da.attrs.get("units")
+
+    # Optional spatial resolution (if you have it)
+    spatial_resolution = None
+    if hasattr(da, "rio"):
+        try:
+            # rioxarray: returns (xres, yres)
+            xres, yres = da.rio.resolution()
+            # STAC raster extension expects a single number; you can choose x or y,
+            # or store both in statistics / custom metadata if you prefer.
+            spatial_resolution = abs(xres)
+        except Exception:
+            pass
+
+    band = RasterBand.create(
+        data_type=to_raster_datatype(da.dtype),
+        nodata=nodata,
+        scale=scale,
+        offset=offset,
+        unit=unit,
+        spatial_resolution=spatial_resolution,
+        # You can also fill statistics here if you want:
+        # statistics=RasterStatistics.create(
+        #     minimum=float(da.min().values),
+        #     maximum=float(da.max().values),
+        #     mean=float(da.mean().values),
+        #     stddev=float(da.std().values),
+        # ),
+    )
+
+    return band
+
 
 def extract_crs(item):
     """Extract CRS from a STAC item."""
@@ -251,6 +318,33 @@ def to_eopf(
 
     # Optionally, centroid in projected coordinates
     #proj.centroid = {"x": cx, "y": cy}
+
+    # Raster extension
+    RasterExtension.add_to(item)  # adds schema URI to stac_extensions
+
+    # 2. Determine which variables map to bands
+    band_var_names = list(stac_catalog_dataset.data_vars.keys())
+
+    bands: list[RasterBand] = []
+    for var_name in band_var_names:
+        da = stac_catalog_dataset[var_name]
+        band = raster_band_from_dataarray(da)
+        bands.append(band)
+
+    # 3. Attach raster:bands to the asset
+
+    item.add_asset(
+        key="raster",
+        asset=Asset(
+            href="to-be-defined",
+            media_type=f"{MediaType.ZARR}; version=3",
+            roles=["data", "zarr"],
+            title="Raster Data",
+            description="Raster data derived from xarray.Dataset"
+        )
+    )
+    raster_ext = RasterExtension.ext(item.assets["raster"], add_if_missing=True)
+    raster_ext.bands = bands
 
 
     output_item: Path = Path(output_dir, 'item.json')

@@ -15,6 +15,16 @@ from pystac import (
     read_file as read_stac_file,
     write_file as write_stac_file
 )
+from pystac.extensions.datacube import (
+    DatacubeExtension,
+    DimensionType,
+    HorizontalSpatialDimension,
+    HorizontalSpatialDimensionAxis,
+    SpatialDimension,
+    TemporalDimension,
+    Variable,
+    VariableType
+)
 from typing import (
     Any,
     List
@@ -177,6 +187,43 @@ def to_eopf(
             },
         )
     )
+
+    # DataCube
+
+    dc = DatacubeExtension.ext(item, add_if_missing=True)
+
+    x_dim = HorizontalSpatialDimension({})
+    x_dim.dim_type = DimensionType.SPATIAL
+    x_dim.axis = HorizontalSpatialDimensionAxis.X
+    x_dim.description = "X coordinate of projection"
+    x_dim.extent = [spatial_bbox[0], spatial_bbox[2]]           # [min, max]
+    # x_dim.step = 10.0                             # pixel size
+    x_dim.reference_system = crs
+
+    y_dim = HorizontalSpatialDimension({})
+    y_dim.dim_type = DimensionType.SPATIAL
+    y_dim.axis = HorizontalSpatialDimensionAxis.Y
+    y_dim.extent = [spatial_bbox[1], spatial_bbox[3]]
+    # y_dim.step = 10.0
+    y_dim.reference_system = crs
+
+    t_dim = TemporalDimension({})
+    t_dim.dim_type = DimensionType.TEMPORAL
+    t_dim.extent = [start_datetime.isoformat(), end_datetime.isoformat()]
+
+    water_bodies_variables = Variable({})
+    water_bodies_variables.var_type = VariableType.DATA
+    water_bodies_variables.dimensions = ["x", "y", "time"]
+    #water_bodies_variables.unit = "1"
+    water_bodies_variables.description = "detected water bodies"
+
+    dc.apply(dimensions={
+        "x": x_dim,
+        "y": y_dim,
+        "time": t_dim
+    }, variables={
+        "water-bodies": water_bodies_variables
+    })
 
     output_item: Path = Path(output_dir, 'item.json')
     write_stac_file(

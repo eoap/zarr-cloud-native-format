@@ -2,7 +2,11 @@ from datetime import (
     datetime,
     timezone
 )
-from eopf.product import EOProduct, EOGroup, EOVariable
+from eopf.product import (
+    EOProduct,
+    EOGroup,
+    EOVariable
+)
 from eopf.store.zarr import EOZarrStore
 
 from pathlib import Path
@@ -20,10 +24,14 @@ from pystac.extensions.datacube import (
     DimensionType,
     HorizontalSpatialDimension,
     HorizontalSpatialDimensionAxis,
-    SpatialDimension,
     TemporalDimension,
     Variable,
     VariableType
+)
+from pystac.extensions.projection import ProjectionExtension
+from shapely.geometry import (
+    mapping,
+    shape
 )
 from typing import (
     Any,
@@ -224,6 +232,26 @@ def to_eopf(
     }, variables={
         "water-bodies": water_bodies_variables
     })
+
+    # Projection
+
+    gbox = stac_catalog_dataset.odc.geobox
+
+    proj = ProjectionExtension.ext(item, add_if_missing=True)
+    proj.epsg = gbox.crs.epsg # or any EPSG integer
+    proj.bbox = spatial_bbox # in the asset CRS
+
+    extent = gbox.extent
+    footprint_wgs84 = extent.to_crs(crs)
+    proj.geometry = footprint_wgs84.json  # GeoJSON in the asset CRS
+
+    height, width = gbox.shape
+    proj.shape = [height, width]         # pixels (rows, cols)
+    #proj.transform = list(affine_geotransform)  # GDAL-style 6 or 9 numbers
+
+    # Optionally, centroid in projected coordinates
+    #proj.centroid = {"x": cx, "y": cy}
+
 
     output_item: Path = Path(output_dir, 'item.json')
     write_stac_file(

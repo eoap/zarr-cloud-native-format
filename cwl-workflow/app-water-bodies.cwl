@@ -44,6 +44,10 @@ $graph:
         outputSource:
           - stac/temp_stac_catalog
         type: Directory
+      - id: eopf_product_stac_catalog
+        outputSource:
+          - stac_eopf_product/eopf_product_stac_catalog
+        type: Directory
     steps:
       discovery:
         label: STAC API discovery

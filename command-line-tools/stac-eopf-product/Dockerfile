@@ -1,6 +1,8 @@
-FROM docker.io/library/python:3.10-slim@sha256:80619a5316afae7045a3c13371b0ee670f39bac46ea1ed35081d2bf91d6c3dbd
+FROM docker.io/library/python:3.12.11-bookworm@sha256:bea386df48d7ee07eed0a1f3e6f9d5c0292c228b8d8ed2ea738b7a57b29c4470
 
-RUN pip install --no-cache-dir odc-stac zarr loguru click eopf && \
+RUN apt-get update && apt-get install -y libxml2-dev libxslt1-dev
+
+RUN pip install --no-cache-dir "setuptools<81" odc-stac zarr loguru click eopf && \
     python -c "from odc.stac import stac_load"
 
 ADD app.py /app/app.py

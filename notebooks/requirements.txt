@@ -3,3 +3,4 @@ ipykernel
 cwltool
 zarr
 matplotlib
+cwl2puml

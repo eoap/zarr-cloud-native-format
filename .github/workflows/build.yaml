@@ -4,7 +4,7 @@ on:
     branches:
       - develop
       - main
-      - feature-stac-api
+      - eopf-zarr-output
 
     paths:
     # Only rebuild website when apps have changed
@@ -41,7 +41,7 @@ jobs:
 
     strategy:
       matrix:
-        step: [stac-zarr, occurrence]
+        step: [stac-zarr, stac-eopf-product, occurrence]
 
     steps:
     - uses: actions/checkout@v2
@@ -114,9 +114,11 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         set -x
-        for step in crop norm_diff otsu stac stac-zarr convert-search occurrence
+        for step in crop norm_diff otsu stac stac-zarr stac-eopf-product convert-search occurrence
         do
           if [ "$step" = "stac-zarr" ]; then 
+            tag="ghcr.io/eoap/zarr-cloud-native-format/${step}:${{needs.version.outputs.app-version}}"
+          elif [ "$step" = "stac-eopf-product" ]; then
             tag="ghcr.io/eoap/zarr-cloud-native-format/${step}:${{needs.version.outputs.app-version}}"
           elif [ "$step" = "convert-search" ]; then 
             tag="ghcr.io/eoap/zarr-cloud-native-format/yq:${{needs.version.outputs.app-version}}"

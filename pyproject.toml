@@ -26,19 +26,16 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
+  "eopf>=2.6.3",
   "odc-stac==0.4.0",
   "ipykernel",
   "cwltool",
-  "zarr==3.1.2",
   "matplotlib==3.10.6",
   "loguru==0.7.3",
   "zarr",
   "matplotlib",
   "graphviz",
-  "pillow",
-  "cwl-loader>=0.9.0",
-  "plantuml",
-  "cwl2puml>=0.8.0",
+  "pillow"
 ]
 
 [project.urls]
@@ -56,4 +53,3 @@ packages = ["zarr_cloud_native_format"]
 extra-dependencies = [
   "mypy>=1.0.0",
 ]
-

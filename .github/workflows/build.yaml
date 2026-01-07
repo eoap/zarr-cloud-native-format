@@ -4,7 +4,7 @@ on:
     branches:
       - develop
       - main
-      - feature-stac-api
+      - eopf-zarr-output
 
     paths:
     # Only rebuild website when apps have changed

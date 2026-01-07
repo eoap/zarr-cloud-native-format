@@ -361,7 +361,7 @@ $graph:
         ramMax: 512
     hints:
       DockerRequirement:
-        dockerPull: docker.io/library/zarr 
+        dockerPull: docker.io/library/stac-zarr 
     baseCommand: ["python", "-m", "app"]
     arguments: []
     inputs:
@@ -369,6 +369,11 @@ $graph:
         type: Directory
         inputBinding:
           prefix: --stac-catalog
+      collection_id:
+        type: string
+        inputBinding:
+          prefix: --collection-id
+        default: "water-bodies-detection"
     outputs:
       zarr_stac_catalog:
         outputBinding:
@@ -398,6 +403,11 @@ $graph:
         type: Directory
         inputBinding:
           prefix: --stac-catalog
+      collection_id:
+        type: string
+        inputBinding:
+          prefix: --collection-id
+        default: "water-bodies-detection"
     outputs:
       eopf_product_stac_catalog:
         outputBinding:

@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from loguru import logger
 from odc.stac import stac_load
@@ -71,8 +72,8 @@ def get_spatial_extent(items):
         path_type=Path,
         exists=True,
         readable=True,
-        file_okay=True,
-        dir_okay=False,
+        file_okay=False,
+        dir_okay=True,
         resolve_path=True
     ),
     help="STAC Catalog file",
@@ -104,7 +105,7 @@ def to_zarr(
     output_dir: Path
 ):
     logger.info(f"Reading STAC catalog from {stac_catalog}...")
-    cat: STACObject = read_stac_file(stac_catalog)
+    cat: STACObject = read_stac_file(os.path.join(stac_catalog, "catalog.json"))
 
     if not isinstance(cat, Catalog):
         raise Exception(f"{stac_catalog} is not a valid STAC Catalog instance, found {type(cat)}")

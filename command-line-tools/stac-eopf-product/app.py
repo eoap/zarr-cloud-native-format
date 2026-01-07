@@ -1,3 +1,4 @@
+import os
 from datetime import (
     datetime,
     timezone
@@ -13,9 +14,14 @@ from pathlib import Path
 from pystac import (
     Asset,
     Catalog,
+    Collection,
+    Extent,
+    SpatialExtent,
+    TemporalExtent,
     Item,
     MediaType,
     STACObject,
+    CatalogType,
     read_file as read_stac_file,
     write_file as write_stac_file
 )
@@ -132,6 +138,25 @@ def _to_datetime(npdatetime):
 
     return datetime.fromtimestamp(seconds, tz=timezone.utc).replace(microsecond=int(micros))
 
+def get_temporal_extent(items):
+    """Get temporal extent from a list of STAC items."""
+    times = [item.datetime for item in items]
+    if not times:
+        raise ValueError("No datetime found in item properties")
+    return [min(times), max(times)]
+
+
+def get_spatial_extent(items):
+    """Get spatial extent from a list of STAC items."""
+    bboxes = [item.bbox for item in items if item.bbox]
+    if not bboxes:
+        raise ValueError("No bbox found in item properties")
+    min_x = min(bbox[0] for bbox in bboxes)
+    min_y = min(bbox[1] for bbox in bboxes)
+    max_x = max(bbox[2] for bbox in bboxes)
+    max_y = max(bbox[3] for bbox in bboxes)
+    return [min_x, min_y, max_x, max_y]
+
 
 @click.command()
 @click.option(
@@ -140,8 +165,8 @@ def _to_datetime(npdatetime):
         path_type=Path,
         exists=True,
         readable=True,
-        file_okay=True,
-        dir_okay=False,
+        file_okay=False,
+        dir_okay=True,
         resolve_path=True
     ),
     help="STAC Catalog file",
@@ -161,12 +186,19 @@ def _to_datetime(npdatetime):
     required=True,
     help="Output directory path",
 )
+@click.option(
+    "--collection-id",
+    type=click.STRING,
+    required=True,
+    help="The target STAC Collection ID",
+)
 def to_eopf(
     stac_catalog: Path,
+    collection_id: str,
     output_dir: Path
 ):
     logger.info(f"Reading STAC catalog from {stac_catalog}...")
-    catalog: STACObject = read_stac_file(stac_catalog)
+    catalog: STACObject = read_stac_file(os.path.join(stac_catalog, "catalog.json"))
 
     if not isinstance(catalog, Catalog):
         raise Exception(f"{stac_catalog} is not a valid STAC Catalog instance, found {type(catalog)}")
@@ -224,6 +256,7 @@ def to_eopf(
     output_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"Writing EOPF Zarr product to {output_dir}")
 
+    # TODO write Zarr store in collection_id subdirectory
     with EOZarrStore(
         url=output_dir.absolute().as_uri()
     ).open(
@@ -336,7 +369,7 @@ def to_eopf(
     item.add_asset(
         key="raster",
         asset=Asset(
-            href="to-be-defined",
+            href="water_bodies_eopf.zarr/measurements/water",
             media_type=f"{MediaType.ZARR}; version=3",
             roles=["data", "zarr"],
             title="Raster Data",
@@ -347,11 +380,40 @@ def to_eopf(
     raster_ext.bands = bands
 
 
-    output_item: Path = Path(output_dir, 'item.json')
+    output_item: Path = Path(output_dir, Path(collection_id, f'{item.id}.json'))
     write_stac_file(
         obj=item,
         include_self_link=True,
         dest_href=output_item
+    )
+
+    output_collection: Collection = Collection(
+        id=collection_id,
+        description=f"Collection of detected {collection_id}",
+        title=f"Detected {collection_id}",
+        extent=Extent(
+            spatial=SpatialExtent(bboxes=[get_spatial_extent(items)]),
+            temporal=TemporalExtent([get_temporal_extent(items)]),
+        ),
+    )
+
+    output_collection_dir = Path(output_dir, output_collection.id)
+
+    output_collection_dir.mkdir(parents=True, exist_ok=True)
+
+    output_collection.add_items([item])
+
+    output_cat = Catalog(
+        id="water-bodies",
+        description="Water bodies catalog",
+        title="Water bodies catalog",
+    )
+
+    output_cat.add_child(output_collection)
+
+    output_cat.normalize_and_save(
+        root_href=str(output_dir.absolute()),
+        catalog_type=CatalogType.SELF_CONTAINED
     )
 
 if __name__ == "__main__":

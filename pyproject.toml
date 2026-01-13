@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = 'Zarr Cloud-Native Workflow for Water Body Detection'
 
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.12,<3.13"
 license = "MIT"
 keywords = []
 authors = [
@@ -26,12 +26,12 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "eopf>=2.6.3",
-  "odc-stac==0.4.0",
+  "numpy==2.3.5",
+  "eopf",
+  "odc-stac",
   "ipykernel",
   "cwltool",
-  "matplotlib==3.10.6",
-  "loguru==0.7.3",
+  "loguru",
   "zarr",
   "matplotlib",
   "graphviz",
@@ -53,3 +53,5 @@ packages = ["zarr_cloud_native_format"]
 extra-dependencies = [
   "mypy>=1.0.0",
 ]
+
+

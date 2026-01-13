@@ -173,20 +173,6 @@ def get_spatial_extent(items):
     required=True,
 )
 @click.option(
-    "--output-dir",
-    type=click.Path(
-        path_type=Path,
-        exists=False,
-        readable=True,
-        file_okay=False,
-        dir_okay=True,
-        resolve_path=True
-    ),
-    default=Path('.'),
-    required=True,
-    help="Output directory path",
-)
-@click.option(
     "--collection-id",
     type=click.STRING,
     required=True,
@@ -195,7 +181,6 @@ def get_spatial_extent(items):
 def to_eopf(
     stac_catalog: Path,
     collection_id: str,
-    output_dir: Path
 ):
     logger.info(f"Reading STAC catalog from {stac_catalog}...")
     catalog: STACObject = read_stac_file(os.path.join(stac_catalog, "catalog.json"))
@@ -224,8 +209,9 @@ def to_eopf(
     product["measurements"] = EOGroup()
 
     # Convert xarray array → EOVariable (Dask-aware)
+    measurement = "water-bodies"
     da = stac_catalog_dataset["data"]                      # (time, y, x)
-    product["measurements/water"] = EOVariable(
+    product[f"measurements/{measurement}"] = EOVariable(
         data=da.data,                    # dask array
         dims=("time", "y", "x"),
         attrs={"description": "Detected water bodies"}
@@ -252,39 +238,29 @@ def to_eopf(
     )
 
     product.attrs["stac_discovery"] = item.to_dict(include_self_link=False)
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Writing EOPF Zarr product to {output_dir}")
-
-    # TODO write Zarr store in collection_id subdirectory
-    with EOZarrStore(
-        url=output_dir.absolute().as_uri()
-    ).open(
-        mode=c.OpeningMode.CREATE_OVERWRITE
-    ) as store:
-        store["water_bodies_eopf"] = product
-
+    zarr_store = "water_bodies_eopf"
+    
     logger.info("Done writing EOPF product! Serializing the STAC Item...")
 
     item.add_asset(
         key="store",
         asset=Asset(
-            href="water_bodies_eopf.zarr",
-            media_type=f"{MediaType.ZARR}; version=3",
+            href=f"{zarr_store}.zarr",
+            media_type=f"{MediaType.ZARR}; version=2",
             roles=["data", "zarr"],
             title="Zarr Store",
-            description="Detected water bodies in Zarr cloud-native format"
+            description="Detected water bodies in EOPF Zarr cloud-native format"
         )
     )
 
     item.add_asset(
         key="data-variable",
         asset=Asset(
-            href="water_bodies_eopf.zarr/measurements/{measurement}",
-            media_type=f"{MediaType.ZARR}; version=3",
+            href=f"{zarr_store}.zarr/measurements/{measurement}",
+            media_type=f"{MediaType.ZARR}; version=2",
             roles=["data", "zarr"],
             title="Detected water bodies",
-            description="Detected water bodies in Zarr cloud-native format",
+            description="Detected water bodies in EOPF Zarr cloud-native format",
             extra_fields={
                 "variables": {
                     "measurement": {
@@ -369,8 +345,8 @@ def to_eopf(
     item.add_asset(
         key="raster",
         asset=Asset(
-            href="water_bodies_eopf.zarr/measurements/water",
-            media_type=f"{MediaType.ZARR}; version=3",
+            href=f"water_bodies_eopf.zarr/measurements/{measurement}",
+            media_type=f"{MediaType.ZARR}; version=2",
             roles=["data", "zarr"],
             title="Raster Data",
             description="Raster data derived from xarray.Dataset"
@@ -380,12 +356,12 @@ def to_eopf(
     raster_ext.bands = bands
 
 
-    output_item: Path = Path(output_dir, Path(collection_id, f'{item.id}.json'))
-    write_stac_file(
-        obj=item,
-        include_self_link=True,
-        dest_href=output_item
-    )
+    #output_item: Path = Path(output_dir, Path(collection_id, f'{item.id}.json'))
+    # write_stac_file(
+    #     obj=item,
+    #     include_self_link=True,
+    #     dest_href=output_item
+    # )
 
     output_collection: Collection = Collection(
         id=collection_id,
@@ -397,9 +373,9 @@ def to_eopf(
         ),
     )
 
-    output_collection_dir = Path(output_dir, output_collection.id)
+    #output_collection_dir = Path(output_dir, output_collection.id)
 
-    output_collection_dir.mkdir(parents=True, exist_ok=True)
+    #output_collection_dir.mkdir(parents=True, exist_ok=True)
 
     output_collection.add_items([item])
 
@@ -411,10 +387,28 @@ def to_eopf(
 
     output_cat.add_child(output_collection)
 
+
+
     output_cat.normalize_and_save(
-        root_href=str(output_dir.absolute()),
+        root_href=str(Path(".")),
         catalog_type=CatalogType.SELF_CONTAINED
     )
+
+    output_dir = Path(collection_id, Path(item.id))
+    logger.info(f"Creating output directory at {output_dir.absolute()}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Writing EOPF Zarr product to {output_dir}")
+
+    
+    # TODO write Zarr store in collection_id subdirectory
+    with EOZarrStore(
+        url=output_dir.absolute().as_uri()
+    ).open(
+        mode=c.OpeningMode.CREATE_OVERWRITE
+    ) as store:
+        store[zarr_store] = product
+    logger.info("Done writing EOPF product!")
+
 
 if __name__ == "__main__":
     to_eopf()

@@ -42,7 +42,7 @@ $graph:
         type: Directory
       - id: stac_catalog
         outputSource:
-          - stac/temp_stac_catalog
+          - stac-collection/temp_stac_catalog
         type: Directory
       - id: eopf_product_stac_catalog
         outputSource:
@@ -82,18 +82,21 @@ $graph:
           bands: bands
         out:
           - detected_water_body
+          - ndwi
         scatter: item
         scatterMethod: dotproduct
 
-      stac:
+      stac-collection:
         label: Create a STAC catalog with COG outputs
         doc: Create a STAC catalog with the detected water bodies COG outputs
-        run: "#stac"
+        run: "#stac-collection"
         in:
           item: 
             source: convert_search/items
           rasters:
             source: water_bodies/detected_water_body
+          ndwis:
+            source: water_bodies/ndwi
         out:
           - temp_stac_catalog
       
@@ -103,7 +106,7 @@ $graph:
         run: "#stac-zarr"
         in:
           stac_catalog:
-            source: stac/temp_stac_catalog
+            source: stac-collection/temp_stac_catalog
         out:
           - zarr_stac_catalog
 
@@ -113,7 +116,7 @@ $graph:
         run: "#stac-eopf-product"
         in:
           stac_catalog:
-            source: stac/temp_stac_catalog
+            source: stac-collection/temp_stac_catalog
         out:
           - eopf_product_stac_catalog
   
@@ -125,7 +128,7 @@ $graph:
     arguments: []
     hints:
       DockerRequirement:
-        dockerPull: docker.io/library/yq
+        dockerPull: ghcr.io/eoap/zarr-cloud-native-format/yq@sha256:401655f3f4041bf3d03b05f3b24ad4b9d18cfcf908c3b44f5901383621d0688a
     requirements:
     - class: InlineJavascriptRequirement
     - class: SchemaDefRequirement
@@ -196,6 +199,10 @@ $graph:
       - id: detected_water_body
         outputSource:
           - otsu/binary_mask_item
+        type: File
+      - id: ndwi
+        outputSource:
+          - normalized_difference/ndwi
         type: File
     steps:
       crop:
@@ -314,20 +321,16 @@ $graph:
           glob: '*.tif'
         type: File
   - class: CommandLineTool
-    id: stac
+    id: stac-collection
     requirements:
       InlineJavascriptRequirement: {}
-      EnvVarRequirement:
-        envDef:
-          PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-          PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
     hints:
       DockerRequirement:
-        dockerPull: ghcr.io/eoap/mastering-app-package/stac@sha256:e2ee1914cd06a0abc369034a8c8ef9ecf9b8e872b2efbc864d41c741e9faa392
-    baseCommand: ["python", "-m", "app"]
+        dockerPull: stac-collection:latest
+    baseCommand: ["stac-collection"]
     arguments: []
     inputs:
       item:
@@ -341,7 +344,13 @@ $graph:
           type: array
           items: File
           inputBinding:
-            prefix: --water-body
+            prefix: --otsu 
+      ndwis:
+        type:
+          type: array
+          items: File
+          inputBinding:
+            prefix: --ndwi
     outputs:
       temp_stac_catalog:
         label: temporary STAC catalog with COG outputs
@@ -352,28 +361,19 @@ $graph:
     id: stac-zarr
     requirements:
       InlineJavascriptRequirement: {}
-      EnvVarRequirement:
-        envDef:
-          PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-          PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
     hints:
       DockerRequirement:
-        dockerPull: docker.io/library/stac-zarr 
-    baseCommand: ["python", "-m", "app"]
+        dockerPull: stac-zarr:latest 
+    baseCommand: ["stac-zarr"]
     arguments: []
     inputs:
       stac_catalog:
         type: Directory
         inputBinding:
           prefix: --stac-catalog
-      collection_id:
-        type: string
-        inputBinding:
-          prefix: --collection-id
-        default: "water-bodies-detection"
     outputs:
       zarr_stac_catalog:
         outputBinding:
@@ -386,28 +386,19 @@ $graph:
     doc: Create a EOPF Zarr store from a STAC catalog with COG products
     requirements:
       InlineJavascriptRequirement: {}
-      EnvVarRequirement:
-        envDef:
-          PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-          PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
     hints:
       DockerRequirement:
-        dockerPull: docker.io/library/zarr-eopf-product
-    baseCommand: ["python", "-m", "app"]
+        dockerPull: stac-eopf-product:latest
+    baseCommand: ["stac-eopf-product"]
     arguments: []
     inputs:
       stac_catalog:
         type: Directory
         inputBinding:
           prefix: --stac-catalog
-      collection_id:
-        type: string
-        inputBinding:
-          prefix: --collection-id
-        default: "water-bodies-detection"
     outputs:
       eopf_product_stac_catalog:
         outputBinding:

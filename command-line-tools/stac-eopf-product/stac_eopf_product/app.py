@@ -1,13 +1,6 @@
 import os
-from datetime import (
-    datetime,
-    timezone
-)
-from eopf.product import (
-    EOProduct,
-    EOGroup,
-    EOVariable
-)
+from datetime import datetime, timezone
+from eopf.product import EOProduct, EOGroup, EOVariable
 from eopf.store.zarr import EOZarrStore
 
 from pathlib import Path
@@ -21,24 +14,13 @@ from pystac import (
     Item,
     STACObject,
     CatalogType,
-    read_file as read_stac_file
+    read_file as read_stac_file,
 )
-from pystac.extensions.datacube import (
-    DatacubeExtension
-)
+from pystac.extensions.datacube import DatacubeExtension
 from pystac.extensions.projection import ProjectionExtension
-from pystac.extensions.raster import (
-    RasterExtension,
-    RasterBand,
-    DataType
-)
-from typing import (
-    List
-)
-from xarray import (
-    DataArray,
-    Dataset
-)
+from pystac.extensions.raster import RasterExtension, RasterBand, DataType
+from typing import List
+from xarray import DataArray, Dataset
 
 import eopf.common.constants as c
 import numpy as np
@@ -61,8 +43,10 @@ DTYPE_TO_RASTER = {
     np.dtype("float64"): DataType.FLOAT64,
 }
 
+
 def to_raster_datatype(dtype: np.dtype) -> DataType:
     return DTYPE_TO_RASTER.get(np.dtype(dtype), DataType.OTHER)
+
 
 def raster_band_from_dataarray(da: DataArray) -> RasterBand:
     nodata = (
@@ -124,7 +108,10 @@ def _to_datetime(npdatetime):
     seconds = ns // 1_000_000_000
     micros = (ns % 1_000_000_000) // 1_000
 
-    return datetime.fromtimestamp(seconds, tz=timezone.utc).replace(microsecond=int(micros))
+    return datetime.fromtimestamp(seconds, tz=timezone.utc).replace(
+        microsecond=int(micros)
+    )
+
 
 def get_temporal_extent(items):
     """Get temporal extent from a list of STAC items."""
@@ -145,6 +132,7 @@ def get_spatial_extent(items):
     max_y = max(bbox[3] for bbox in bboxes)
     return [min_x, min_y, max_x, max_y]
 
+
 def get_asset_keys(item: Item) -> List[str]:
     """Get asset keys from a STAC item."""
     return list(item.assets.keys())
@@ -159,7 +147,7 @@ def get_asset_keys(item: Item) -> List[str]:
         readable=True,
         file_okay=False,
         dir_okay=True,
-        resolve_path=True
+        resolve_path=True,
     ),
     help="STAC Catalog file",
     required=True,
@@ -171,11 +159,15 @@ def to_eopf(
     catalog: STACObject = read_stac_file(os.path.join(stac_catalog, "catalog.json"))
 
     if not isinstance(catalog, Catalog):
-        raise Exception(f"{stac_catalog} is not a valid STAC Catalog instance, found {type(catalog)}")
+        raise Exception(
+            f"{stac_catalog} is not a valid STAC Catalog instance, found {type(catalog)}"
+        )
 
     collection = next(catalog.get_children())
     if not isinstance(collection, Collection):
-        raise Exception(f"{stac_catalog} does not contain a valid STAC Collection instance, found {type(collection)}")
+        raise Exception(
+            f"{stac_catalog} does not contain a valid STAC Collection instance, found {type(collection)}"
+        )
 
     items: List[Item] = list(collection.get_all_items())
 
@@ -227,7 +219,7 @@ def to_eopf(
         float(min(stac_catalog_dataset.x.values)),
         float(min(stac_catalog_dataset.y.values)),
         float(max(stac_catalog_dataset.x.values)),
-        float(max(stac_catalog_dataset.y.values))
+        float(max(stac_catalog_dataset.y.values)),
     ]
 
     product: EOProduct = EOProduct(name=collection.id)
@@ -235,15 +227,27 @@ def to_eopf(
 
     # Convert xarray array → EOVariable (Dask-aware)
     for measurement in get_asset_keys(items[0]):
-        da = stac_catalog_dataset[measurement]                      # (time, y, x)
+        da: DataArray = stac_catalog_dataset[measurement]
         product[f"measurements/{measurement}"] = EOVariable(
-            data=da.data,                    # dask array
+            data=da.data,  # dask array
             dims=stac_catalog_dataset[measurement].dims,
-            attrs={"description": collection.item_assets[measurement].description if collection.item_assets and measurement in collection.item_assets else "", }
+            attrs={
+                "description": collection.item_assets[measurement].description
+                if collection.item_assets and measurement in collection.item_assets
+                else "",
+            },
         )
 
-        title = collection.item_assets[measurement].title if collection.item_assets and measurement in collection.item_assets else measurement
-        description = collection.item_assets[measurement].description if collection.item_assets and measurement in collection.item_assets else measurement
+        title = (
+            collection.item_assets[measurement].title
+            if collection.item_assets and measurement in collection.item_assets
+            else measurement
+        )
+        description = (
+            collection.item_assets[measurement].description
+            if collection.item_assets and measurement in collection.item_assets
+            else measurement
+        )
 
         # create STAC Asset for the measurement
         zarr_asset = Asset(
@@ -258,12 +262,11 @@ def to_eopf(
             key=measurement,
             asset=zarr_asset,
         )
-    
 
         zarr_asset.extra_fields["bands"] = [
             {
                 "name": measurement,  # collection item-asset title
-                "description": description  # collection item-asset description
+                "description": description,  # collection item-asset description
             }
         ]
 
@@ -271,7 +274,7 @@ def to_eopf(
         zarr_asset.extra_fields["cube:variables"] = {
             measurement: {
                 "type": "data",
-                "dimensions": list(stac_catalog_dataset[measurement].dims)
+                "dimensions": list(stac_catalog_dataset[measurement].dims),
             }
         }
 
@@ -281,16 +284,24 @@ def to_eopf(
                 "extent": [
                     get_temporal_extent(items)[0].isoformat() + "Z",
                     get_temporal_extent(items)[1].isoformat() + "Z",
-                ]
+                ],
             },
-            "x": {"type": "spatial", "axis": "x", "extent": [
+            "x": {
+                "type": "spatial",
+                "axis": "x",
+                "extent": [
                     float(min(stac_catalog_dataset.x.values)),
-                    float(max(stac_catalog_dataset.x.values))
-                ]},
-            "y": {"type": "spatial", "axis": "y", "extent": [
+                    float(max(stac_catalog_dataset.x.values)),
+                ],
+            },
+            "y": {
+                "type": "spatial",
+                "axis": "y",
+                "extent": [
                     float(min(stac_catalog_dataset.y.values)),
-                    float(max(stac_catalog_dataset.y.values))
-                ]}
+                    float(max(stac_catalog_dataset.y.values)),
+                ],
+            },
         }
 
         # when pystac datacube extension supports asset level, use this:
@@ -332,8 +343,8 @@ def to_eopf(
         proj_ext = ProjectionExtension.ext(zarr_asset)
 
         gbox = stac_catalog_dataset.odc.geobox
-        proj_ext.epsg = gbox.crs.epsg # or any EPSG integer
-        proj_ext.bbox = spatial_bbox # in the asset CRS
+        proj_ext.epsg = gbox.crs.epsg  # or any EPSG integer
+        proj_ext.bbox = spatial_bbox  # in the asset CRS
 
         extent = gbox.extent
         footprint_wgs84 = extent.to_crs(crs)
@@ -343,28 +354,21 @@ def to_eopf(
         proj_ext.shape = [height, width]
 
     output_cat = Catalog(
-        id=collection.id,
-        description=collection.description,
-        title=collection.title
+        id=collection.id, description=collection.description, title=collection.title
     )
 
     output_cat.add_child(output_collection)
 
-
-
     output_cat.normalize_and_save(
-        root_href=str(Path(".")),
-        catalog_type=CatalogType.SELF_CONTAINED
+        root_href=str(Path(".")), catalog_type=CatalogType.SELF_CONTAINED
     )
 
     output_dir = Path(collection.id)
     logger.info(f"Creating output directory at {output_dir.absolute()}")
     output_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"Writing EOPF Zarr product to {output_dir}")
-   
-    with EOZarrStore(
-        url=output_dir.absolute().as_uri()
-    ).open(
+
+    with EOZarrStore(url=output_dir.absolute().as_uri()).open(
         mode=c.OpeningMode.CREATE_OVERWRITE
     ) as store:
         store[zarr_store] = product

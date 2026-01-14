@@ -13,7 +13,7 @@ search_request:
     end:
       value: '2021-07-31T23:59:59'
     start:
-      value: '2021-06-01T00:00:00'
+      value: '2021-07-15T00:00:00'
   limit: 20
   max-items: 10
 stac_api_endpoint:

@@ -1,9 +1,19 @@
 """Creates a STAC catalog with the detected water bodies""" ""
+
 import os
 import shutil
 import click
-from pystac import Extent, SpatialExtent, TemporalExtent, Item, Catalog, Collection, CatalogType, read_file
-from pystac.media_type import MediaType  
+from pystac import (
+    Extent,
+    SpatialExtent,
+    TemporalExtent,
+    Item,
+    Catalog,
+    Collection,
+    CatalogType,
+    read_file,
+)
+from pystac.media_type import MediaType
 from pystac.item_assets import ItemAssetDefinition
 import rio_stac
 from loguru import logger
@@ -121,7 +131,7 @@ def to_stac(item_urls, otsu, ndwi):
         extent=Extent(
             spatial=SpatialExtent(bboxes=[get_spatial_extent(out_items)]),
             temporal=TemporalExtent([get_temporal_extent(out_items)]),
-        )
+        ),
     )
 
     collection.add_items(out_items)
@@ -141,9 +151,7 @@ def to_stac(item_urls, otsu, ndwi):
     )
 
     cat.add_child(collection)
-    cat.normalize_and_save(
-        root_href="./", catalog_type=CatalogType.SELF_CONTAINED
-    )
+    cat.normalize_and_save(root_href="./", catalog_type=CatalogType.SELF_CONTAINED)
     logger.info("Done!")
 
 

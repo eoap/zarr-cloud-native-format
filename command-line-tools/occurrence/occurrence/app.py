@@ -28,7 +28,9 @@ def occurrence(stac_catalog):
 
     cat = pystac.Catalog.from_file(os.path.join(stac_catalog, "catalog.json"))
 
-    collection = cat.get_child("water-bodies")
+    collection = next(cat.get_children())
+    
+    zarr_asset
 
     dc_collection = DatacubeExtension.ext(collection)
 

@@ -38,15 +38,13 @@ $graph:
     doc: Water bodies occurrence based on NDWI and otsu threshold
     hints:
       DockerRequirement:
-        dockerPull: occ:latest
+        dockerPull: occurrence:latest
     requirements:
-      - class: EnvVarRequirement
-        envDef:
-          PYTHONPATH: /app
       - class: ResourceRequirement
         coresMax: 1
-        ramMax: 512
-    baseCommand: ["python", "-m", "app"]
+        ramMin: 512
+        ramMax: 1024
+    baseCommand: ["occurrence"]
     arguments: []
     inputs:
       zarr-stac-catalog:

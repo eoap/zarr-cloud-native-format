@@ -57,6 +57,8 @@ extra_javascript:
 
 nav:
   - Introduction: 'index.md'
+  - STAC Zarr Best Practices: 'stac-zarr-best-practices.md'
+  - Input STAC Requirements: 'input-stac.md'
   - TL;DR: exploitation.ipynb
   - CWL CommandLineTools:
     - discovery: 'cwl-cli/discovery.ipynb'

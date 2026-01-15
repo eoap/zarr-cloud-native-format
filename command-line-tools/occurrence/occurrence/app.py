@@ -2,12 +2,83 @@ import click
 import os
 import pystac
 from loguru import logger
-from pystac.extensions.datacube import DatacubeExtension
 import shutil
 import xarray as xr
-import rioxarray
 import rio_stac
 import pandas as pd
+from pystac import Catalog, Collection, Asset
+
+from affine import Affine
+from pyproj import CRS
+
+from odc.geo import GeoBox
+from odc.geo.crs import CRS as OdcCRS
+
+
+def attach_geobox_to_xarray(da: xr.DataArray, asset: Asset) -> xr.DataArray:
+    """
+    Attach CRS and transform from STAC metadata to an xarray DataArray.
+    """
+
+    affine = affine_from_stac_asset(asset)
+    crs = crs_from_stac_asset(asset)
+
+    da = da.rio.set_spatial_dims(x_dim="x", y_dim="y")
+    da = da.rio.write_transform(affine)
+    da = da.rio.write_crs(crs)
+
+    return da
+
+
+def geobox_from_stac_asset(asset: Asset) -> GeoBox:
+    """
+    Reconstruct an odc.geo.GeoBox from STAC Projection metadata.
+    """
+
+    shape = asset.extra_fields["proj:shape"]
+    epsg = asset.extra_fields["proj:code"]
+
+    affine = affine_from_stac_asset(asset)
+
+    return GeoBox(
+        shape=tuple(shape),
+        affine=affine,
+        crs=OdcCRS(epsg),
+    )
+
+
+def affine_from_stac_asset(asset: Asset) -> Affine:
+    """
+    Reconstruct an Affine transform from STAC Projection metadata.
+
+    Assumes:
+    - north-up grid
+    - pixel-registered grid
+    """
+
+    bbox = asset.extra_fields["proj:bbox"]
+    shape = asset.extra_fields["proj:shape"]
+
+    xmin, ymin, xmax, ymax = bbox
+    height, width = shape
+
+    xres = (xmax - xmin) / width
+    yres = (ymax - ymin) / height
+
+    # GDAL / rasterio convention: origin is upper-left
+    return Affine(xres, 0.0, xmin, 0.0, -yres, ymax)
+
+
+def crs_from_stac_asset(asset: Asset) -> CRS:
+    """
+    Extract CRS from STAC Projection metadata.
+    """
+
+    epsg = asset.extra_fields.get("proj:code")
+    if not epsg:
+        raise ValueError("Asset is missing proj:code")
+
+    return CRS.from_user_input(epsg)
 
 
 @click.command(
@@ -21,44 +92,28 @@ import pandas as pd
     required=True,
 )
 def occurrence(stac_catalog):
-
     logger.info("Water occurrence")
 
     logger.info(f"Reading STAC catalog from {stac_catalog}")
 
-    cat = pystac.Catalog.from_file(os.path.join(stac_catalog, "catalog.json"))
+    src_cat: Catalog = pystac.Catalog.from_file(
+        os.path.join(stac_catalog, "catalog.json")
+    )
 
-    collection = next(cat.get_children())
-    
-    zarr_asset
+    collection: Collection = next(src_cat.get_children())
 
-    dc_collection = DatacubeExtension.ext(collection)
+    measurements: Asset = collection.get_assets()["measurements"]
 
-    for key, dim in dc_collection.dimensions.items():
-        logger.info(f"Dimension: {key}, Type: {dim.dim_type}, Extent: {dim.extent}")
+    water_bodies = xr.open_zarr(measurements.get_absolute_href(), consolidated=False)[
+        "water-bodies"
+    ]
 
-    for key, variable in dc_collection.variables.items():
-        logger.info(
-            f"Variable: {key}, Description: {variable.description}, Dimensions: {','.join(variable.dimensions)}, Type: {variable.var_type}"
-        )
+    mean = water_bodies.mean("time")
+    mean = attach_geobox_to_xarray(mean, asset=measurements)
+    mean.rio.to_raster("water_bodies_mean.tif")
 
-    zarr_asset = collection.get_assets()["data"]
-    water_bodies = xr.open_zarr(zarr_asset.get_absolute_href(), consolidated=True)
-
-    logger.info(f"EPSG code: {str(water_bodies.data_vars['spatial_ref'].values)}")
-
-    agg = water_bodies.mean(dim="time").to_array("data")
-    agg = agg.rio.write_crs(f"EPSG:{str(water_bodies.data_vars['spatial_ref'].values)}")
-
-    agg_single = agg.sel(data="data")
-    agg_single = agg_single.rio.set_spatial_dims(x_dim="x", y_dim="y")
-    agg_single = agg_single.rio.write_crs(f"EPSG:{str(water_bodies.data_vars['spatial_ref'].values)}")
-    agg_single.rio.to_raster("water_bodies_mean.tif")
-
-    logger.info(f"Creating a STAC Catalog for the output")
+    logger.info("Creating a STAC Catalog for the output")
     cat = pystac.Catalog(id="catalog", description="water-bodies-mean")
-
-    tmax = water_bodies.time.values.max()
 
     item_id = "occurrence"
     os.makedirs(item_id, exist_ok=True)
@@ -66,7 +121,7 @@ def occurrence(stac_catalog):
 
     out_item = rio_stac.stac.create_stac_item(
         source="water_bodies_mean.tif",
-        input_datetime=pd.to_datetime(tmax).to_pydatetime(),
+        input_datetime=collection.extent.temporal.intervals[0][1],
         id=item_id,
         asset_roles=["data", "visual"],
         asset_href=os.path.basename("water_bodies_mean.tif"),

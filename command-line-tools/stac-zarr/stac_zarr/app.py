@@ -20,9 +20,11 @@ from pystac.extensions.datacube import DatacubeExtension
 from typing import List
 from xarray import DataArray, Dataset
 from pystac.extensions.projection import ProjectionExtension
-from pystac.extensions.raster import RasterExtension
+from pystac.extensions.raster import RasterExtension, RasterBand
+from datetime import datetime
 import click
 import zarr
+from zarr.types import AnyArray
 import dask.array
 
 
@@ -37,7 +39,7 @@ def extract_crs(item):
     raise ValueError("CRS not found in item properties")
 
 
-def get_temporal_extent(items):
+def get_temporal_extent(items) -> List[datetime]:
     """Get temporal extent from a list of STAC items."""
     times = [item.datetime for item in items]
     if not times:
@@ -128,17 +130,16 @@ def to_zarr(
     ProjectionExtension.summaries(output_collection, add_if_missing=True)
     RasterExtension.summaries(output_collection, add_if_missing=True)
     DatacubeExtension.ext(output_collection, add_if_missing=True)
-    # ----------------------------
+
     # Add Zarr store link
-    # ----------------------------
-    zarr_store = collection.id
+    zarr_uri = f"{collection.id}.zarr"
 
     output_collection.add_link(
         Link(
             rel="store",
-            target=f"{zarr_store}.zarr",
+            target=zarr_uri,
             media_type="application/vnd.zarr; version=3",
-            title=collection.title,
+            title=f"Zarr store for {collection.title}",
         )
     )
 
@@ -150,18 +151,24 @@ def to_zarr(
     ]
 
     # Create Zarr store
-    zarr_uri = f"{collection.id}.zarr"
+
     measurement_name = "measurements"
 
     root = zarr.open_group(Path(collection.id, zarr_uri), mode="w")
 
     measurements_grp = root.require_group(measurement_name)
 
-    # Convert xarray array → EOVariable (Dask-aware)
+    bands = []
+    cube_variables = {}
+    raster_bands = []
+
+    # Write each measurement (STAC asset) as a separate Zarr array
     for measurement in get_asset_keys(items[0]):
+        logger.info(f"Writing measurement {measurement} to Zarr store...")
         da: DataArray = stac_catalog_dataset[measurement]
-        da = da.transpose("time", "y", "x")
         # xarray → zarr array
+        da = da.transpose("time", "y", "x")
+
         title = (
             collection.item_assets[measurement].title
             if collection.item_assets and measurement in collection.item_assets
@@ -173,7 +180,7 @@ def to_zarr(
             else measurement
         )
 
-        z = measurements_grp.create(
+        z: AnyArray = measurements_grp.create(
             name=measurement,
             shape=da.shape,
             chunks=da.data.chunksize,
@@ -186,74 +193,89 @@ def to_zarr(
         # Write data
         dask.array.store(da.data, z, lock=True)
 
-        # create STAC Asset for the measurement
-        zarr_asset = Asset(
-            href=f"{zarr_store}.zarr/measurements",
-            media_type="application/vnd.zarr; version=2",
-            roles=["data", "zarr"],
-            title=title,  # collection item-asset title
-            description=description,  # collection item-asset description
-        )
-
-        output_collection.add_asset(
-            key=measurement,
-            asset=zarr_asset,
-        )
-
-        zarr_asset.extra_fields["bands"] = [
+        bands.append(
             {
-                "name": measurement,  # collection item-asset title
-                "description": description,  # collection item-asset description
+                "name": measurement,
+                "description": description,
             }
-        ]
+        )
 
-        # workaround for datacube extension at asset level
-        zarr_asset.extra_fields["cube:variables"] = {
-            measurement: {
-                "type": "data",
-                "dimensions": list(stac_catalog_dataset[measurement].dims),
-            }
+        cube_variables[measurement] = {
+            "type": "data",
+            "dimensions": ["time", "y", "x"],
         }
 
-        zarr_asset.extra_fields["cube:dimensions"] = {
-            "time": {
-                "type": "temporal",
-                "extent": [
-                    get_temporal_extent(items)[0].isoformat() + "Z",
-                    get_temporal_extent(items)[1].isoformat() + "Z",
-                ],
-            },
-            "x": {
-                "type": "spatial",
-                "axis": "x",
-                "extent": [
-                    float(min(stac_catalog_dataset.x.values)),
-                    float(max(stac_catalog_dataset.x.values)),
-                ],
-            },
-            "y": {
-                "type": "spatial",
-                "axis": "y",
-                "extent": [
-                    float(min(stac_catalog_dataset.y.values)),
-                    float(max(stac_catalog_dataset.y.values)),
-                ],
-            },
-        }
+        raster_bands.append(
+            RasterBand.create(
+                data_type=da.dtype.name,  # "uint8", "float32", etc.
+                nodata=None,
+            )
+        )
 
-        proj_ext = ProjectionExtension.ext(zarr_asset)
+    # create STAC Asset for the measurement
+    logger.info(f"Creating STAC asset {zarr_uri}/measurements...")
+    zarr_asset: Asset = Asset(
+        href=f"{zarr_uri}/measurements",
+        media_type="application/vnd.zarr; version=3",
+        roles=["data"],
+        title="Measurements",
+        description="Zarr measurements group",
+    )
 
-        gbox = stac_catalog_dataset.odc.geobox
-        proj_ext.epsg = gbox.crs.epsg  # or any EPSG integer
-        proj_ext.bbox = spatial_bbox  # in the asset CRS
+    output_collection.add_asset(
+        key="measurements",
+        asset=zarr_asset,
+    )
 
-        extent = gbox.extent
-        footprint_wgs84 = extent.to_crs(crs)
-        proj_ext.geometry = footprint_wgs84.json  # GeoJSON in the asset CRS
+    raster_ext = RasterExtension.ext(zarr_asset, add_if_missing=True)
 
-        height, width = gbox.shape
-        proj_ext.shape = [height, width]
+    raster_ext.bands = raster_bands
 
+    zarr_asset.extra_fields["bands"] = bands
+
+    # workaround for datacube extension at asset level
+    zarr_asset.extra_fields["cube:variables"] = cube_variables
+
+    zarr_asset.extra_fields["cube:dimensions"] = {
+        "time": {
+            "type": "temporal",
+            "extent": [
+                get_temporal_extent(items)[0].isoformat().replace("+00:00", "Z"),
+                get_temporal_extent(items)[1].isoformat().replace("+00:00", "Z"),
+            ],
+        },
+        "x": {
+            "type": "spatial",
+            "axis": "x",
+            "extent": [
+                float(min(stac_catalog_dataset.x.values)),
+                float(max(stac_catalog_dataset.x.values)),
+            ],
+        },
+        "y": {
+            "type": "spatial",
+            "axis": "y",
+            "extent": [
+                float(min(stac_catalog_dataset.y.values)),
+                float(max(stac_catalog_dataset.y.values)),
+            ],
+        },
+    }
+
+    proj_ext = ProjectionExtension.ext(zarr_asset)
+
+    gbox = stac_catalog_dataset.odc.geobox
+    proj_ext.epsg = gbox.crs.epsg  # or any EPSG integer
+    proj_ext.bbox = spatial_bbox  # in the asset CRS
+
+    extent = gbox.extent
+    footprint_wgs84 = extent.to_crs(crs)
+    proj_ext.geometry = footprint_wgs84.json  # GeoJSON in the asset CRS
+
+    height, width = gbox.shape
+    proj_ext.shape = [height, width]
+
+    logger.info("Creating STAC Catalog for the output...")
     output_cat = Catalog(
         id=collection.id, description=collection.description, title=collection.title
     )
@@ -263,9 +285,6 @@ def to_zarr(
     output_cat.normalize_and_save(
         root_href=str(Path(".")), catalog_type=CatalogType.SELF_CONTAINED
     )
-
-    output_zarr = Path(zarr_uri)
-    logger.info(f"Written Zarr store to {output_zarr}")
 
     logger.info("Done!")
 

@@ -108,7 +108,7 @@ def to_zarr(
         items,
         bands=get_asset_keys(items[0]),
         crs=crs,
-        resolution=10,
+        resolution=10, # extract from item in future
         chunks={"x": 512, "y": 512, "time": 1},
         groupby="time",
     )
@@ -166,7 +166,7 @@ def to_zarr(
     for measurement in get_asset_keys(items[0]):
         logger.info(f"Writing measurement {measurement} to Zarr store...")
         da: DataArray = stac_catalog_dataset[measurement]
-        # xarray → zarr array
+        # xarray -> zarr array
         da = da.transpose("time", "y", "x")
 
         title = (
@@ -205,10 +205,12 @@ def to_zarr(
             "dimensions": ["time", "y", "x"],
         }
 
+        # add raster band info
         raster_bands.append(
             RasterBand.create(
                 data_type=da.dtype.name,  # "uint8", "float32", etc.
                 nodata=None,
+                spatial_resolution=[abs(da.x.values[1] - da.x.values[0]), abs(da.y.values[1] - da.y.values[0])],
             )
         )
 
@@ -227,12 +229,10 @@ def to_zarr(
         asset=zarr_asset,
     )
 
-    raster_ext = RasterExtension.ext(zarr_asset, add_if_missing=True)
-
-    raster_ext.bands = raster_bands
-
+    # bands
     zarr_asset.extra_fields["bands"] = bands
 
+    # datacube extension
     # workaround for datacube extension at asset level
     zarr_asset.extra_fields["cube:variables"] = cube_variables
 
@@ -262,23 +262,27 @@ def to_zarr(
         },
     }
 
+    # projection extension
     proj_ext = ProjectionExtension.ext(zarr_asset)
 
     gbox = stac_catalog_dataset.odc.geobox
-    proj_ext.epsg = gbox.crs.epsg  # or any EPSG integer
-    proj_ext.bbox = spatial_bbox  # in the asset CRS
 
-    extent = gbox.extent
-    footprint_wgs84 = extent.to_crs(crs)
-    proj_ext.geometry = footprint_wgs84.json  # GeoJSON in the asset CRS
+    proj_ext.epsg = gbox.crs.epsg
+    proj_ext.wkt2 = gbox.crs.to_wkt("WKT2_2019")
+    proj_ext.shape = list(gbox.shape)
+    proj_ext.transform = list(gbox.transform)
 
-    height, width = gbox.shape
-    proj_ext.shape = [height, width]
+    proj_ext.bbox = spatial_bbox
+    proj_ext.geometry = gbox.extent.to_crs(crs).json
 
     logger.info("Creating STAC Catalog for the output...")
     output_cat = Catalog(
         id=collection.id, description=collection.description, title=collection.title
     )
+
+    # raster extension
+    raster_ext = RasterExtension.ext(zarr_asset, add_if_missing=True)
+    raster_ext.bands = raster_bands
 
     output_cat.add_child(output_collection)
 

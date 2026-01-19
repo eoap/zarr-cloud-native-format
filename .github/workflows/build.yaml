@@ -10,7 +10,7 @@ jobs:
   release:
     uses: eoap/eoap-cwl-release-workflow/.github/workflows/release-cwl.yml@main
     with:
-      tools: '["occurrence","stac-collection","stac-eopef-product","stac-zarr"]'
+      tools: '["occurrence","stac-collection","stac-eopf-product","stac-zarr"]'
       image-prefix: eoap/zarr-cloud-native-format
       registry: ghcr.io
       cwl-workflow-dir: cwl-workflow

@@ -180,7 +180,7 @@ $graph:
     label: Water body detection based on NDWI and otsu threshold
     doc: Water body detection based on NDWI and otsu threshold
     requirements:
-      - class: ScatterFeatureRequirement
+      ScatterFeatureRequirement: {}
     inputs:
       aoi:
         doc: area of interest as a bounding box

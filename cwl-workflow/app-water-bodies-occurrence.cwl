@@ -40,7 +40,7 @@ $graph:
       DockerRequirement:
         dockerPull: occurrence:latest
     requirements:
-      - class: ResourceRequirement
+      ResourceRequirement:
         coresMax: 1
         ramMin: 512
         ramMax: 1024

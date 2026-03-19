@@ -6,7 +6,7 @@
 * Use the correct Zarr media type with version:
   * `application/vnd.zarr; version=2`
   * `application/vnd.zarr; version=3`
-* Optionally add `profile=multiscales` (convention hint, not yet standard).
+* Add `profile=multiscales` when publishing multiscale Zarr assets.
 * Do not expose arrays as assets.
 * Expose bands via the bands array:
   * One variable = one band → name = variable name
@@ -33,3 +33,116 @@ In short:
 
 * STAC describes what is in the Zarr store, not how to traverse it.
 * Zarr handles structure; STAC handles discovery, semantics, and access hints.
+
+## Current Implementation in This Repository
+
+The `stac-zarr` tool implements the following conventions and metadata patterns for Zarr v3 outputs.
+
+### STAC-side implementation
+
+* `rel: store` link on the output Collection pointing to `<collection-id>.zarr`
+* `measurements` STAC asset pointing to `<collection-id>.zarr/measurements`
+* Zarr media type includes `profile=multiscales`
+* Datacube metadata at asset level using:
+  * `cube:variables`
+  * `cube:dimensions`
+* Projection metadata at asset level (`proj:*`)
+* Raster metadata at asset level (`raster:bands`)
+* STAC extension URIs pinned to:
+  * projection `v2.0.0`
+  * raster `v2.0.0`
+  * datacube `v2.2.0`
+
+### Zarr-side implementation
+
+Root group attributes include:
+
+* `zarr_conventions`
+* `proj:code`
+* `spatial:dimensions`
+* `spatial:bbox`
+* `spatial:shape`
+* `spatial:transform`
+* `multiscales`
+
+Registered conventions in `zarr_conventions`:
+
+* `proj:`
+* `spatial:`
+* `multiscales`
+
+### Multiscales implementation
+
+For each measurement:
+
+* Base level written to `measurements/<measurement>`
+* Overview levels written to `measurements_overviews/<measurement>/<level>/<measurement>`
+* Root `multiscales` uses TileMatrixSet metadata:
+  * `resampling_method`
+  * `tile_matrix_set`
+* Per-measurement dataset listing is exposed in `multiscales:datasets`
+
+Overview generation controls:
+
+* `--overview-levels`
+* `--continuous-overview-reducer`
+* `--categorical-overview-reducer`
+
+Reducers supported:
+
+* `mean`
+* `max`
+* `median`
+* `nearest`
+
+### CF dataset semantics
+
+For base and overview datasets, data arrays include:
+
+* `grid_mapping = "spatial_ref"`
+* `coordinates = "time y x"`
+
+Dataset groups include coordinate members:
+
+* `time` (CF-style numeric time, seconds since epoch)
+* `x`
+* `y`
+* `spatial_ref`
+
+The writer validates:
+
+* coordinate references and dimension-shape consistency
+* `grid_mapping` references to existing dataset members
+
+## GeoZarr Minispec Compliance (Current)
+
+Reference:
+`https://eopf-explorer.github.io/data-model/geozarr-minispec/`
+
+Implemented:
+
+* `zarr_conventions` includes `proj:`, `spatial:`, `multiscales`
+* `spatial:*` root attributes (`dimensions`, `bbox`, `shape`, `transform`)
+* TileMatrixSet-style `multiscales` object (`resampling_method`, `tile_matrix_set`)
+* multiscale data levels with explicit dataset paths
+* CF-style dataset members and `grid_mapping` linkage checks
+
+Partially implemented:
+
+* root projection metadata currently uses `proj:code` (not full `proj:wkt2`/`proj:projjson` at root)
+* no `tile_matrix_limits` metadata yet in `multiscales`
+
+Planned/possible next steps:
+
+* add optional root `proj:wkt2` and/or `proj:projjson`
+* add `tile_matrix_limits` where useful
+* extend reducer-to-resampling mapping if additional methods are introduced
+
+### Measurement contract
+
+The implementation is Collection-driven:
+
+* `collection.item_assets` is mandatory
+* measurement keys are sourced from `collection.item_assets`
+* each input Item must include all declared measurement keys
+* no measurement inference from Item-only extra assets

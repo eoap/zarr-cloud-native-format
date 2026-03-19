@@ -1,0 +1,21 @@
+stac_api_endpoint:
+  headers: []
+  url: https://earth-search.aws.element84.com/v1/
+collection: sentinel-2-l2a
+bbox:
+  - -121.399
+  - 39.834
+  - -120.74
+  - 40.472
+start-datetime: "2021-06-01T00:00:00"
+end-datetime: "2021-08-01T23:59:59"
+limit: 20
+max-items: 10
+filter-lang: null
+filter: null
+bands:
+  - green
+  - nir
+overview_levels: 2
+continuous_overview_reducer: mean
+categorical_overview_reducer: nearest

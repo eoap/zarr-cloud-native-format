@@ -12,3 +12,4 @@ runs
 *-params.yaml
 *.aux.xml
 .ruff_cache/
+stac-collection-artifact

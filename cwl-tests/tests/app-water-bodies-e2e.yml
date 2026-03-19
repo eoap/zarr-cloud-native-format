@@ -1,0 +1,15 @@
+- id: producer-workflow-e2e
+  doc: End-to-end producer workflow test for app-water-bodies.cwl#water-bodies
+  tags:
+    - e2e
+    - producer
+    - network
+  tool: ../cwl-workflow/app-water-bodies.cwl#water-bodies
+  job: jobs/producer-job.yml
+  output:
+    zarr_stac_catalog:
+      class: Directory
+    stac_catalog:
+      class: Directory
+    eopf_product_stac_catalog:
+      class: Directory

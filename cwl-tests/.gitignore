@@ -1,0 +1,6 @@
+# Local test artifacts
+tmp/
+runs/
+badges/
+*.xml
+*.junit.xml

@@ -1,0 +1,99 @@
+version: "3"
+
+tasks:
+  containers:build:stac-collection:
+    desc: Build stac-collection:latest image
+    cmds:
+      - docker build -t stac-collection:latest command-line-tools/stac-collection
+
+  containers:build:stac-zarr:
+    desc: Build stac-zarr:latest image
+    cmds:
+      - docker build -t stac-zarr:latest command-line-tools/stac-zarr
+
+  containers:build:stac-eopf-product:
+    desc: Build stac-eopf-product:latest image
+    cmds:
+      - docker build -t stac-eopf-product:latest command-line-tools/stac-eopf-product
+
+  containers:build:occurrence:
+    desc: Build occurrence:latest image
+    cmds:
+      - docker build -t occurrence:latest command-line-tools/occurrence
+
+  containers:build:producer:
+    desc: Build all local images required by app-water-bodies.cwl local tools
+    deps:
+      - task: containers:build:stac-collection
+      - task: containers:build:stac-zarr
+      - task: containers:build:stac-eopf-product
+
+  containers:build:all:
+    desc: Build all local workflow images
+    deps:
+      - task: containers:build:producer
+      - task: containers:build:occurrence
+
+  cwl:run:producer:
+    desc: Run producer workflow directly with cwltool
+    cmds:
+      - |
+        uv run --with cwltool cwltool \
+          cwl-workflow/app-water-bodies.cwl#water-bodies \
+          cwl-tests/jobs/producer-job.yml
+
+  cwl:test:e2e:
+    desc: Run end-to-end CWL tests with cwltest
+    cmds:
+      - |
+        uv run --with cwltest --with cwltool cwltest \
+          --test tests/app-water-bodies-e2e.yml \
+          --basedir cwl-tests \
+          --tool cwltool \
+          --timeout 3600
+
+  cwl:check:codemeta:
+    desc: Validate CWL metadata with transpiler-mate codemeta
+    cmds:
+      - uv run --with transpiler-mate transpiler-mate codemeta cwl-workflow/app-water-bodies.cwl
+      - uv run --with transpiler-mate transpiler-mate codemeta cwl-workflow/app-water-bodies-occurrence.cwl
+
+  cwl:check:ogc:
+    desc: Validate CWL OGC transpilation with cwl2ogc
+    cmds:
+      - uv run --with cwl2ogc cwl2ogc --workflow-id water-bodies cwl-workflow/app-water-bodies.cwl
+      - uv run --with cwl2ogc cwl2ogc --workflow-id water-bodies-occurrence cwl-workflow/app-water-bodies-occurrence.cwl
+
+  cwl:check:release:
+    desc: Run release-oriented CWL checks (codemeta + OGC)
+    deps:
+      - task: cwl:check:codemeta
+      - task: cwl:check:ogc
+
+  test:stac-collection:
+    desc: Run scoped unit tests for stac-collection
+    cmds:
+      - |
+        cd command-line-tools/stac-collection && \
+        uv run --with pytest --with-editable . pytest -q tests
+
+  test:stac-zarr:
+    desc: Run scoped unit tests for stac-zarr
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with pytest --with-editable . pytest -q tests
+
+  test:stac-eopf-product:
+    desc: Run scoped unit tests for stac-eopf-product
+    cmds:
+      - |
+        cd command-line-tools/stac-eopf-product && \
+        uv run --with pytest --with-editable . pytest -q tests
+
+  test:unit:scoped:
+    desc: Run all scoped unit test suites
+    deps:
+      - task: test:stac-collection
+      - task: test:stac-zarr
+      - task: test:stac-eopf-product

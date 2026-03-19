@@ -1,5 +1,14 @@
 # Zarr Cloud-Native Workflow for Water Body Detection
 
+## Start Here
+
+* New contributor or team member: go to [Onboarding](onboarding.md)
+* Need STAC input contract details: go to [Input STAC Requirements](input-stac.md)
+* Need producer output semantics: go to [Producer Outputs Contract](producer-outputs.md)
+* Need conventions and implementation details: go to [STAC Zarr Best Practices](stac-zarr-best-practices.md)
+* Need current compliance status: go to [GeoZarr Minispec Compliance](geozarr-minispec-compliance.md)
+* Want an end-to-end runnable walkthrough: go to [TL;DR](exploitation.ipynb)
+
 ## Overview
 
 This module implements a cloud-native approach to detecting water bodies using Sentinel-2 data. The workflow uses the Common Workflow Language (CWL) for defining tasks and outputs data in the Zarr format, fully compatible with the STAC Datacube Extension.

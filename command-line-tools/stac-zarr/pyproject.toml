@@ -29,6 +29,7 @@ dependencies = [
   "odc-stac",
   "loguru",
   "zarr>=3.0.0",
+  "pydantic>=2,<3",
 ]
 
 [project.urls]

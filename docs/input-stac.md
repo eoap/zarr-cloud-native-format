@@ -131,3 +131,155 @@ Using item_assets as the measurement contract:
 * works equally well for native and virtual Zarr stores
 
 This approach treats the STAC Collection as the data model and Items as data carriers, which is consistent with datacube-oriented workflows.
+
+## GeoZarr Conventions Implemented in Zarr v3 Output
+
+The `stac-zarr` tool writes native Zarr v3 and annotates the root group with conventions metadata aligned with the GeoZarr conventions registry.
+
+Implemented conventions in `root.attrs["zarr_conventions"]`:
+
+* `proj:` (geo-proj convention)
+* `spatial:` (spatial convention)
+* `multiscales` (multiscales convention)
+
+### Root-level convention attributes
+
+The output Zarr root includes:
+
+* `proj:code`
+* `spatial:dimensions`
+* `spatial:bbox`
+* `spatial:shape`
+* `spatial:transform`
+* `multiscales`
+* `multiscales:datasets`
+
+These attributes are derived from the loaded datacube geobox and are consistent with the STAC Projection and Datacube metadata written in the output Collection.
+
+## Multiscale Layout Implemented
+
+For each measurement declared in `collection.item_assets`, the writer produces:
+
+```text
+<collection-id>.zarr/
+├── measurements/
+│   ├── <measurement>          # base level (level 0)
+│   ├── time
+│   ├── x
+│   ├── y
+│   └── spatial_ref
+└── measurements_overviews/
+    └── <measurement>/
+        ├── 1/
+        │   ├── <measurement>  # overview level 1 data array
+        │   ├── time
+        │   ├── x
+        │   ├── y
+        │   └── spatial_ref
+        ├── 2/
+        │   └── ...
+        └── ...
+```
+
+The root `multiscales` attribute uses TileMatrixSet-based metadata (`resampling_method`, `tile_matrix_set`), and `multiscales:datasets` lists per-measurement dataset paths and axes.
+
+## Overview Downsampling Configuration
+
+The tool supports overview generation with configurable reducers by variable type.
+
+CLI options:
+
+* `--overview-levels` (default: `2`)
+* `--continuous-overview-reducer` (default: `mean`)
+* `--categorical-overview-reducer` (default: `nearest`)
+
+Supported reducers:
+
+* `mean`
+* `max`
+* `median`
+* `nearest`
+
+Variable typing used by the implementation:
+
+* floating and complex dtypes: `continuous`
+* all other dtypes: `categorical`
+
+Overview metadata includes:
+
+* `overview:reducer`
+* `overview:variable_type`
+* `downsampling_factor`
+
+## GeoZarr Minispec Compliance Notes
+
+Reference:
+`https://eopf-explorer.github.io/data-model/geozarr-minispec/`
+
+Implemented in this writer:
+
+* convention metadata (`zarr_conventions`) for `proj:`, `spatial:`, `multiscales`
+* `spatial:*` root metadata and TileMatrixSet-style `multiscales`
+* CF-style dataset members (`time`, `x`, `y`, `spatial_ref`)
+* data-array attributes: `grid_mapping`, `coordinates`
+* dataset-level validation of coordinate and grid-mapping references
+
+Current limitations:
+
+* root projection metadata is currently `proj:code` only
+* `tile_matrix_limits` is not yet emitted
+
+## CWL Workflow Parameters
+
+The producer workflow exposes top-level STAC discovery fields in `app-water-bodies.cwl`:
+
+* `stac_api_endpoint`
+* `collection`
+* `bbox`
+* `start-datetime`
+* `end-datetime`
+* `limit`
+* `max-items`
+* `filter-lang`
+* `filter`
+
+These are normalized internally into `STACSearchSettings` before the `discovery` step.
+
+The producer workflow also exposes Zarr overview controls:
+
+* `overview_levels`
+* `continuous_overview_reducer`
+* `categorical_overview_reducer`
+
+These are passed to the `stac-zarr` CommandLineTool as:
+
+* `--overview-levels`
+* `--continuous-overview-reducer`
+* `--categorical-overview-reducer`
+
+## `stac-eopf-product` Interface (Internal in CWL)
+
+The producer workflow includes an internal `stac-eopf-product` step that is currently fed from `stac-collection/temp_stac_catalog`.
+
+Its CommandLineTool interface supports:
+
+* `--stac-catalog`
+* `--resolution` (optional)
+* `--chunks` (`manual|auto`)
+* `--chunk-x`
+* `--chunk-y`
+* `--chunk-time`
+
+These are defined at `cwl-workflow/app-water-bodies.cwl#stac-eopf-product` and default to:
+
+* `resolution: null`
+* `chunks: manual`
+* `chunk-x: 512`
+* `chunk-y: 512`
+* `chunk-time: 1`
+
+Input contract for this step:
+
+* Collection `item_assets` is mandatory
+* measurement keys are derived from `collection.item_assets`
+* each input Item must include all declared measurement keys

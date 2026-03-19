@@ -57,6 +57,9 @@ extra_javascript:
 
 nav:
   - Introduction: 'index.md'
+  - Onboarding: 'onboarding.md'
+  - Producer Outputs Contract: 'producer-outputs.md'
+  - GeoZarr Minispec Compliance: 'geozarr-minispec-compliance.md'
   - STAC Zarr Best Practices: 'stac-zarr-best-practices.md'
   - Input STAC Requirements: 'input-stac.md'
   - TL;DR: exploitation.ipynb

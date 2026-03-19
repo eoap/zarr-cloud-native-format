@@ -11,6 +11,7 @@ jobs:
     uses: eoap/eoap-cwl-release-workflow/.github/workflows/release-cwl.yml@main
     with:
       tools: '["occurrence","stac-collection","stac-eopf-product","stac-zarr"]'
+      entrypoint: app-water-bodies.cwl#water-bodies
       image-prefix: eoap/zarr-cloud-native-format
       registry: ghcr.io
       cwl-workflow-dir: cwl-workflow

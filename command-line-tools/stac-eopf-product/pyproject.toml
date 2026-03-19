@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "zarr-cloud-native-format"
+name = "stac-eopf-product"
 dynamic = ["version"]
-description = 'Zarr Cloud-Native Workflow for Water Body Detection'
+description = 'STAC EOPF ProductCloud-Native Format Utilities'
 
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -26,16 +26,9 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "numpy==2.3.5",
-  "eopf",
   "odc-stac",
-  "ipykernel",
-  "cwltool",
   "loguru",
-  "zarr",
-  "matplotlib",
-  "graphviz",
-  "pillow"
+  "eopf",
 ]
 
 [project.urls]
@@ -43,15 +36,29 @@ Documentation = "https://eoap.github.io/zarr-cloud-native-format/"
 Issues = "https://github.com/eoap/zarr-cloud-native-format/issues"
 Source = "https://github.com/eoap/zarr-cloud-native-format"
 
+[tool.hatch.envs.prod]
+path = "/app/envs/prod"
+
 [tool.hatch.version]
-path = "zarr_cloud_native_format/__about__.py"
+path = "stac_eopf_product/__about__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["zarr_cloud_native_format"]
+packages = ["stac_eopf_product"]
 
 [tool.hatch.envs.types]
 extra-dependencies = [
   "mypy>=1.0.0",
 ]
 
+[project.scripts]
+stac-eopf-product = "stac_eopf_product.app:to_eopf"
 
+[tool.hatch.envs.dev]
+description = "Development environment"
+dependencies = [
+  "ruff",
+]
+
+[tool.hatch.envs.dev.scripts]
+lint = "ruff format ."
+check = "ruff check --fix"

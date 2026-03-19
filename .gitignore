@@ -11,3 +11,4 @@ __pycache__/
 runs
 *-params.yaml
 *.aux.xml
+.ruff_cache/

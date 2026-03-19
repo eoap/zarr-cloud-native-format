@@ -52,6 +52,24 @@ tasks:
           --tool cwltool \
           --timeout 3600
 
+  cwl:check:codemeta:
+    desc: Validate CWL metadata with transpiler-mate codemeta
+    cmds:
+      - uv run --with transpiler-mate transpiler-mate codemeta cwl-workflow/app-water-bodies.cwl
+      - uv run --with transpiler-mate transpiler-mate codemeta cwl-workflow/app-water-bodies-occurrence.cwl
+
+  cwl:check:ogc:
+    desc: Validate CWL OGC transpilation with cwl2ogc
+    cmds:
+      - uv run --with cwl2ogc cwl2ogc --workflow-id water-bodies cwl-workflow/app-water-bodies.cwl
+      - uv run --with cwl2ogc cwl2ogc --workflow-id water-bodies-occurrence cwl-workflow/app-water-bodies-occurrence.cwl
+
+  cwl:check:release:
+    desc: Run release-oriented CWL checks (codemeta + OGC)
+    deps:
+      - task: cwl:check:codemeta
+      - task: cwl:check:ogc
+
   test:stac-collection:
     desc: Run scoped unit tests for stac-collection
     cmds:

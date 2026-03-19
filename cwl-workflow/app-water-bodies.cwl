@@ -2,6 +2,27 @@ cwlVersion: v1.0
 $namespaces:
   s: https://schema.org/
 s:softwareVersion: 1.1.0
+s:name: Water bodies detection workflow
+s:description: Water bodies detection based on NDWI and Otsu threshold applied to Sentinel-2 COG STAC items
+s:dateCreated: "2026-03-19"
+s:license: https://spdx.org/licenses/MIT.html
+s:softwareHelp:
+  class: s:CreativeWork
+  s:name: Zarr Cloud-Native Format documentation
+  s:url: https://eoap.github.io/zarr-cloud-native-format/
+s:publisher:
+  class: s:Organization
+  s:name: EOAP
+s:author:
+  - class: s:Person
+    s:givenName: Fabrice
+    s:familyName: Brito
+    s:email: info@terradue.com
+    s:affiliation:
+      class: s:Organization
+      s:name: Terradue
+s:codeRepository:
+  URL: https://github.com/eoap/zarr-cloud-native-format.git
 schemas:
   - http://schema.org/version/9.0/schemaorg-current-http.rdf
 $graph:
@@ -722,10 +743,3 @@ $graph:
         outputBinding:
           glob: .
         type: Directory
-s:codeRepository:
-  URL: https://github.com/eoap/zarr-cloud-native-format.git 
-s:author:
-  - class: s:Person
-    s.name: Jane Doe
-    s.email: jane.doe@acme.earth
-    s.affiliation: ACME

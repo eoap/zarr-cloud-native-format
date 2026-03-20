@@ -67,6 +67,11 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Set up Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+
       - name: Validate TileMatrixSet multiscales profile
         run: task compliance:check:multiscales-tms
 
@@ -87,6 +92,11 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Set up Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+
       - name: Validate upstream multiscales schema compatibility (non-blocking)
         run: task compliance:check:multiscales
 
@@ -105,6 +115,11 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+
+      - name: Set up Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
 
       - name: Validate geo-proj schema compliance
         run: task compliance:check:geo-proj
@@ -125,6 +140,11 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Set up Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+
       - name: Validate spatial schema compliance
         run: task compliance:check:spatial
 
@@ -143,6 +163,11 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+
+      - name: Set up Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
 
       - name: Validate EOPF Explorer profile compatibility
         run: task compliance:check:eopf-explorer

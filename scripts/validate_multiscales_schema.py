@@ -9,7 +9,6 @@ import urllib.request
 from jsonschema import ValidationError, validate
 
 from stac_zarr.constants import MULTISCALES_CONVENTION
-from stac_zarr.models.multiscales import Multiscales, TileMatrixLimit, TileMatrixSet
 from stac_zarr.multiscales import build_tile_matrix_limits, build_tile_matrix_set
 from stac_zarr.reducers import to_resampling_method
 
@@ -27,15 +26,11 @@ def build_multiscales_payload() -> dict:
         chunk_shape=[512, 512],
     )
     tile_matrix_limits = build_tile_matrix_limits(tile_matrix_set)
-    multiscales = Multiscales(
-        resampling_method=to_resampling_method("mean"),
-        tile_matrix_set=TileMatrixSet.model_validate(tile_matrix_set),
-        tile_matrix_limits=[
-            TileMatrixLimit.model_validate(limit)
-            for limit in tile_matrix_limits
-        ],
-    )
-    return multiscales.model_dump(by_alias=True, exclude_none=True)
+    return {
+        "resampling_method": to_resampling_method("mean"),
+        "tile_matrix_set": tile_matrix_set,
+        "tile_matrix_limits": tile_matrix_limits,
+    }
 
 
 def main() -> int:

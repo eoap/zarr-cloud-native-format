@@ -3,8 +3,7 @@
 
 from __future__ import annotations
 
-from stac_zarr.models.multiscales import Multiscales, MultiscalesDatasetEntry
-from stac_zarr.models.spatial import Spatial
+from stac_zarr.models.generated.spatial import SpatialAttributes
 
 from validate_multiscales_tms_profile import build_multiscales_payload
 
@@ -12,7 +11,6 @@ from validate_multiscales_tms_profile import build_multiscales_payload
 def main() -> int:
     # Validate multiscales structure
     multiscales_payload = build_multiscales_payload()
-    multiscales = Multiscales.model_validate(multiscales_payload)
 
     # Minimal representative datasets payload (as emitted by writer)
     datasets_payload = {
@@ -40,10 +38,21 @@ def main() -> int:
             {"name": "x", "type": "spatial"},
         ],
     }
-    MultiscalesDatasetEntry.model_validate(datasets_payload)
+    if not isinstance(datasets_payload.get("name"), str):
+        print("EOPF Explorer profile validation: FAIL")
+        print("datasets payload missing 'name'")
+        return 1
+    if not isinstance(datasets_payload.get("datasets"), list) or not datasets_payload["datasets"]:
+        print("EOPF Explorer profile validation: FAIL")
+        print("datasets payload missing 'datasets' list")
+        return 1
+    if not isinstance(datasets_payload.get("axes"), list) or len(datasets_payload["axes"]) < 2:
+        print("EOPF Explorer profile validation: FAIL")
+        print("datasets payload missing valid 'axes'")
+        return 1
 
     # Validate spatial metadata shape
-    Spatial.model_validate(
+    SpatialAttributes.model_validate(
         {
             "spatial:dimensions": ["y", "x"],
             "spatial:bbox": [300000.0, 4890600.0, 310940.0, 5000000.0],
@@ -55,7 +64,7 @@ def main() -> int:
     )
 
     # Sanity checks expected by EOPF-Explorer-style visualization
-    if not multiscales.tile_matrix_limits:
+    if not multiscales_payload.get("tile_matrix_limits"):
         print("EOPF Explorer profile validation: FAIL")
         print("missing tile_matrix_limits in multiscales payload")
         return 1

@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from stac_zarr.models.multiscales import Multiscales
-from stac_zarr.models.multiscales import TileMatrixLimit, TileMatrixSet
 from stac_zarr.multiscales import build_tile_matrix_limits, build_tile_matrix_set
 from stac_zarr.reducers import to_resampling_method
 
@@ -17,23 +15,19 @@ def build_multiscales_payload() -> dict:
         chunk_shape=[512, 512],
     )
     tile_matrix_limits = build_tile_matrix_limits(tile_matrix_set)
-    multiscales = Multiscales(
-        resampling_method=to_resampling_method("mean"),
-        tile_matrix_set=TileMatrixSet.model_validate(tile_matrix_set),
-        tile_matrix_limits=[
-            TileMatrixLimit.model_validate(limit)
-            for limit in tile_matrix_limits
-        ],
-    )
-    return multiscales.model_dump(by_alias=True, exclude_none=True)
+    return {
+        "resampling_method": to_resampling_method("mean"),
+        "tile_matrix_set": tile_matrix_set,
+        "tile_matrix_limits": tile_matrix_limits,
+    }
 
 
 def main() -> int:
     payload = build_multiscales_payload()
-    model = Multiscales.model_validate(payload)
-
-    matrices = {m.id: m for m in model.tile_matrix_set.tile_matrices}
-    limits = model.tile_matrix_limits or []
+    tms = payload.get("tile_matrix_set", {})
+    matrices_list = tms.get("tileMatrices", [])
+    matrices = {m["id"]: m for m in matrices_list if isinstance(m, dict) and "id" in m}
+    limits = payload.get("tile_matrix_limits") or []
 
     if len(limits) != len(matrices):
         print("multiscales TMS-profile validation: FAIL")
@@ -41,22 +35,29 @@ def main() -> int:
         return 1
 
     for limit in limits:
-        matrix = matrices.get(limit.tile_matrix)
+        tile_matrix_id = limit.get("tileMatrix")
+        matrix = matrices.get(tile_matrix_id)
         if matrix is None:
             print("multiscales TMS-profile validation: FAIL")
-            print(f"limit references unknown tileMatrix '{limit.tile_matrix}'")
+            print(f"limit references unknown tileMatrix '{tile_matrix_id}'")
             return 1
-        if limit.min_tile_row < 0 or limit.min_tile_col < 0:
+        min_row = int(limit.get("minTileRow", -1))
+        min_col = int(limit.get("minTileCol", -1))
+        max_row = int(limit.get("maxTileRow", -1))
+        max_col = int(limit.get("maxTileCol", -1))
+        if min_row < 0 or min_col < 0:
             print("multiscales TMS-profile validation: FAIL")
-            print(f"negative minimum tile index for '{limit.tile_matrix}'")
+            print(f"negative minimum tile index for '{tile_matrix_id}'")
             return 1
-        if limit.min_tile_row > limit.max_tile_row or limit.min_tile_col > limit.max_tile_col:
+        if min_row > max_row or min_col > max_col:
             print("multiscales TMS-profile validation: FAIL")
-            print(f"invalid min/max ordering for '{limit.tile_matrix}'")
+            print(f"invalid min/max ordering for '{tile_matrix_id}'")
             return 1
-        if limit.max_tile_row >= matrix.matrix_height or limit.max_tile_col >= matrix.matrix_width:
+        matrix_height = int(matrix.get("matrixHeight", 0))
+        matrix_width = int(matrix.get("matrixWidth", 0))
+        if max_row >= matrix_height or max_col >= matrix_width:
             print("multiscales TMS-profile validation: FAIL")
-            print(f"tile limits exceed matrix dimensions for '{limit.tile_matrix}'")
+            print(f"tile limits exceed matrix dimensions for '{tile_matrix_id}'")
             return 1
 
     print("multiscales TMS-profile validation: PASS")

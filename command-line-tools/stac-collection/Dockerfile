@@ -31,9 +31,11 @@ USER neo
 WORKDIR /app
 
 ENV VIRTUAL_ENV=/app/venv
-ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
+ENV PATH="${VIRTUAL_ENV}/bin:${PATH}:/usr/bin"
 
-RUN PYBIN="$(command -v python3 || command -v python)" && \
+RUN PYBIN="$(command -v python3 || command -v python3.12 || command -v python || command -v platform-python || true)" && \
+    [ -n "$PYBIN" ] && \
+    echo "Using Python interpreter: $PYBIN" && \
     "$PYBIN" -m venv /app/venv && \
     /app/venv/bin/pip install --no-cache-dir --upgrade pip
 

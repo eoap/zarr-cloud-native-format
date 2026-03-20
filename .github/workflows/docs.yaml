@@ -10,6 +10,7 @@ on:
       - 'docs/**'
       - 'mkdocs.yml'
       - .github/workflows/docs.yaml
+      - cwl-workflow/app-*.cwl
 
 jobs:
 

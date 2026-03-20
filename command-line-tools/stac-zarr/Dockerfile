@@ -1,60 +1,42 @@
-# Stage 1: Build stage
-FROM rockylinux:9.3-minimal AS build
+FROM rockylinux/rockylinux:10.1-minimal AS builder
 
-# Install necessary build tools
-RUN microdnf install -y curl tar
-
-# Download the hatch tar.gz file from GitHub
-RUN curl -L https://github.com/pypa/hatch/releases/latest/download/hatch-x86_64-unknown-linux-gnu.tar.gz -o /tmp/hatch-x86_64-unknown-linux-gnu.tar.gz
-
-# Extract the hatch binary
-RUN tar -xzf /tmp/hatch-x86_64-unknown-linux-gnu.tar.gz -C /tmp/
-
-# Stage 2: Final stage
-FROM rockylinux:9.3-minimal
-
-# Install runtime dependencies
-RUN microdnf install -y --nodocs nodejs && \
+RUN microdnf -y update && \
+    microdnf -y install curl tar python3 python3-pip python3-setuptools gcc && \
     microdnf clean all
 
-# Set up a default user and home directory
+RUN curl -L https://github.com/pypa/hatch/releases/download/hatch-v1.14.0/hatch-x86_64-unknown-linux-gnu.tar.gz \
+      -o /tmp/hatch.tar.gz && \
+    tar -xzf /tmp/hatch.tar.gz -C /tmp && \
+    install -m 0755 /tmp/hatch /usr/local/bin/hatch && \
+    rm -rf /tmp/hatch* /tmp/hatch.tar.gz
+
+WORKDIR /src
+COPY . /src
+
+RUN hatch build -t wheel
+
+FROM rockylinux/rockylinux:10.1-minimal AS runtime
+
+RUN microdnf -y update && \
+    microdnf -y install python3 python3-pip && \
+    microdnf clean all
+
 ENV HOME=/home/neo
-
-# Create a user with UID 1001, group root, and a home directory
-RUN useradd -u 1001 -r -g 0 -m -d ${HOME} -s /sbin/nologin \
-        -c "Default User" neo && \
+RUN /usr/sbin/groupadd -g 1000 neo && \
+    /usr/sbin/useradd -u 1000 -g 1000 -m -d ${HOME} -s /sbin/nologin neo && \
     mkdir -p /app && \
-    mkdir -p /prod && \
-    chown -R 1001:0 /app && \
-    chmod g+rwx ${HOME} /app
+    chown -R 1000:1000 /app ${HOME}
 
-# Copy the hatch binary from the build stage
-COPY --from=build /tmp/hatch /usr/bin/hatch
-
-# Ensure the hatch binary is executable
-RUN chmod +x /usr/bin/hatch
-
-RUN microdnf install -y expat && microdnf clean all
-
-# Switch to the non-root user
 USER neo
-
-# Copy the application files into the /app directory
-COPY --chown=1001:0 . /app
 WORKDIR /app
 
-# Set up virtual environment paths
-ENV VIRTUAL_ENV=/app/envs/prod
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-ENV XDG_DATA_HOME=/app/.hatch/share
-ENV XDG_CACHE_HOME=/app/.hatch/cache
-ENV XDG_CONFIG_HOME=/app/.hatch/config
+ENV VIRTUAL_ENV=/app/venv
+ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
-# Prune any existing environments and create a new production environment
-RUN hatch env prune && \
-    hatch env create prod && \
-    #rm -fr /app/.git /app/.pytest_cache && \
-    rm -fr ~/.local && \
+RUN python3 -m venv /app/venv && \
+    /app/venv/bin/pip install --no-cache-dir --upgrade pip
+
+COPY --from=builder /src/dist/*.whl /app/dist/
+
+RUN /app/venv/bin/pip install --no-cache-dir /app/dist/*.whl && \
     stac-zarr --help
-
-WORKDIR /app

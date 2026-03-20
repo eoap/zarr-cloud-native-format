@@ -58,7 +58,7 @@ extra_javascript:
 nav:
   - Introduction: 'index.md'
   - Design:
-    - water-bodies: 'water-bodies.md'
+    - water-bodies: 'design/water-bodies.md'
   - On-boarding:
     - Developers: 'on-boarding/developers.md'
     - EOAP Users: 'on-boarding/eoap-users.md'

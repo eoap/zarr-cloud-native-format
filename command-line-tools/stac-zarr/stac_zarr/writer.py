@@ -496,7 +496,7 @@ def run_to_zarr(
                 "multiscales": multiscales_model,
                 "multiscales:datasets": multiscales_entries,
                 **root_proj_metadata,
-                **spatial_model.model_dump(by_alias=True, exclude_none=True),
+                **spatial_model.model_dump(by_alias=True, exclude_none=True, mode="json"),
             }
         )
 

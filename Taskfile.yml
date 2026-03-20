@@ -40,7 +40,8 @@ tasks:
       - |
         uv run --with cwltool cwltool \
           cwl-workflow/app-water-bodies.cwl#water-bodies \
-          cwl-tests/jobs/producer-job.yml
+          cwl-tests/jobs/producer-job.yml \
+          > cwl-tests/results.json
 
   cwl:test:e2e:
     desc: Run end-to-end CWL tests with cwltest
@@ -188,9 +189,11 @@ tasks:
     cmds:
     - defer: rm -f docs/ml4floods/*.puml
     - |
-      uv run --no-cache --with "transpiler-mate>=0.31.0" transpiler-mate markdown --workflow-id water-bodies --output docs --code-repository $(git remote get-url origin) cwl-workflow/app-water-bodies.cwl
-      uv run --with cwl2puml cwl2puml --workflow-id water-bodies --output docs/water-bodies --convert-image --image-format svg cwl-workflow/app-water-bodies.cwl
-      rm -f docs/water-bodies/*.puml
+      uv run --no-cache --with "transpiler-mate>=0.31.0" transpiler-mate markdown --workflow-id water-bodies --output docs/design --code-repository $(git remote get-url origin) cwl-workflow/app-water-bodies.cwl
+      uv run --with cwl2puml cwl2puml --workflow-id water-bodies --output docs/design/water-bodies --convert-image --image-format svg cwl-workflow/app-water-bodies.cwl
+      uv run --with cwl2puml cwl2puml --workflow-id detect_water_body --output docs/design/detect_water_body --convert-image --image-format svg cwl-workflow/app-water-bodies.cwl
+      rm -f docs/design/water-bodies/*.puml
+      rm -f docs/design/detect_water_body/*.puml
 
   titiler:eopf:run:
     desc: Run titiler-eopf locally against a mounted data root
@@ -204,6 +207,52 @@ tasks:
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       DATA_ROOT: '{{default "." .DATA_ROOT}}'
+
+  titiler:eopf:run:results:
+    desc: Run titiler-eopf using zarr_stac_catalog path from CWL results.json
+    cmds:
+      - |
+        set -euo pipefail
+        DATA_ROOT=$(python - <<'PY'
+        import json
+        from pathlib import Path
+        from urllib.parse import urlparse
+
+        results = Path("{{.RESULTS_FILE}}")
+        payload = json.loads(results.read_text())
+        zarr_catalog = payload.get("zarr_stac_catalog", {})
+        location = zarr_catalog.get("location") or zarr_catalog.get("path")
+        if not location:
+            raise SystemExit("results.json missing zarr_stac_catalog.location/path")
+        if isinstance(location, str) and location.startswith("file://"):
+            location = urlparse(location).path
+        print(location)
+        PY
+        )
+
+        if [ ! -d "$DATA_ROOT" ]; then
+          echo "Resolved DATA_ROOT does not exist: $DATA_ROOT"
+          exit 1
+        fi
+
+        echo "Using DATA_ROOT=$DATA_ROOT"
+        docker run --rm -it \
+          -p {{.TITILER_PORT}}:80 \
+          -e TITILER_EOPF_STORE_URL=file:///data/ \
+          -v "$DATA_ROOT":/data \
+          ghcr.io/eopf-explorer/titiler-eopf:latest
+    vars:
+      TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
+      RESULTS_FILE: '{{default "cwl-tests/results.json" .RESULTS_FILE}}'
+
+  examples:serve:
+    desc: Serve repository files over HTTP (for examples/titiler-eopf-client.html)
+    cmds:
+      - |
+        echo "Open http://127.0.0.1:{{.EXAMPLES_PORT}}/examples/titiler-eopf-client.html"
+        python -m http.server {{.EXAMPLES_PORT}}
+    vars:
+      EXAMPLES_PORT: '{{default "8090" .EXAMPLES_PORT}}'
 
   titiler:eopf:smoke:
     desc: Smoke test titiler-eopf dataset endpoint (requires running titiler:eopf:run)

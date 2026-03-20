@@ -86,6 +86,9 @@
         font-size: 0.8rem;
         color: #4d5c6a;
       }
+      .hidden {
+        display: none;
+      }
       @media (max-width: 900px) {
         .layout {
           grid-template-columns: 1fr;
@@ -126,10 +129,6 @@
           <button id="loadMetaBtn" type="button">Load measurements and dates</button>
         </div>
         <div class="row">
-          <label for="measurement">Measurement</label>
-          <select id="measurement"></select>
-        </div>
-        <div class="row">
           <label for="date">Date/time (from Collection summaries.datetime)</label>
           <select id="date">
             <option value="">(none)</option>
@@ -137,15 +136,14 @@
           <div class="hint">If empty, viewer falls back to <code>bidx=1</code>.</div>
         </div>
         <div class="row">
-          <label for="rescale">Rescale</label>
-          <input id="rescale" value="-1,1" />
+          <button id="buildLayersBtn" type="button">Build layers from renders</button>
         </div>
         <div class="row">
-          <label for="colormap">Colormap</label>
-          <input id="colormap" value="viridis" />
-        </div>
-        <div class="row">
-          <button id="renderBtn" type="button">Render layer</button>
+          <button id="toggleLinksBtn" class="secondary" type="button">Show web map links</button>
+          <div id="xyzLinksWrap" class="hidden">
+            <label>XYZ web-map links</label>
+            <div id="xyzLinks" class="hint"></div>
+          </div>
         </div>
         <div class="row">
           <button id="clearBtn" class="secondary" type="button">Clear layer</button>
@@ -163,10 +161,27 @@
       }).addTo(map);
 
       let dataLayer = null;
+      let layerControl = null;
+      let overlayLayers = {};
+      let currentRenders = {};
+      let measurementKeys = [];
+      let renderDefs = [];
+      let linksVisible = false;
 
       const el = (id) => document.getElementById(id);
       const setStatus = (msg) => {
         el("status").textContent = msg;
+      };
+      const updateLinksVisibility = () => {
+        const wrap = el("xyzLinksWrap");
+        const btn = el("toggleLinksBtn");
+        if (linksVisible) {
+          wrap.classList.remove("hidden");
+          btn.textContent = "Hide web map links";
+        } else {
+          wrap.classList.add("hidden");
+          btn.textContent = "Show web map links";
+        }
       };
 
       function apiBase() {
@@ -185,15 +200,96 @@
         return `${apiBase()}/collections/${collectionId()}`;
       }
 
-      function buildCollectionJsonFallbackUrl() {
+      async function buildCollectionJsonFallbackUrl() {
         const explicit = el("collectionJsonUrl").value.trim();
         if (explicit) return explicit;
         const id = decodeURIComponent(collectionId());
-        return `${window.location.origin}/command-line-tools/stac-zarr/${id}/collection.json`;
+        const origin = window.location.origin;
+        const legacy = `${origin}/command-line-tools/stac-zarr/${id}/collection.json`;
+
+        try {
+          const res = await fetch(`${origin}/cwl-tests/results.json`);
+          if (!res.ok) return legacy;
+          const payload = await res.json();
+          const zarrCatalog = payload?.zarr_stac_catalog || {};
+          const runDir = zarrCatalog?.basename;
+          if (!runDir) return legacy;
+
+          const listing = Array.isArray(zarrCatalog?.listing) ? zarrCatalog.listing : [];
+          const directoryEntries = listing.filter((entry) => entry?.class === "Directory");
+          const preferred =
+            directoryEntries.find((entry) => entry?.basename === id)?.basename ||
+            directoryEntries[0]?.basename ||
+            id;
+
+          return `${origin}/${runDir}/${preferred}/collection.json`;
+        } catch (err) {
+          return legacy;
+        }
       }
 
       function buildKeysUrl() {
         return `${apiBase()}/collections/${collectionId()}/items/${itemId()}/dataset/keys`;
+      }
+
+      function parseMeasurementFromExpression(expression) {
+        if (typeof expression !== "string") return null;
+        const match = expression.match(/^\/[^:]+:([^\s]+)$/);
+        return match && match[1] ? match[1] : null;
+      }
+
+      function normalizeRenderDefinitions(effectiveKeys, renders) {
+        const strippedKeys = effectiveKeys
+          .filter((k) => typeof k === "string")
+          .map((k) => k.replace(/^\/measurements:/, ""));
+
+        const defs = [];
+        if (renders && typeof renders === "object" && Object.keys(renders).length > 0) {
+          Object.entries(renders).forEach(([renderId, renderObj]) => {
+            if (!renderObj || typeof renderObj !== "object") return;
+            let measurement = parseMeasurementFromExpression(renderObj.expression);
+            if (!measurement) {
+              const assets = renderObj.assets;
+              if (Array.isArray(assets) && assets.length > 0) {
+                const direct = assets.find((a) => strippedKeys.includes(a));
+                measurement = direct || null;
+              } else if (typeof assets === "string" && strippedKeys.includes(assets)) {
+                measurement = assets;
+              }
+            }
+            if (!measurement) return;
+            defs.push({
+              id: renderId,
+              measurement,
+              rescale:
+                Array.isArray(renderObj.rescale) &&
+                renderObj.rescale.length > 0 &&
+                Array.isArray(renderObj.rescale[0])
+                  ? `${renderObj.rescale[0][0]},${renderObj.rescale[0][1]}`
+                  : null,
+              colormap_name:
+                typeof renderObj.colormap_name === "string" ? renderObj.colormap_name : null,
+              colormap:
+                renderObj.colormap && typeof renderObj.colormap === "object"
+                  ? JSON.stringify(renderObj.colormap)
+                  : null,
+            });
+          });
+        }
+
+        if (defs.length === 0) {
+          strippedKeys.forEach((measurement) => {
+            defs.push({
+              id: measurement,
+              measurement,
+              rescale: measurement === "ndwi" ? "-1,1" : "0,1",
+              colormap_name: measurement === "water-bodies" ? "blues" : "viridis",
+              colormap: null,
+            });
+          });
+        }
+
+        return defs;
       }
 
       async function loadMetadata() {
@@ -210,20 +306,14 @@
           const keys = await keysRes.json();
           const visibleKeys = keys.filter((k) => k.startsWith("/measurements:"));
           const effectiveKeys = visibleKeys.length > 0 ? visibleKeys : keys;
-          const measurementSel = el("measurement");
-          measurementSel.innerHTML = "";
-          effectiveKeys.forEach((k) => {
-            const option = document.createElement("option");
-            option.value = k;
-            option.textContent = k;
-            measurementSel.appendChild(option);
-          });
+          measurementKeys = effectiveKeys;
 
           const dateSel = el("date");
           dateSel.innerHTML = '<option value="">(none)</option>';
+          let collectionPayload = null;
           if (collRes.ok) {
-            const coll = await collRes.json();
-            const dates = coll?.summaries?.datetime || [];
+            collectionPayload = await collRes.json();
+            const dates = collectionPayload?.summaries?.datetime || [];
             dates.forEach((d) => {
               const option = document.createElement("option");
               option.value = d;
@@ -232,12 +322,35 @@
             });
           }
 
-          if (dateSel.options.length <= 1) {
+          const initialRenders = collectionPayload?.renders || {};
+          const missingDates = dateSel.options.length <= 1;
+          const missingRenders = Object.keys(initialRenders).length === 0;
+          if (missingDates || missingRenders) {
             try {
-              const fallbackUrl = buildCollectionJsonFallbackUrl();
+              const fallbackUrl = await buildCollectionJsonFallbackUrl();
               const fallbackRes = await fetch(fallbackUrl);
               if (fallbackRes.ok) {
                 const fallbackColl = await fallbackRes.json();
+                if (!collectionPayload) {
+                  collectionPayload = fallbackColl;
+                } else {
+                  if (
+                    (!collectionPayload.renders ||
+                      Object.keys(collectionPayload.renders).length === 0) &&
+                    fallbackColl?.renders
+                  ) {
+                    collectionPayload.renders = fallbackColl.renders;
+                  }
+                  if (
+                    (!collectionPayload.summaries ||
+                      !Array.isArray(collectionPayload.summaries.datetime) ||
+                      collectionPayload.summaries.datetime.length === 0) &&
+                    Array.isArray(fallbackColl?.summaries?.datetime)
+                  ) {
+                    collectionPayload.summaries = collectionPayload.summaries || {};
+                    collectionPayload.summaries.datetime = fallbackColl.summaries.datetime;
+                  }
+                }
                 const dates = fallbackColl?.summaries?.datetime || [];
                 dates.forEach((d) => {
                   const option = document.createElement("option");
@@ -249,7 +362,6 @@
                   setStatus(
                     `Loaded ${effectiveKeys.length} measurement(s) and ${dates.length} date value(s) from fallback collection.json.`
                   );
-                  return;
                 }
               }
             } catch (err) {
@@ -257,17 +369,29 @@
             }
           }
 
-          setStatus(`Loaded ${effectiveKeys.length} measurement(s).`);
+          currentRenders = collectionPayload?.renders || {};
+          renderDefs = normalizeRenderDefinitions(effectiveKeys, currentRenders);
+
+          setStatus(
+            `Loaded ${effectiveKeys.length} measurement key(s), ${Math.max(
+              0,
+              dateSel.options.length - 1
+            )} date value(s), ${renderDefs.length} layer definition(s).`
+          );
         } catch (err) {
           setStatus(`Metadata load failed: ${err.message}`);
         }
       }
 
-      function buildTileJsonUrl() {
+      function buildTileJsonUrl(def) {
         const params = new URLSearchParams();
-        params.set("variables", el("measurement").value);
-        params.set("rescale", el("rescale").value.trim());
-        params.set("colormap_name", el("colormap").value.trim());
+        params.set("variables", `/measurements:${def.measurement}`);
+        if (def.rescale) params.set("rescale", def.rescale);
+        if (def.colormap) {
+          params.set("colormap", def.colormap);
+        } else if (def.colormap_name) {
+          params.set("colormap_name", def.colormap_name);
+        }
 
         const selectedDate = el("date").value.trim();
         if (selectedDate) {
@@ -280,54 +404,110 @@
         return `${apiBase()}/collections/${collectionId()}/items/${itemId()}/WebMercatorQuad/tilejson.json?${params.toString()}`;
       }
 
-      async function renderLayer() {
-        setStatus("Requesting tilejson...");
+      async function buildLayersFromRenders() {
+        if (!renderDefs.length) {
+          setStatus("No render definitions loaded. Click 'Load measurements and dates' first.");
+          return;
+        }
+        setStatus("Building layer set from render definitions...");
         try {
-          const url = buildTileJsonUrl();
-          const res = await fetch(url);
-          if (!res.ok) {
-            throw new Error(`tilejson failed: ${res.status}`);
-          }
-          const tj = await res.json();
-          if (!tj.tiles || !tj.tiles.length) {
-            throw new Error("No tiles in tilejson response.");
+          clearLayer();
+          const xyzLinks = [];
+          let firstBounds = null;
+          let firstCenter = null;
+
+          for (const def of renderDefs) {
+            const url = buildTileJsonUrl(def);
+            const res = await fetch(url);
+            if (!res.ok) {
+              throw new Error(`tilejson failed for '${def.id}': ${res.status}`);
+            }
+            const tj = await res.json();
+            if (!tj.tiles || !tj.tiles.length) {
+              continue;
+            }
+            const xyz = tj.tiles[0];
+            xyzLinks.push({ id: def.id, xyz });
+            const layer = L.tileLayer(xyz, {
+              maxZoom: tj.maxzoom || 22,
+              opacity: 0.85,
+            });
+            overlayLayers[def.id] = layer;
+            if (!dataLayer) {
+              dataLayer = layer.addTo(map);
+            }
+            if (!firstBounds && Array.isArray(tj.bounds) && tj.bounds.length === 4) {
+              firstBounds = tj.bounds;
+            }
+            if (!firstCenter && Array.isArray(tj.center) && tj.center.length >= 2) {
+              firstCenter = tj.center;
+            }
           }
 
-          if (dataLayer) {
-            map.removeLayer(dataLayer);
+          if (layerControl) {
+            map.removeControl(layerControl);
           }
-          dataLayer = L.tileLayer(tj.tiles[0], {
-            maxZoom: tj.maxzoom || 22,
-            opacity: 0.85,
-          }).addTo(map);
+          layerControl = L.control.layers({}, overlayLayers, { collapsed: false }).addTo(map);
 
-          if (Array.isArray(tj.bounds) && tj.bounds.length === 4) {
+          const linksNode = el("xyzLinks");
+          linksNode.innerHTML = "";
+          xyzLinks.forEach(({ id, xyz }) => {
+            const wrapper = document.createElement("div");
+            wrapper.style.marginBottom = "6px";
+            const label = document.createElement("div");
+            label.textContent = id;
+            const link = document.createElement("a");
+            link.href = xyz;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.style.wordBreak = "break-all";
+            link.textContent = xyz;
+            wrapper.appendChild(label);
+            wrapper.appendChild(link);
+            linksNode.appendChild(wrapper);
+          });
+
+          if (firstBounds) {
             map.fitBounds([
-              [tj.bounds[1], tj.bounds[0]],
-              [tj.bounds[3], tj.bounds[2]],
+              [firstBounds[1], firstBounds[0]],
+              [firstBounds[3], firstBounds[2]],
             ]);
-          } else if (Array.isArray(tj.center) && tj.center.length >= 2) {
-            map.setView([tj.center[1], tj.center[0]], tj.center[2] || 8);
+          } else if (firstCenter) {
+            map.setView([firstCenter[1], firstCenter[0]], firstCenter[2] || 8);
           }
 
-          setStatus("Layer rendered.");
+          setStatus(`Built ${xyzLinks.length} layer(s) and reconstructed XYZ web-map links.`);
         } catch (err) {
-          setStatus(`Render failed: ${err.message}`);
+          setStatus(`Layer build failed: ${err.message}`);
         }
       }
 
       function clearLayer() {
+        if (layerControl) {
+          map.removeControl(layerControl);
+          layerControl = null;
+        }
+        Object.values(overlayLayers).forEach((layer) => {
+          if (map.hasLayer(layer)) map.removeLayer(layer);
+        });
+        overlayLayers = {};
         if (dataLayer) {
           map.removeLayer(dataLayer);
           dataLayer = null;
         }
+        el("xyzLinks").innerHTML = "";
         setStatus("Layer cleared.");
       }
 
       el("loadMetaBtn").addEventListener("click", loadMetadata);
-      el("renderBtn").addEventListener("click", renderLayer);
+      el("buildLayersBtn").addEventListener("click", buildLayersFromRenders);
+      el("toggleLinksBtn").addEventListener("click", () => {
+        linksVisible = !linksVisible;
+        updateLinksVisibility();
+      });
       el("clearBtn").addEventListener("click", clearLayer);
 
+      updateLinksVisibility();
       loadMetadata();
     </script>
   </body>

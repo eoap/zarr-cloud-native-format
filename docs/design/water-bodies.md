@@ -4,7 +4,7 @@ Water bodies detection based on NDWI and Otsu threshold applied to Sentinel-2 CO
 
 > This software is licensed under the terms of the []() license - SPDX short identifier: [](https://spdx.org/licenses/)
 >
-> 2026-03-19 - 2026-03-20T17:03:58.512 Copyright [EOAP](mailto:) - 
+> 2026-03-19 - 2026-03-20T21:28:32.321 Copyright [EOAP](mailto:) - 
 
 ## Project Team
 

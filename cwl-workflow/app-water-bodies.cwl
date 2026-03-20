@@ -689,7 +689,7 @@ $graph:
           prefix: --consolidate
       titiler_eopf_compatible:
         type: boolean
-        default: false
+        default: true
         inputBinding:
           prefix: --titiler-eopf-compatible
       stac_object_type:

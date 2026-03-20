@@ -33,7 +33,8 @@ WORKDIR /app
 ENV VIRTUAL_ENV=/app/venv
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
-RUN python3 -m venv /app/venv && \
+RUN PYBIN="$(command -v python3 || command -v python)" && \
+    "$PYBIN" -m venv /app/venv && \
     /app/venv/bin/pip install --no-cache-dir --upgrade pip
 
 COPY --from=builder /src/dist/*.whl /app/dist/

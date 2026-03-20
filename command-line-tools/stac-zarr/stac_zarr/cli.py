@@ -78,6 +78,29 @@ from stac_zarr.writer import run_to_zarr
     show_default=True,
     help="Chunk size along time dimension when --chunks=manual.",
 )
+@click.option(
+    "--consolidate/--no-consolidate",
+    default=True,
+    show_default=True,
+    help="Write consolidated Zarr metadata after data generation.",
+)
+@click.option(
+    "--titiler-eopf-compatible",
+    is_flag=True,
+    default=False,
+    show_default=True,
+    help=(
+        "Emit TiTiler-EOPF compatible layout by omitting root multiscales metadata "
+        "that requires root scale groups."
+    ),
+)
+@click.option(
+    "--stac-object-type",
+    type=click.Choice(("collection", "item"), case_sensitive=False),
+    default="collection",
+    show_default=True,
+    help="STAC object type to emit for the Zarr output metadata.",
+)
 def to_zarr(
     stac_catalog: Path,
     overview_levels: int,
@@ -88,6 +111,9 @@ def to_zarr(
     chunk_x: int,
     chunk_y: int,
     chunk_time: int,
+    consolidate: bool,
+    titiler_eopf_compatible: bool,
+    stac_object_type: str,
 ) -> None:
     run_to_zarr(
         stac_catalog=stac_catalog,
@@ -99,4 +125,7 @@ def to_zarr(
         chunk_x=chunk_x,
         chunk_y=chunk_y,
         chunk_time=chunk_time,
+        consolidate=consolidate,
+        titiler_eopf_compatible=titiler_eopf_compatible,
+        stac_object_type=stac_object_type.lower(),
     )

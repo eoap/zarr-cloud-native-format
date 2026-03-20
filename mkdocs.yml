@@ -57,10 +57,21 @@ extra_javascript:
 
 nav:
   - Introduction: 'index.md'
-  - Onboarding: 'onboarding.md'
+  - Design:
+    - water-bodies: 'water-bodies.md'
+  - On-boarding:
+    - Developers: 'on-boarding/developers.md'
+    - EOAP Users: 'on-boarding/eoap-users.md'
+    - Maintainers: 'on-boarding/maintainers.md'
   - Producer Outputs Contract: 'producer-outputs.md'
-  - GeoZarr Minispec Compliance: 'geozarr-minispec-compliance.md'
-  - STAC Zarr Best Practices: 'stac-zarr-best-practices.md'
+  - How-to:
+    - stac-zarr Usage: 'how-to/stac-zarr-usage.md'
+    - TiTiler-EOPF + Collection: 'how-to/titiler-eopf-collection.md'
+    - TiTiler-EOPF + Item: 'how-to/titiler-eopf-item.md'
+    - TiTiler-EOPF HTML Client: 'how-to/titiler-eopf-html-client.md'
+  - Compliance:
+    - GeoZarr Minispec Compliance: 'compliance/geozarr-minispec-compliance.md'
+    - STAC Zarr Best Practices: 'compliance/stac-zarr-best-practices.md'
   - Input STAC Requirements: 'input-stac.md'
   - TL;DR: exploitation.ipynb
   - CWL CommandLineTools:

@@ -682,6 +682,25 @@ $graph:
         default: 1
         inputBinding:
           prefix: --chunk-time
+      consolidate:
+        type: boolean
+        default: true
+        inputBinding:
+          prefix: --consolidate
+      titiler_eopf_compatible:
+        type: boolean
+        default: false
+        inputBinding:
+          prefix: --titiler-eopf-compatible
+      stac_object_type:
+        type:
+          type: enum
+          symbols:
+            - collection
+            - item
+        default: collection
+        inputBinding:
+          prefix: --stac-object-type
     outputs:
       zarr_stac_catalog:
         outputBinding:

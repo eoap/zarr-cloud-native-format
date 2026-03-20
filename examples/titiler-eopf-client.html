@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TiTiler-EOPF Client</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <style>
+      :root {
+        --bg: #f5f7f9;
+        --panel: #ffffff;
+        --text: #1c232b;
+        --border: #d7dde3;
+        --accent: #2c7fb8;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        height: 100%;
+      }
+      .panel {
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        padding: 14px;
+        overflow: auto;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 1.1rem;
+      }
+      .row {
+        margin-bottom: 10px;
+      }
+      label {
+        display: block;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+      }
+      input,
+      select,
+      button {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px;
+        font-size: 0.9rem;
+      }
+      button {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+        cursor: pointer;
+      }
+      button.secondary {
+        background: #fff;
+        color: var(--text);
+      }
+      .status {
+        margin-top: 8px;
+        font-size: 0.85rem;
+        white-space: pre-wrap;
+      }
+      #map {
+        height: 100%;
+      }
+      .hint {
+        font-size: 0.8rem;
+        color: #4d5c6a;
+      }
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto 1fr;
+        }
+        .panel {
+          border-right: 0;
+          border-bottom: 1px solid var(--border);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel">
+        <h1>TiTiler-EOPF Viewer</h1>
+        <div class="row">
+          <label for="baseUrl">Base URL</label>
+          <input id="baseUrl" value="http://127.0.0.1:8080" />
+        </div>
+        <div class="row">
+          <label for="collectionId">Collection ID</label>
+          <input id="collectionId" value="water-bodies" />
+        </div>
+        <div class="row">
+          <label for="itemId">Item ID</label>
+          <input id="itemId" value="water-bodies" />
+        </div>
+        <div class="row">
+          <label for="collectionJsonUrl">Collection JSON URL (fallback)</label>
+          <input id="collectionJsonUrl" />
+          <div class="hint">
+            Optional. Used when TiTiler collection endpoint does not expose
+            <code>summaries.datetime</code>.
+          </div>
+        </div>
+        <div class="row">
+          <button id="loadMetaBtn" type="button">Load measurements and dates</button>
+        </div>
+        <div class="row">
+          <label for="measurement">Measurement</label>
+          <select id="measurement"></select>
+        </div>
+        <div class="row">
+          <label for="date">Date/time (from Collection summaries.datetime)</label>
+          <select id="date">
+            <option value="">(none)</option>
+          </select>
+          <div class="hint">If empty, viewer falls back to <code>bidx=1</code>.</div>
+        </div>
+        <div class="row">
+          <label for="rescale">Rescale</label>
+          <input id="rescale" value="-1,1" />
+        </div>
+        <div class="row">
+          <label for="colormap">Colormap</label>
+          <input id="colormap" value="viridis" />
+        </div>
+        <div class="row">
+          <button id="renderBtn" type="button">Render layer</button>
+        </div>
+        <div class="row">
+          <button id="clearBtn" class="secondary" type="button">Clear layer</button>
+        </div>
+        <div id="status" class="status"></div>
+      </aside>
+      <main id="map"></main>
+    </div>
+
+    <script>
+      const map = L.map("map").setView([40.15, -121.07], 9);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors",
+      }).addTo(map);
+
+      let dataLayer = null;
+
+      const el = (id) => document.getElementById(id);
+      const setStatus = (msg) => {
+        el("status").textContent = msg;
+      };
+
+      function apiBase() {
+        return el("baseUrl").value.replace(/\/+$/, "");
+      }
+
+      function collectionId() {
+        return encodeURIComponent(el("collectionId").value.trim());
+      }
+
+      function itemId() {
+        return encodeURIComponent(el("itemId").value.trim());
+      }
+
+      function buildCollectionUrl() {
+        return `${apiBase()}/collections/${collectionId()}`;
+      }
+
+      function buildCollectionJsonFallbackUrl() {
+        const explicit = el("collectionJsonUrl").value.trim();
+        if (explicit) return explicit;
+        const id = decodeURIComponent(collectionId());
+        return `${window.location.origin}/command-line-tools/stac-zarr/${id}/collection.json`;
+      }
+
+      function buildKeysUrl() {
+        return `${apiBase()}/collections/${collectionId()}/items/${itemId()}/dataset/keys`;
+      }
+
+      async function loadMetadata() {
+        setStatus("Loading metadata...");
+        try {
+          const [keysRes, collRes] = await Promise.all([
+            fetch(buildKeysUrl()),
+            fetch(buildCollectionUrl()),
+          ]);
+
+          if (!keysRes.ok) {
+            throw new Error(`dataset/keys failed: ${keysRes.status}`);
+          }
+          const keys = await keysRes.json();
+          const visibleKeys = keys.filter((k) => k.startsWith("/measurements:"));
+          const effectiveKeys = visibleKeys.length > 0 ? visibleKeys : keys;
+          const measurementSel = el("measurement");
+          measurementSel.innerHTML = "";
+          effectiveKeys.forEach((k) => {
+            const option = document.createElement("option");
+            option.value = k;
+            option.textContent = k;
+            measurementSel.appendChild(option);
+          });
+
+          const dateSel = el("date");
+          dateSel.innerHTML = '<option value="">(none)</option>';
+          if (collRes.ok) {
+            const coll = await collRes.json();
+            const dates = coll?.summaries?.datetime || [];
+            dates.forEach((d) => {
+              const option = document.createElement("option");
+              option.value = d;
+              option.textContent = d;
+              dateSel.appendChild(option);
+            });
+          }
+
+          if (dateSel.options.length <= 1) {
+            try {
+              const fallbackUrl = buildCollectionJsonFallbackUrl();
+              const fallbackRes = await fetch(fallbackUrl);
+              if (fallbackRes.ok) {
+                const fallbackColl = await fallbackRes.json();
+                const dates = fallbackColl?.summaries?.datetime || [];
+                dates.forEach((d) => {
+                  const option = document.createElement("option");
+                  option.value = d;
+                  option.textContent = d;
+                  dateSel.appendChild(option);
+                });
+                if (dates.length > 0) {
+                  setStatus(
+                    `Loaded ${effectiveKeys.length} measurement(s) and ${dates.length} date value(s) from fallback collection.json.`
+                  );
+                  return;
+                }
+              }
+            } catch (err) {
+              // Ignore fallback errors and keep basic metadata loaded.
+            }
+          }
+
+          setStatus(`Loaded ${effectiveKeys.length} measurement(s).`);
+        } catch (err) {
+          setStatus(`Metadata load failed: ${err.message}`);
+        }
+      }
+
+      function buildTileJsonUrl() {
+        const params = new URLSearchParams();
+        params.set("variables", el("measurement").value);
+        params.set("rescale", el("rescale").value.trim());
+        params.set("colormap_name", el("colormap").value.trim());
+
+        const selectedDate = el("date").value.trim();
+        if (selectedDate) {
+          params.set("sel", `time=${selectedDate}`);
+          params.set("sel_method", "nearest");
+        } else {
+          params.set("bidx", "1");
+        }
+
+        return `${apiBase()}/collections/${collectionId()}/items/${itemId()}/WebMercatorQuad/tilejson.json?${params.toString()}`;
+      }
+
+      async function renderLayer() {
+        setStatus("Requesting tilejson...");
+        try {
+          const url = buildTileJsonUrl();
+          const res = await fetch(url);
+          if (!res.ok) {
+            throw new Error(`tilejson failed: ${res.status}`);
+          }
+          const tj = await res.json();
+          if (!tj.tiles || !tj.tiles.length) {
+            throw new Error("No tiles in tilejson response.");
+          }
+
+          if (dataLayer) {
+            map.removeLayer(dataLayer);
+          }
+          dataLayer = L.tileLayer(tj.tiles[0], {
+            maxZoom: tj.maxzoom || 22,
+            opacity: 0.85,
+          }).addTo(map);
+
+          if (Array.isArray(tj.bounds) && tj.bounds.length === 4) {
+            map.fitBounds([
+              [tj.bounds[1], tj.bounds[0]],
+              [tj.bounds[3], tj.bounds[2]],
+            ]);
+          } else if (Array.isArray(tj.center) && tj.center.length >= 2) {
+            map.setView([tj.center[1], tj.center[0]], tj.center[2] || 8);
+          }
+
+          setStatus("Layer rendered.");
+        } catch (err) {
+          setStatus(`Render failed: ${err.message}`);
+        }
+      }
+
+      function clearLayer() {
+        if (dataLayer) {
+          map.removeLayer(dataLayer);
+          dataLayer = null;
+        }
+        setStatus("Layer cleared.");
+      }
+
+      el("loadMetaBtn").addEventListener("click", loadMetadata);
+      el("renderBtn").addEventListener("click", renderLayer);
+      el("clearBtn").addEventListener("click", clearLayer);
+
+      loadMetadata();
+    </script>
+  </body>
+</html>

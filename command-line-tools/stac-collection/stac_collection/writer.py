@@ -14,6 +14,7 @@ from pystac import (
     TemporalExtent,
     read_file,
 )
+from pystac.extensions.render import Render, RenderExtension
 from pystac.item_assets import ItemAssetDefinition
 from pystac.media_type import MediaType
 
@@ -103,6 +104,27 @@ def run_to_stac(
         roles=["data"],
         media_type=MediaType.COG,
     )
+
+    # Provide default rendering profiles for discovery/visualization clients.
+    render_ext = RenderExtension.ext(collection, add_if_missing=True)
+    render_ext.renders = {
+        "ndwi": Render.create(
+            assets=["ndwi"],
+            title="NDWI",
+            rescale=[[-1, 1]],
+            colormap_name="viridis",
+        ),
+        "water-bodies": Render.create(
+            assets=["water-bodies"],
+            title="Water Bodies",
+            # LUT-style colormap: transparent background, detected water in blue.
+            colormap={
+                "0": [0, 0, 0, 0],
+                "1": [0, 0, 255, 255],
+                "255": [0, 0, 255, 255],
+            },
+        ),
+    }
 
     cat.add_child(collection)
     cat.normalize_and_save(root_href=str(output_dir), catalog_type=CatalogType.SELF_CONTAINED)

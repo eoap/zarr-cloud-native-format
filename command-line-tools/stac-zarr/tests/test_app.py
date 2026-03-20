@@ -4,11 +4,14 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 import zarr
+from click.testing import CliRunner
 from pystac import Asset, Collection, Extent, Item, SpatialExtent, TemporalExtent
-from xarray import DataArray
+from xarray import DataArray, Dataset
 
 from stac_zarr.app import (
     _write_cf_dataset_members,
+    build_root_proj_metadata,
+    build_tile_matrix_limits,
     build_tile_matrix_set,
     check_grid_mapping,
     check_valid_coordinates,
@@ -18,6 +21,14 @@ from stac_zarr.app import (
     to_resampling_method,
     validate_items_have_measurements,
 )
+from stac_zarr.writer import (
+    consolidate_zarr_store,
+    ensure_unique_time_index,
+    format_time_values_for_summaries,
+    normalize_renders_for_zarr,
+    to_pystac_renders,
+)
+import stac_zarr.cli as cli_mod
 
 
 def _make_collection(item_assets):
@@ -74,6 +85,64 @@ def test_build_tile_matrix_set():
     assert tms["tileMatrices"][0]["matrixHeight"] == 3
     assert tms["tileMatrices"][1]["matrixWidth"] == 2
     assert tms["tileMatrices"][1]["matrixHeight"] == 2
+
+
+def test_build_tile_matrix_limits():
+    tms = build_tile_matrix_set(
+        proj_code="EPSG:32633",
+        affine_6=[10.0, 0.0, 300000.0, 0.0, -10.0, 5000000.0],
+        base_shape=[[1094, 1094], [547, 547], [273, 273]],
+        chunk_shape=[512, 512],
+    )
+    limits = build_tile_matrix_limits(tms)
+
+    assert [entry["tileMatrix"] for entry in limits] == ["0", "1", "2"]
+    assert limits[0] == {
+        "tileMatrix": "0",
+        "minTileRow": 0,
+        "maxTileRow": 2,
+        "minTileCol": 0,
+        "maxTileCol": 2,
+    }
+    assert limits[1] == {
+        "tileMatrix": "1",
+        "minTileRow": 0,
+        "maxTileRow": 1,
+        "minTileCol": 0,
+        "maxTileCol": 1,
+    }
+
+
+def test_build_root_proj_metadata_full():
+    class FakeCRS:
+        def to_wkt(self, _dialect):
+            return "WKT2:FAKE"
+
+        def to_json_dict(self):
+            return {"type": "ProjectedCRS", "name": "fake"}
+
+    meta = build_root_proj_metadata(FakeCRS(), "EPSG:32633")
+    assert "proj:code" not in meta
+    assert "proj:wkt2" not in meta
+    assert meta["proj:projjson"]["type"] == "ProjectedCRS"
+
+
+def test_build_root_proj_metadata_wkt_fallback():
+    class FakeCRS:
+        def to_wkt(self, _dialect):
+            return "WKT2:FAKE"
+
+    meta = build_root_proj_metadata(FakeCRS(), "EPSG:32633")
+    assert meta == {"proj:wkt2": "WKT2:FAKE"}
+
+
+def test_build_root_proj_metadata_fallback():
+    class FakeCRS:
+        def to_wkt(self, _dialect):
+            raise RuntimeError("missing wkt")
+
+    meta = build_root_proj_metadata(FakeCRS(), "EPSG:32633")
+    assert meta == {"proj:code": "EPSG:32633"}
 
 
 def test_write_cf_dataset_members(tmp_path):
@@ -229,3 +298,173 @@ def test_downsample_2x_rejects_unknown_reducer():
     da = DataArray(np.arange(4, dtype=np.float32).reshape(1, 2, 2), dims=["time", "y", "x"])
     with pytest.raises(ValueError, match="Unsupported overview reducer"):
         downsample_2x(da, "p90")
+
+
+def test_consolidate_zarr_store_writes_metadata(tmp_path):
+    root = zarr.open_group(tmp_path / "sample.zarr", mode="w")
+    root.create("a", shape=(2, 2), chunks=(1, 1), dtype=np.int16, overwrite=True)
+    consolidate_zarr_store(tmp_path / "sample.zarr")
+    reopened = zarr.open_group(tmp_path / "sample.zarr", mode="r")
+    assert reopened.metadata.consolidated_metadata is not None
+    assert "a" in reopened.metadata.consolidated_metadata.metadata
+
+
+def test_cli_forwards_titiler_eopf_compatible_flag(tmp_path, monkeypatch):
+    captured = {}
+
+    def fake_run_to_zarr(**kwargs):
+        captured.update(kwargs)
+
+    monkeypatch.setattr(cli_mod, "run_to_zarr", fake_run_to_zarr)
+    catalog_dir = tmp_path / "catalog"
+    catalog_dir.mkdir()
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli_mod.to_zarr,
+        [
+            "--stac-catalog",
+            str(catalog_dir),
+            "--titiler-eopf-compatible",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert captured["titiler_eopf_compatible"] is True
+
+
+def test_cli_forwards_stac_object_type(tmp_path, monkeypatch):
+    captured = {}
+
+    def fake_run_to_zarr(**kwargs):
+        captured.update(kwargs)
+
+    monkeypatch.setattr(cli_mod, "run_to_zarr", fake_run_to_zarr)
+    catalog_dir = tmp_path / "catalog"
+    catalog_dir.mkdir()
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli_mod.to_zarr,
+        [
+            "--stac-catalog",
+            str(catalog_dir),
+            "--stac-object-type",
+            "item",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert captured["stac_object_type"] == "item"
+
+
+def test_ensure_unique_time_index_deduplicates():
+    ds = Dataset(
+        data_vars={
+            "v": (
+                ("time", "y", "x"),
+                np.arange(4 * 2 * 2, dtype=np.float32).reshape(4, 2, 2),
+            )
+        },
+        coords={
+            "time": np.array([10, 10, 20, 30], dtype=np.int64),
+            "y": np.array([0.0, 1.0], dtype=np.float64),
+            "x": np.array([0.0, 1.0], dtype=np.float64),
+        },
+    )
+
+    out = ensure_unique_time_index(ds)
+    assert out.sizes["time"] == 3
+    assert out["time"].values.tolist() == [10, 20, 30]
+
+
+def test_ensure_unique_time_index_noop_when_unique():
+    ds = Dataset(
+        data_vars={
+            "v": (
+                ("time", "y", "x"),
+                np.arange(3 * 2 * 2, dtype=np.float32).reshape(3, 2, 2),
+            )
+        },
+        coords={
+            "time": np.array([10, 20, 30], dtype=np.int64),
+            "y": np.array([0.0, 1.0], dtype=np.float64),
+            "x": np.array([0.0, 1.0], dtype=np.float64),
+        },
+    )
+
+    out = ensure_unique_time_index(ds)
+    assert out.sizes["time"] == 3
+    assert out["time"].values.tolist() == [10, 20, 30]
+
+
+def test_format_time_values_for_summaries_datetime_unique_sorted():
+    ds = Dataset(
+        data_vars={
+            "v": (
+                ("time", "y", "x"),
+                np.arange(3 * 1 * 1, dtype=np.float32).reshape(3, 1, 1),
+            )
+        },
+        coords={
+            "time": np.array(
+                [
+                    "2021-06-28T10:23:24.330000000",
+                    "2021-06-28T10:23:24.330000000",
+                    "2021-06-28T10:23:24.331000000",
+                ],
+                dtype="datetime64[ns]",
+            ),
+            "y": np.array([0.0], dtype=np.float64),
+            "x": np.array([0.0], dtype=np.float64),
+        },
+    )
+
+    values = format_time_values_for_summaries(ds)
+    assert values == [
+        "2021-06-28T10:23:24.330000000Z",
+        "2021-06-28T10:23:24.331000000Z",
+    ]
+
+
+def test_normalize_renders_for_zarr_propagates_and_rewrites_assets():
+    input_renders = {
+        "ndwi_default": {
+            "assets": ["ndwi"],
+            "rescale": [[-1, 1]],
+            "colormap_name": "viridis",
+        }
+    }
+
+    out = normalize_renders_for_zarr(input_renders, ["ndwi", "water-bodies"])
+    assert out is not None
+    assert out["ndwi_default"]["assets"] == ["measurements"]
+    assert out["ndwi_default"]["expression"] == "/measurements:ndwi"
+    assert out["ndwi_default"]["colormap_name"] == "viridis"
+
+
+def test_normalize_renders_for_zarr_keeps_expression_if_present():
+    input_renders = {
+        "custom": {
+            "assets": ["water-bodies"],
+            "expression": "/measurements:water-bodies",
+        }
+    }
+    out = normalize_renders_for_zarr(input_renders, ["ndwi", "water-bodies"])
+    assert out is not None
+    assert out["custom"]["assets"] == ["measurements"]
+    assert out["custom"]["expression"] == "/measurements:water-bodies"
+
+
+def test_to_pystac_renders_returns_render_objects():
+    normalized = {
+        "ndwi_default": {
+            "assets": ["measurements"],
+            "expression": "/measurements:ndwi",
+            "rescale": [[-1, 1]],
+        }
+    }
+    renders = to_pystac_renders(normalized)
+    assert renders is not None
+    assert "ndwi_default" in renders
+    assert renders["ndwi_default"].to_dict()["expression"] == "/measurements:ndwi"

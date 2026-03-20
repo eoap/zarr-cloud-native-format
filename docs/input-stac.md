@@ -1,5 +1,64 @@
 # Input STAC Requirements
 
+## Quick How-to Links
+
+For runnable command examples and TiTiler integration, see:
+
+* [How-To: Use `stac-zarr`](how-to/stac-zarr-usage.md)
+* [How-To: TiTiler-EOPF with STAC Collection Output](how-to/titiler-eopf-collection.md)
+* [How-To: TiTiler-EOPF with STAC Item Output](how-to/titiler-eopf-item.md)
+* [How-To: Start TiTiler-EOPF and the HTML Client](how-to/titiler-eopf-html-client.md)
+
+## Render Extension in Input Collection
+
+`stac-zarr` can consume Render extension configs from the input Collection and propagate them to output STAC metadata.
+
+Expected input location:
+
+* Collection-level `renders` object
+* with Render extension declared in `stac_extensions` (`https://stac-extensions.github.io/render/v2.0.0/schema.json`)
+
+Minimal example:
+
+```json
+{
+  "stac_extensions": [
+    "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/render/v2.0.0/schema.json"
+  ],
+  "renders": {
+    "ndwi": {
+      "title": "NDWI",
+      "assets": ["ndwi"],
+      "rescale": [[-1, 1]],
+      "colormap_name": "viridis"
+    },
+    "water-bodies": {
+      "title": "Water Bodies",
+      "assets": ["water-bodies"],
+      "rescale": [[0, 1]],
+      "colormap": {
+        "0": [0, 0, 0, 0],
+        "1": [0, 0, 255, 255]
+      }
+    }
+  }
+}
+```
+
+How propagation works:
+
+* If `renders` is present and valid, it is propagated to output Collection/Item.
+* `assets` are normalized to the output Zarr asset key (`measurements`).
+* If a render has no `expression` and an input asset matches a measurement, `stac-zarr` derives an expression:
+  - `/measurements:<measurement-key>`
+* If `renders` is missing, no render metadata is added.
+
+Notes:
+
+* This behavior is implemented through the PySTAC Render extension.
+* Keep render IDs stable (`ndwi`, `water-bodies`) so clients can reference them predictably.
+
 ## Mandatory use of the Item Assets Extension
 
 The tooling that reads a STAC Catalog and produces STAC/Zarr outputs expects the input STAC Catalog to contain a STAC Collection with the Item Assets extension defined.
@@ -120,6 +179,27 @@ This ensures the output Zarr store is:
 * reproducible
 * aligned with the STAC Zarr Best Practices
 
+## Input Checklist (Collection + Items)
+
+Use this quick checklist before running `stac-zarr`.
+
+Collection checklist:
+
+* `type` is `Collection`.
+* `item_assets` exists and is non-empty.
+* `item_assets` keys match the measurement names you expect in Zarr output.
+* `stac_extensions` includes Item Assets (`item-assets`).
+* Optional: `stac_extensions` includes Render extension when using `renders`.
+* Optional: `renders` entries reference known measurement keys.
+
+Item checklist:
+
+* Each Item has all measurement assets declared in `collection.item_assets`.
+* Each measurement asset is readable and points to raster data expected by the workflow.
+* Item geometry/bbox is valid for spatial extent computation.
+* Item datetime/properties support temporal extent computation.
+* Optional extra assets are allowed, but ignored if not declared in `item_assets`.
+
 ## Rationale (design choice)
 
 Using item_assets as the measurement contract:
@@ -146,7 +226,10 @@ Implemented conventions in `root.attrs["zarr_conventions"]`:
 
 The output Zarr root includes:
 
-* `proj:code`
+* exactly one of:
+  - `proj:projjson` (preferred when available)
+  - `proj:wkt2` (fallback)
+  - `proj:code` (fallback)
 * `spatial:dimensions`
 * `spatial:bbox`
 * `spatial:shape`
@@ -181,7 +264,7 @@ For each measurement declared in `collection.item_assets`, the writer produces:
         └── ...
 ```
 
-The root `multiscales` attribute uses TileMatrixSet-based metadata (`resampling_method`, `tile_matrix_set`), and `multiscales:datasets` lists per-measurement dataset paths and axes.
+The root `multiscales` attribute uses TileMatrixSet-based metadata (`resampling_method`, `tile_matrix_set`, `tile_matrix_limits`), and `multiscales:datasets` lists per-measurement dataset paths and axes.
 
 ## Overview Downsampling Configuration
 
@@ -226,8 +309,7 @@ Implemented in this writer:
 
 Current limitations:
 
-* root projection metadata is currently `proj:code` only
-* `tile_matrix_limits` is not yet emitted
+* `tile_matrix_limits` currently assumes full matrix coverage per level
 
 ## CWL Workflow Parameters
 

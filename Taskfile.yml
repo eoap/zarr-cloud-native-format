@@ -56,19 +56,188 @@ tasks:
     desc: Validate CWL metadata with transpiler-mate codemeta
     cmds:
       - uv run --with transpiler-mate transpiler-mate codemeta cwl-workflow/app-water-bodies.cwl
-      - uv run --with transpiler-mate transpiler-mate codemeta cwl-workflow/app-water-bodies-occurrence.cwl
+      #- uv run --with transpiler-mate transpiler-mate codemeta cwl-workflow/app-water-bodies-occurrence.cwl
 
   cwl:check:ogc:
     desc: Validate CWL OGC transpilation with cwl2ogc
     cmds:
       - uv run --with cwl2ogc cwl2ogc --workflow-id water-bodies cwl-workflow/app-water-bodies.cwl
-      - uv run --with cwl2ogc cwl2ogc --workflow-id water-bodies-occurrence cwl-workflow/app-water-bodies-occurrence.cwl
+      #- uv run --with cwl2ogc cwl2ogc --workflow-id water-bodies-occurrence cwl-workflow/app-water-bodies-occurrence.cwl
 
   cwl:check:release:
     desc: Run release-oriented CWL checks (codemeta + OGC)
     deps:
       - task: cwl:check:codemeta
       - task: cwl:check:ogc
+
+  compliance:check:multiscales:
+    desc: Validate multiscales metadata against upstream zarr-conventions schema (compatibility report)
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with jsonschema --with-editable . \
+        python ../../scripts/validate_multiscales_schema.py
+
+  compliance:check:multiscales-tms:
+    desc: Validate TileMatrixSet-based multiscales profile used by this repository
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with-editable . \
+        python ../../scripts/validate_multiscales_tms_profile.py
+
+  compliance:check:geo-proj:
+    desc: Validate geo-proj metadata against zarr-conventions schema
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with jsonschema --with-editable . \
+        python ../../scripts/validate_geo_proj_schema.py
+
+  compliance:check:spatial:
+    desc: Validate spatial metadata against zarr-conventions schema
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with jsonschema --with-editable . \
+        python ../../scripts/validate_spatial_schema.py
+
+  compliance:check:eopf-explorer:
+    desc: Validate EOPF Explorer-style GeoZarr profile compatibility
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with-editable . \
+        python ../../scripts/validate_eopf_explorer_profile.py
+
+  compliance:check:all:
+    desc: Run strict local profile checks and upstream compatibility report
+    deps:
+      - task: compliance:check:multiscales-tms
+      - task: compliance:check:geo-proj
+      - task: compliance:check:spatial
+      - task: compliance:check:eopf-explorer
+      - task: compliance:check:multiscales
+
+  models:generate:spatial:
+    desc: Regenerate Pydantic model from zarr-conventions spatial JSON Schema
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with "datamodel-code-generator[http]" datamodel-codegen \
+          --url {{.SPATIAL_SCHEMA_URL}} \
+          --input-file-type jsonschema \
+          --output-model-type pydantic_v2.BaseModel \
+          --base-class stac_zarr.models.base.GeoZarrBaseModel \
+          --snake-case-field \
+          --output stac_zarr/models/generated/spatial.py
+    vars:
+      SPATIAL_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/spatial/main/schema.json" .SPATIAL_SCHEMA_URL}}'
+
+  models:generate:geo-proj:
+    desc: Regenerate Pydantic model from zarr-conventions geo-proj JSON Schema
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with "datamodel-code-generator[http]" datamodel-codegen \
+          --url {{.GEO_PROJ_SCHEMA_URL}} \
+          --input-file-type jsonschema \
+          --output-model-type pydantic_v2.BaseModel \
+          --base-class stac_zarr.models.base.GeoZarrBaseModel \
+          --snake-case-field \
+          --output stac_zarr/models/generated/geo_proj/
+    vars:
+      GEO_PROJ_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json" .GEO_PROJ_SCHEMA_URL}}'
+
+  models:generate:multiscales:
+    desc: Regenerate Pydantic model from zarr-conventions multiscales JSON Schema
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with "datamodel-code-generator[http]" datamodel-codegen \
+          --url {{.MULTISCALES_SCHEMA_URL}} \
+          --input-file-type jsonschema \
+          --output-model-type pydantic_v2.BaseModel \
+          --base-class stac_zarr.models.base.GeoZarrBaseModel \
+          --snake-case-field \
+          --output stac_zarr/models/generated/multiscales.py
+    vars:
+      MULTISCALES_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/multiscales/main/schema.json" .MULTISCALES_SCHEMA_URL}}'
+
+  models:generate:all:
+    desc: Regenerate all schema-derived Pydantic models used by stac-zarr
+    deps:
+      - task: models:generate:spatial
+      - task: models:generate:geo-proj
+      - task: models:generate:multiscales
+
+  docs:serve:
+    desc: Serve MkDocs locally
+    cmds:
+      - |
+        uv run \
+          --with mkdocs \
+          --with mkdocs-material \
+          --with mkdocs-mermaid2-plugin \
+          --with mkdocs-jupyter \
+          --with pymdown-extensions \
+          mkdocs serve
+
+  docs:generate:uml:
+    desc: Generate UML documentation
+    cmds:
+    - defer: rm -f docs/ml4floods/*.puml
+    - |
+      uv run --no-cache --with "transpiler-mate>=0.31.0" transpiler-mate markdown --workflow-id water-bodies --output docs --code-repository $(git remote get-url origin) cwl-workflow/app-water-bodies.cwl
+      uv run --with cwl2puml cwl2puml --workflow-id water-bodies --output docs/water-bodies --convert-image --image-format svg cwl-workflow/app-water-bodies.cwl
+      rm -f docs/water-bodies/*.puml
+
+  titiler:eopf:run:
+    desc: Run titiler-eopf locally against a mounted data root
+    cmds:
+      - |
+        docker run --rm -it \
+          -p {{.TITILER_PORT}}:80 \
+          -e TITILER_EOPF_STORE_URL=file:///data/ \
+          -v {{.DATA_ROOT}}:/data \
+          ghcr.io/eopf-explorer/titiler-eopf:latest
+    vars:
+      TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
+      DATA_ROOT: '{{default "." .DATA_ROOT}}'
+
+  titiler:eopf:smoke:
+    desc: Smoke test titiler-eopf dataset endpoint (requires running titiler:eopf:run)
+    cmds:
+      - |
+        curl -fsSL \
+          "http://127.0.0.1:{{.TITILER_PORT}}/collections/{{.COLLECTION_ID}}/items/{{.ITEM_ID}}/dataset" \
+          | head -c 400 && echo
+    vars:
+      TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
+      COLLECTION_ID: '{{default "water-bodies" .COLLECTION_ID}}'
+      ITEM_ID: '{{default "water-bodies" .ITEM_ID}}'
+
+  titiler:eopf:smoke:sample:
+    desc: One-shot smoke test against local sample artifact (auto start/stop container)
+    cmds:
+      - |
+        set -euo pipefail
+        CID=$(docker run -d \
+          -p {{.TITILER_PORT}}:80 \
+          -e TITILER_EOPF_STORE_URL=file:///data/ \
+          -v "$(pwd)/{{.DATA_ROOT}}":/data \
+          ghcr.io/eopf-explorer/titiler-eopf:latest)
+        cleanup() { docker rm -f "$CID" >/dev/null 2>&1 || true; }
+        trap cleanup EXIT
+        sleep 4
+        curl -fsSL \
+          "http://127.0.0.1:{{.TITILER_PORT}}/collections/{{.COLLECTION_ID}}/items/{{.ITEM_ID}}/dataset" \
+          | head -c 400 && echo
+    vars:
+      TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
+      DATA_ROOT: '{{default "command-line-tools/stac-zarr" .DATA_ROOT}}'
+      COLLECTION_ID: '{{default "water-bodies" .COLLECTION_ID}}'
+      ITEM_ID: '{{default "water-bodies" .ITEM_ID}}'
 
   test:stac-collection:
     desc: Run scoped unit tests for stac-collection

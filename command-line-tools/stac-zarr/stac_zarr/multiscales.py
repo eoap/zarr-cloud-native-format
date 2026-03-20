@@ -38,3 +38,19 @@ def build_tile_matrix_set(
         "orderedAxes": ["E", "N"],
         "tileMatrices": tile_matrices,
     }
+
+
+def build_tile_matrix_limits(tile_matrix_set: Dict[str, Any]) -> List[Dict[str, int | str]]:
+    """Build OGC-style tile matrix limits from a TileMatrixSet."""
+    limits: List[Dict[str, int | str]] = []
+    for matrix in tile_matrix_set["tileMatrices"]:
+        limits.append(
+            {
+                "tileMatrix": matrix["id"],
+                "minTileRow": 0,
+                "maxTileRow": int(matrix["matrixHeight"]) - 1,
+                "minTileCol": 0,
+                "maxTileCol": int(matrix["matrixWidth"]) - 1,
+            }
+        )
+    return limits

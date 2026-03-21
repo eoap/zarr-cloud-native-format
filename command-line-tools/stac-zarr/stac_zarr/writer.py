@@ -35,7 +35,10 @@ from stac_zarr.constants import (
     ZARR_V3_MULTISCALES_MEDIA_TYPE,
 )
 from stac_zarr.models.generated.geo_proj import ConventionMetadata as GeoProjConventionMetadata
-from stac_zarr.models.generated.multiscales import ConventionMetadata as MultiscalesConventionMetadata
+from stac_zarr.models.generated.multiscales import (
+    ConventionMetadata as MultiscalesConventionMetadata,
+    MultiscalesProperties,
+)
 from stac_zarr.models.generated.spatial import (
     ConventionMetadata as SpatialConventionMetadata,
     SpatialAttributes,
@@ -47,7 +50,7 @@ from stac_zarr.contract import (
     get_temporal_extent,
     validate_items_have_measurements,
 )
-from stac_zarr.multiscales import build_tile_matrix_limits, build_tile_matrix_set
+from stac_zarr.multiscales import build_v1_layout
 from stac_zarr.reducers import downsample_2x, get_variable_type, to_resampling_method
 
 
@@ -334,8 +337,7 @@ def run_to_zarr(
     cube_variables = {}
     raster_bands = []
     multiscales_entries: List[Dict[str, Any]] = []
-    multiscales_level_shapes: List[List[int]] = []
-    default_resampling_method = to_resampling_method(categorical_overview_reducer)
+    default_resampling_method = to_resampling_method(continuous_overview_reducer)
     crs_wkt = gbox.crs.to_wkt("WKT2_2019")
     root_proj_metadata = build_root_proj_metadata(gbox.crs, proj_code)
 
@@ -348,9 +350,6 @@ def run_to_zarr(
             if variable_type == "continuous"
             else categorical_overview_reducer
         )
-        if variable_type == "continuous":
-            default_resampling_method = to_resampling_method(overview_reducer)
-
         title = collection.item_assets[measurement].title or measurement
         description = collection.item_assets[measurement].description or ""
 
@@ -393,9 +392,6 @@ def run_to_zarr(
                 "spatial:transform": affine_6,
             }
         ]
-        if not multiscales_level_shapes:
-            multiscales_level_shapes.append([int(da.shape[1]), int(da.shape[2])])
-
         level_da = da
         for level in range(1, overview_levels + 1):
             if level_da.sizes["y"] < 2 or level_da.sizes["x"] < 2:
@@ -448,9 +444,6 @@ def run_to_zarr(
                     "overview:variable_type": variable_type,
                 }
             )
-            if len(multiscales_level_shapes) == level:
-                multiscales_level_shapes.append([int(level_da.shape[1]), int(level_da.shape[2])])
-
         multiscales_entries.append(
             {
                 "name": measurement,
@@ -463,19 +456,12 @@ def run_to_zarr(
             }
         )
 
-    tile_matrix_set = build_tile_matrix_set(
-        proj_code=proj_code,
-        affine_6=affine_6,
-        base_shape=multiscales_level_shapes,
-        chunk_shape=[int(stac_catalog_dataset.chunks["y"][0]), int(stac_catalog_dataset.chunks["x"][0])],
-    )
-    tile_matrix_limits = build_tile_matrix_limits(tile_matrix_set)
-
-    multiscales_model = {
-        "resampling_method": default_resampling_method,
-        "tile_matrix_set": tile_matrix_set,
-        "tile_matrix_limits": tile_matrix_limits,
-    }
+    multiscales_model = MultiscalesProperties.model_validate(
+        {
+            "resampling_method": default_resampling_method,
+            "layout": build_v1_layout(multiscales_entries),
+        }
+    ).model_dump(exclude_none=True, mode="json")
     spatial_model = SpatialAttributes.model_validate(
         {
             "spatial:dimensions": ["y", "x"],
@@ -487,18 +473,23 @@ def run_to_zarr(
         }
     )
 
-    if not titiler_eopf_compatible:
-        root.attrs.update(
-            {
-                "zarr_conventions": [
-                    *_convention_metadata_models(),
-                ],
-                "multiscales": multiscales_model,
-                "multiscales:datasets": multiscales_entries,
-                **root_proj_metadata,
-                **spatial_model.model_dump(by_alias=True, exclude_none=True, mode="json"),
-            }
+    if titiler_eopf_compatible:
+        logger.warning(
+            "--titiler-eopf-compatible no longer suppresses root GeoZarr metadata. "
+            "GeoZarr v1 metadata is now always emitted."
         )
+
+    root.attrs.update(
+        {
+            "zarr_conventions": [
+                *_convention_metadata_models(),
+            ],
+            "multiscales": multiscales_model,
+            "multiscales:datasets": multiscales_entries,
+            **root_proj_metadata,
+            **spatial_model.model_dump(by_alias=True, exclude_none=True, mode="json"),
+        }
+    )
 
     logger.info(f"Creating STAC asset {zarr_uri}/measurements...")
     zarr_asset: Asset = Asset(

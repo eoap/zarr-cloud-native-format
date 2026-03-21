@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from stac_zarr.models.generated.spatial import SpatialAttributes
 
-from validate_multiscales_tms_profile import build_multiscales_payload
+from validate_multiscales_layout_profile import build_multiscales_payload
 
 
 def main() -> int:
@@ -64,9 +64,9 @@ def main() -> int:
     )
 
     # Sanity checks expected by EOPF-Explorer-style visualization
-    if not multiscales_payload.get("tile_matrix_limits"):
+    if not multiscales_payload.get("layout"):
         print("EOPF Explorer profile validation: FAIL")
-        print("missing tile_matrix_limits in multiscales payload")
+        print("missing layout in multiscales payload")
         return 1
 
     print("EOPF Explorer profile validation: PASS")

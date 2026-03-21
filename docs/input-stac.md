@@ -264,7 +264,7 @@ For each measurement declared in `collection.item_assets`, the writer produces:
         └── ...
 ```
 
-The root `multiscales` attribute uses TileMatrixSet-based metadata (`resampling_method`, `tile_matrix_set`, `tile_matrix_limits`), and `multiscales:datasets` lists per-measurement dataset paths and axes.
+The root `multiscales` attribute uses GeoZarr v1 layout metadata (`resampling_method`, `layout`), and `multiscales:datasets` lists per-measurement dataset paths and axes.
 
 ## Overview Downsampling Configuration
 
@@ -302,14 +302,14 @@ Reference:
 Implemented in this writer:
 
 * convention metadata (`zarr_conventions`) for `proj:`, `spatial:`, `multiscales`
-* `spatial:*` root metadata and TileMatrixSet-style `multiscales`
+* `spatial:*` root metadata and GeoZarr v1 `multiscales.layout`
 * CF-style dataset members (`time`, `x`, `y`, `spatial_ref`)
 * data-array attributes: `grid_mapping`, `coordinates`
 * dataset-level validation of coordinate and grid-mapping references
 
 Current limitations:
 
-* `tile_matrix_limits` currently assumes full matrix coverage per level
+* `multiscales.layout` is generated per measurement-path hierarchy, matching this repository storage layout
 
 ## CWL Workflow Parameters
 
@@ -338,6 +338,13 @@ These are passed to the `stac-zarr` CommandLineTool as:
 * `--overview-levels`
 * `--continuous-overview-reducer`
 * `--categorical-overview-reducer`
+
+Internal processing parameter used by the `crop` tool:
+
+* `asset_signing` (`auto` | `none` | `mspc`, default `auto`)
+  - `auto`: signs asset HREFs only when the input item/assets point to Microsoft Planetary Computer
+  - `mspc`: always sign item assets via Planetary Computer SAS signing
+  - `none`: disable signing
 
 ## `stac-eopf-product` Interface (Internal in CWL)
 

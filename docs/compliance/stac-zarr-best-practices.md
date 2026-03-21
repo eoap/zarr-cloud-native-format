@@ -80,9 +80,9 @@ For each measurement:
 
 * Base level written to `measurements/<measurement>`
 * Overview levels written to `measurements_overviews/<measurement>/<level>/<measurement>`
-* Root `multiscales` uses TileMatrixSet metadata:
+* Root `multiscales` uses GeoZarr v1 layout metadata:
   - `resampling_method`
-  - `tile_matrix_set`
+  - `layout`
 * Per-measurement dataset listing is exposed in `multiscales:datasets`
 
 Overview generation controls:
@@ -126,28 +126,20 @@ Implemented:
 
 * `zarr_conventions` includes `proj:`, `spatial:`, `multiscales`
 * `spatial:*` root attributes (`dimensions`, `bbox`, `shape`, `transform`)
-* TileMatrixSet-style `multiscales` object (`resampling_method`, `tile_matrix_set`)
-* `multiscales.tile_matrix_limits` emitted per level
+* GeoZarr v1 `multiscales` object (`resampling_method`, `layout`)
 * multiscale data levels with explicit dataset paths
 * CF-style dataset members and `grid_mapping` linkage checks
 
-Partially implemented:
-
-* `tile_matrix_limits` currently assumes full matrix coverage per level
-
 Forward work items:
 
-* refine `tile_matrix_limits` for partial coverage scenarios
 * extend reducer-to-resampling mapping if additional methods are introduced
 
 ### Compliance Check Notes
 
 When running `task compliance:check:all`:
 
-* `compliance:check:multiscales-tms` is the authoritative strict check for the emitted TileMatrixSet profile and is expected to pass.
-* `compliance:check:multiscales` validates against upstream layout-oriented `zarr-conventions/multiscales` schema and is expected to fail with the current TileMatrixSet representation.
-
-This behavior is expected and does not indicate a regression for the selected GeoZarr/TiTiler-oriented profile.
+* `compliance:check:multiscales-layout` is the authoritative strict check for the emitted GeoZarr v1 layout profile and is expected to pass.
+* `compliance:check:multiscales` validates against upstream `zarr-conventions/multiscales` schema and is expected to pass.
 
 ### Measurement contract
 

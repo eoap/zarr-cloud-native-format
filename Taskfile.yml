@@ -21,9 +21,27 @@ tasks:
     cmds:
       - docker build -t occurrence:latest command-line-tools/occurrence
 
+  containers:build:crop:
+    desc: Build crop:latest image
+    cmds:
+      - docker build -t crop:latest command-line-tools/crop
+
+  containers:build:norm-diff:
+    desc: Build norm-diff:latest image
+    cmds:
+      - docker build -t norm-diff:latest command-line-tools/norm_diff
+
+  containers:build:otsu:
+    desc: Build otsu:latest image
+    cmds:
+      - docker build -t otsu:latest command-line-tools/otsu
+
   containers:build:producer:
     desc: Build all local images required by app-water-bodies.cwl local tools
     deps:
+      - task: containers:build:crop
+      - task: containers:build:norm-diff
+      - task: containers:build:otsu
       - task: containers:build:stac-collection
       - task: containers:build:stac-zarr
       - task: containers:build:stac-eopf-product
@@ -35,7 +53,7 @@ tasks:
       - task: containers:build:occurrence
 
   cwl:run:producer:
-    desc: Run producer workflow directly with cwltool
+    desc: Run producer workflow against Microsoft Planetary Computer STAC API
     cmds:
       - |
         uv run --with cwltool cwltool \
@@ -79,13 +97,13 @@ tasks:
         uv run --with jsonschema --with-editable . \
         python ../../scripts/validate_multiscales_schema.py
 
-  compliance:check:multiscales-tms:
-    desc: Validate TileMatrixSet-based multiscales profile used by this repository
+  compliance:check:multiscales-layout:
+    desc: Validate GeoZarr v1 multiscales layout profile used by this repository
     cmds:
       - |
         cd command-line-tools/stac-zarr && \
         uv run --with-editable . \
-        python ../../scripts/validate_multiscales_tms_profile.py
+        python ../../scripts/validate_multiscales_layout_profile.py
 
   compliance:check:geo-proj:
     desc: Validate geo-proj metadata against zarr-conventions schema
@@ -114,7 +132,7 @@ tasks:
   compliance:check:all:
     desc: Run strict local profile checks and upstream compatibility report
     deps:
-      - task: compliance:check:multiscales-tms
+      - task: compliance:check:multiscales-layout
       - task: compliance:check:geo-proj
       - task: compliance:check:spatial
       - task: compliance:check:eopf-explorer
@@ -203,7 +221,26 @@ tasks:
           -p {{.TITILER_PORT}}:80 \
           -e TITILER_EOPF_STORE_URL=file:///data/ \
           -v {{.DATA_ROOT}}:/data \
-          ghcr.io/eopf-explorer/titiler-eopf:latest
+          {{.TITILER_IMAGE}}
+    vars:
+      TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
+      DATA_ROOT: '{{default "." .DATA_ROOT}}'
+      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+
+  titiler:eopf:build:patched:
+    desc: Build a patched TiTiler-EOPF image with sel-time fixes
+    cmds:
+      - |
+        docker build \
+          -f docker/titiler-eopf-patched/Dockerfile \
+          -t titiler-eopf:patched \
+          .
+
+  titiler:eopf:run:patched:
+    desc: Run patched TiTiler-EOPF locally against a mounted data root
+    cmds:
+      - |
+        task titiler:eopf:run DATA_ROOT={{.DATA_ROOT}} TITILER_PORT={{.TITILER_PORT}} TITILER_IMAGE=titiler-eopf:patched
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       DATA_ROOT: '{{default "." .DATA_ROOT}}'
@@ -240,7 +277,17 @@ tasks:
           -p {{.TITILER_PORT}}:80 \
           -e TITILER_EOPF_STORE_URL=file:///data/ \
           -v "$DATA_ROOT":/data \
-          ghcr.io/eopf-explorer/titiler-eopf:latest
+          {{.TITILER_IMAGE}}
+    vars:
+      TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
+      RESULTS_FILE: '{{default "cwl-tests/results.json" .RESULTS_FILE}}'
+      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+
+  titiler:eopf:run:results:patched:
+    desc: Run patched TiTiler-EOPF using zarr_stac_catalog path from CWL results.json
+    cmds:
+      - |
+        task titiler:eopf:run:results RESULTS_FILE={{.RESULTS_FILE}} TITILER_PORT={{.TITILER_PORT}} TITILER_IMAGE=titiler-eopf:patched
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       RESULTS_FILE: '{{default "cwl-tests/results.json" .RESULTS_FILE}}'
@@ -275,7 +322,7 @@ tasks:
           -p {{.TITILER_PORT}}:80 \
           -e TITILER_EOPF_STORE_URL=file:///data/ \
           -v "$(pwd)/{{.DATA_ROOT}}":/data \
-          ghcr.io/eopf-explorer/titiler-eopf:latest)
+          {{.TITILER_IMAGE}})
         cleanup() { docker rm -f "$CID" >/dev/null 2>&1 || true; }
         trap cleanup EXIT
         sleep 4
@@ -287,6 +334,7 @@ tasks:
       DATA_ROOT: '{{default "command-line-tools/stac-zarr" .DATA_ROOT}}'
       COLLECTION_ID: '{{default "water-bodies" .COLLECTION_ID}}'
       ITEM_ID: '{{default "water-bodies" .ITEM_ID}}'
+      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
 
   test:stac-collection:
     desc: Run scoped unit tests for stac-collection
@@ -309,9 +357,33 @@ tasks:
         cd command-line-tools/stac-eopf-product && \
         uv run --with pytest --with-editable . pytest -q tests
 
+  test:crop:
+    desc: Run scoped unit tests for crop
+    cmds:
+      - |
+        cd command-line-tools/crop && \
+        uv run --with pytest --with-editable . pytest -q tests
+
+  test:norm-diff:
+    desc: Run scoped unit tests for norm-diff
+    cmds:
+      - |
+        cd command-line-tools/norm_diff && \
+        uv run --with pytest --with-editable . pytest -q tests
+
+  test:otsu:
+    desc: Run scoped unit tests for otsu
+    cmds:
+      - |
+        cd command-line-tools/otsu && \
+        uv run --with pytest --with-editable . pytest -q tests
+
   test:unit:scoped:
     desc: Run all scoped unit test suites
     deps:
       - task: test:stac-collection
       - task: test:stac-zarr
       - task: test:stac-eopf-product
+      - task: test:crop
+      - task: test:norm-diff
+      - task: test:otsu

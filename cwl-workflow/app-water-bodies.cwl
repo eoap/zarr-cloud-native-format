@@ -45,28 +45,29 @@ $graph:
         label: STAC API endpoint
         doc: STAC API endpoint
         type: Any
+        default:
+          headers: []
+          url: https://planetarycomputer.microsoft.com/api/stac/v1
       collection:
         label: STAC collection
         doc: STAC collection identifier
         type: string
         default: sentinel-2-l2a
-      bbox:
-        label: Bounding box
-        doc: Bounding box as [minx, miny, maxx, maxy]
-        type: double[]
+      aoi:
+        label: Area of interest
+        doc: Area of interest polygon with bbox [minx, miny, maxx, maxy]
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
       start-datetime:
         label: Start time
         doc: Start time
         type:
           - "null"
-          - string
           - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
       end-datetime:
         label: End time
         doc: End time
         type:
           - "null"
-          - string
           - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
       limit:
         label: limit
@@ -157,11 +158,11 @@ $graph:
 
       build_search_request:
         label: Build STAC search request
-        doc: Build STACSearchSettings from bbox and query inputs
+        doc: Build STACSearchSettings from AOI and query inputs
         run: "#build_search_request"
         in:
           collection: collection
-          bbox: bbox
+          aoi: aoi
           start-datetime: start-datetime
           end-datetime: end-datetime
           limit: limit
@@ -295,23 +296,21 @@ $graph:
         label: STAC collection
         doc: STAC collection identifier
         type: string
-      bbox:
-        label: Bounding box
-        doc: Bounding box as [minx, miny, maxx, maxy]
-        type: double[]
+      aoi:
+        label: Area of interest
+        doc: Area of interest polygon with bbox [minx, miny, maxx, maxy]
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
       start-datetime:
         label: Start time
         doc: Start time
         type:
           - "null"
-          - string
           - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
       end-datetime:
         label: End time
         doc: End time
         type:
           - "null"
-          - string
           - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
       limit:
         label: limit
@@ -342,9 +341,10 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
     expression: |
       ${
-        var b = inputs.bbox;
+        var aoi = inputs.aoi;
+        var b = aoi && aoi.bbox;
         if (!Array.isArray(b) || b.length !== 4) {
-          throw new Error("bbox must be [minx,miny,maxx,maxy]");
+          throw new Error("aoi.bbox must be [minx,miny,maxx,maxy]");
         }
 
         var searchRequest = {
@@ -360,12 +360,12 @@ $graph:
           searchRequest.datetime_interval = {};
           if (startDatetime !== null) {
             searchRequest.datetime_interval.start = {
-              value: typeof startDatetime === "string" ? startDatetime : startDatetime.value
+              value: startDatetime.value
             };
           }
           if (endDatetime !== null) {
             searchRequest.datetime_interval.end = {
-              value: typeof endDatetime === "string" ? endDatetime : endDatetime.value
+              value: endDatetime.value
             };
           }
         }
@@ -508,15 +508,15 @@ $graph:
       InlineJavascriptRequirement: {}
       EnvVarRequirement:
         envDef:
-          PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          PATH: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
     hints:
       DockerRequirement:
-        dockerPull: ghcr.io/eoap/mastering-app-package/crop@sha256:324a0735cc4998f3f790c0e9b7a7df28e8ce8987d5f0798bd2d63c0e72d17dca
-    baseCommand: ["python", "-m", "app"]
+        dockerPull: crop:latest
+    baseCommand: ["crop"]
     arguments: []
     inputs:
       item:
@@ -543,6 +543,18 @@ $graph:
         type: string
         inputBinding:
           prefix: --band
+      asset_signing:
+        label: Asset signing mode
+        doc: Internal cloud asset signing mode (auto, none, mspc)
+        type:
+          type: enum
+          symbols:
+            - auto
+            - none
+            - mspc
+        default: auto
+        inputBinding:
+          prefix: --asset-signing
     outputs:
       cropped:
         label: Cropped raster
@@ -556,15 +568,15 @@ $graph:
       InlineJavascriptRequirement: {}
       EnvVarRequirement:
         envDef:
-          PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          PATH: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
     hints:
       DockerRequirement:
-        dockerPull: ghcr.io/eoap/mastering-app-package/norm_diff@sha256:632991ef2c15e98c46cfa1ac7dd35a638bbe4e5c434d7503a76cf3570b17383f
-    baseCommand: ["python", "-m", "app"]
+        dockerPull: norm-diff:latest
+    baseCommand: ["norm-diff"]
     arguments: []
     inputs:
       rasters:
@@ -586,15 +598,15 @@ $graph:
       InlineJavascriptRequirement: {}
       EnvVarRequirement:
         envDef:
-          PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          PATH: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
     hints:
       DockerRequirement:
-        dockerPull: ghcr.io/eoap/mastering-app-package/otsu@sha256:0541948f46a7a1a9f30f17973b7833482660f085700ccc98bb743a35a37dabae
-    baseCommand: ["python", "-m", "app"]
+        dockerPull: otsu:latest
+    baseCommand: ["otsu"]
     arguments: []
     inputs:
       raster:
@@ -756,9 +768,9 @@ $graph:
           prefix: --consolidate
       titiler_eopf_compatible:
         label: TiTiler-EOPF compatibility
-        doc: Emit TiTiler-EOPF compatible metadata layout
+        doc: Deprecated compatibility flag; GeoZarr v1 root metadata is always emitted
         type: boolean
-        default: true
+        default: false
         inputBinding:
           prefix: --titiler-eopf-compatible
       stac_object_type:

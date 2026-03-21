@@ -54,3 +54,41 @@ def build_tile_matrix_limits(tile_matrix_set: Dict[str, Any]) -> List[Dict[str, 
             }
         )
     return limits
+
+
+def build_v1_layout(multiscales_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Build GeoZarr v1 multiscales.layout entries from per-measurement datasets."""
+    layout: List[Dict[str, Any]] = []
+
+    for entry in multiscales_entries:
+        datasets = sorted(entry.get("datasets", []), key=lambda ds: int(ds.get("level", 0)))
+        previous_asset: str | None = None
+        previous_factor: int = 1
+
+        for ds in datasets:
+            asset = ds.get("path")
+            if not isinstance(asset, str) or not asset:
+                continue
+
+            current_factor = int(ds.get("downsampling_factor", 1))
+            relative_scale = max(1, current_factor // max(1, previous_factor))
+            layout_entry: Dict[str, Any] = {
+                "asset": asset,
+                "spatial:shape": ds.get("spatial:shape"),
+                "spatial:transform": ds.get("spatial:transform"),
+            }
+
+            if previous_asset is not None:
+                layout_entry["derived_from"] = previous_asset
+                layout_entry["transform"] = {
+                    "scale": [float(relative_scale), float(relative_scale)],
+                    "translation": [0.0, 0.0],
+                }
+            if "overview:reducer" in ds:
+                layout_entry["resampling_method"] = ds["overview:reducer"]
+
+            layout.append(layout_entry)
+            previous_asset = asset
+            previous_factor = current_factor
+
+    return layout

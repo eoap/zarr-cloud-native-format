@@ -19,11 +19,7 @@ uv run --with-editable . stac-zarr \
 From repository root:
 
 ```bash
-docker run --rm -it \
-  -p 8080:80 \
-  -e TITILER_EOPF_STORE_URL=file:///data/ \
-  -v "$(pwd)/command-line-tools/stac-zarr":/data \
-  ghcr.io/eopf-explorer/titiler-eopf:latest
+task titiler:eopf:run:results TITILER_PORT=8080
 ```
 
 ## 3) Check available variables
@@ -55,7 +51,7 @@ curl -o water.png \
 
 ## 5) Time-based request (recommended)
 
-Use ISO timestamp with `sel=time`:
+Use ISO timestamp with `sel=time` and `sel_method`:
 
 ```bash
 curl -o ndwi-time.png \
@@ -65,5 +61,19 @@ curl -o ndwi-time.png \
 Tip:
 
 * `sel=time` expects ISO datetime strings
+* `sel_method=nearest` selects the nearest available time slice
 * `bidx=1` is a fallback for selecting first time slice
 * For interactive map usage, see `How-To: TiTiler-EOPF HTML Client`
+* For local `main` image fixes, see `How-To: TiTiler-EOPF Local Patch for Time Selection`
+
+## 6) Known limitation on upstream `main` image
+
+With `ghcr.io/eopf-explorer/titiler-eopf:main`, `sel=time` may fail with:
+
+* `422` query validation for ISO datetime strings containing `:`
+* `500` at xarray/pandas selection time (including `datetime64[Y]` conversion errors)
+
+Workarounds:
+
+* use local patched image (`task titiler:eopf:build:patched` + `task titiler:eopf:run:results:patched`)
+* or use `bidx=<n>` for explicit time index selection when patching is not possible

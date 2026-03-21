@@ -29,6 +29,7 @@ from stac_zarr.writer import (
     to_pystac_renders,
 )
 import stac_zarr.cli as cli_mod
+from stac_zarr.multiscales import build_v1_layout
 
 
 def _make_collection(item_assets):
@@ -111,6 +112,51 @@ def test_build_tile_matrix_limits():
         "minTileCol": 0,
         "maxTileCol": 1,
     }
+
+
+def test_build_v1_layout():
+    entries = [
+        {
+            "name": "ndwi",
+            "datasets": [
+                {
+                    "path": "measurements/ndwi",
+                    "level": 0,
+                    "spatial:shape": [1094, 1094],
+                    "spatial:transform": [10.0, 0.0, 300000.0, 0.0, -10.0, 5000000.0],
+                },
+                {
+                    "path": "measurements_overviews/ndwi/1/ndwi",
+                    "level": 1,
+                    "downsampling_factor": 2,
+                    "overview:reducer": "mean",
+                    "spatial:shape": [547, 547],
+                    "spatial:transform": [20.0, 0.0, 300000.0, 0.0, -20.0, 5000000.0],
+                },
+                {
+                    "path": "measurements_overviews/ndwi/2/ndwi",
+                    "level": 2,
+                    "downsampling_factor": 4,
+                    "overview:reducer": "mean",
+                    "spatial:shape": [274, 274],
+                    "spatial:transform": [40.0, 0.0, 300000.0, 0.0, -40.0, 5000000.0],
+                },
+            ],
+        }
+    ]
+
+    layout = build_v1_layout(entries)
+
+    assert [entry["asset"] for entry in layout] == [
+        "measurements/ndwi",
+        "measurements_overviews/ndwi/1/ndwi",
+        "measurements_overviews/ndwi/2/ndwi",
+    ]
+    assert "derived_from" not in layout[0]
+    assert layout[1]["derived_from"] == "measurements/ndwi"
+    assert layout[1]["transform"]["scale"] == [2.0, 2.0]
+    assert layout[2]["derived_from"] == "measurements_overviews/ndwi/1/ndwi"
+    assert layout[2]["transform"]["scale"] == [2.0, 2.0]
 
 
 def test_build_root_proj_metadata_full():

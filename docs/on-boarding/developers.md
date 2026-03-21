@@ -6,6 +6,7 @@ Contribute safely to the CLI tools and CWL workflows, especially `stac-zarr`.
 
 ## Repository map
 
+* `command-line-tools/stac-collection/`: STAC packaging step for NDWI/Otsu outputs
 * `command-line-tools/stac-zarr/`: Zarr v3 + STAC writer
 * `command-line-tools/occurrence/`: consumer tool (reads Zarr STAC output and derives occurrence)
 * `command-line-tools/stac-eopf-product/`: EOPF-style Zarr output
@@ -33,6 +34,7 @@ task containers:build:producer
 python -m venv .venv
 source .venv/bin/activate
 pip install -U pip
+pip install -e command-line-tools/stac-collection
 pip install -e command-line-tools/stac-zarr
 pip install -e command-line-tools/occurrence
 pip install -e command-line-tools/stac-eopf-product

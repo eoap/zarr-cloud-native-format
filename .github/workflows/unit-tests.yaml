@@ -32,6 +32,9 @@ jobs:
           - command-line-tools/stac-zarr
           - command-line-tools/stac-collection
           - command-line-tools/stac-eopf-product
+          - command-line-tools/crop
+          - command-line-tools/norm_diff
+          - command-line-tools/otsu
 
     steps:
       - name: Checkout
@@ -51,7 +54,7 @@ jobs:
         working-directory: ${{ matrix.package-dir }}
         run: uv run --with pytest --with-editable . pytest -q tests
 
-  multiscales-tms-profile:
+  multiscales-layout-profile:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -72,8 +75,8 @@ jobs:
         with:
           version: 3.x
 
-      - name: Validate TileMatrixSet multiscales profile
-        run: task compliance:check:multiscales-tms
+      - name: Validate GeoZarr v1 multiscales layout profile
+        run: task compliance:check:multiscales-layout
 
   multiscales-upstream-compatibility:
     runs-on: ubuntu-latest

@@ -16,10 +16,9 @@ This page summarizes current compliance of `stac-zarr` outputs against:
   - `spatial:bbox`
   - `spatial:shape`
   - `spatial:transform`
-* Root multiscales metadata (TileMatrixSet style):
+* Root multiscales metadata (GeoZarr v1 layout style):
   - `multiscales.resampling_method`
-  - `multiscales.tile_matrix_set`
-  - `multiscales.tile_matrix_limits`
+  - `multiscales.layout`
 * Per-variable multiscale listing:
   - `multiscales:datasets`
 * Base and overview data arrays include CF linkage attributes:
@@ -43,13 +42,9 @@ This page summarizes current compliance of `stac-zarr` outputs against:
   - `proj:wkt2` fallback
   - `proj:code` fallback
 
-## Partially Implemented
-
-* `tile_matrix_limits` currently assumes full matrix coverage per level.
-
 ## Known Design Choices
 
-* `multiscales` stores TileMatrixSet-oriented metadata.
+* `multiscales` stores GeoZarr v1 layout metadata.
 * `multiscales:datasets` is used for per-variable dataset paths and axes.
 * Overview reducers are configurable and mapped to GeoZarr resampling names (`average`, `max`, `med`, `nearest`).
 
@@ -57,18 +52,16 @@ This page summarizes current compliance of `stac-zarr` outputs against:
 
 Running `task compliance:check:all` includes two different multiscales checks with different intent:
 
-* `compliance:check:multiscales-tms`: strict check for this repository TileMatrixSet profile.
+* `compliance:check:multiscales-layout`: strict check for this repository GeoZarr v1 layout profile.
   - Expected result: `PASS`
-* `compliance:check:multiscales`: upstream `zarr-conventions/multiscales` layout-schema compatibility report.
-  - Expected result with current profile: `FAIL`
-  - Reason: this repository emits a TileMatrixSet-style `multiscales` object (`tile_matrix_set`, `tile_matrix_limits`) instead of the upstream `layout` object shape.
+* `compliance:check:multiscales`: upstream `zarr-conventions/multiscales` schema compatibility report.
+  - Expected result: `PASS`
 
 This is an intentional split:
 
-* local profile compliance is enforced by `multiscales-tms`
-* upstream layout-schema output is reported as compatibility information
+* local profile compliance is enforced by `multiscales-layout`
+* upstream schema compliance is reported separately for traceability
 
 ## Forward Work Items
 
-* Expand limits strategy if partial spatial coverage per level is introduced.
 * Add a dedicated compliance test that validates emitted root attributes and dataset members from a generated sample.

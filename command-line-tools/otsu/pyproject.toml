@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "otsu"
+dynamic = ["version"]
+description = "Apply Otsu threshold to a raster"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "MIT"
+authors = [
+  { name = "Fabrice Brito", email = "info@terradue.com" },
+]
+dependencies = [
+  "click==8.2.1",
+  "loguru==0.7.3",
+  "numpy==2.2.6",
+  "rasterio==1.4.3",
+  "scikit-image==0.25.2",
+]
+
+[tool.hatch.version]
+path = "otsu_tool/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["otsu_tool"]
+
+[project.scripts]
+otsu = "otsu_tool.cli:to_otsu"

@@ -76,7 +76,7 @@ Output:
 
 5. Generate STAC Metadata
 
-Produce STAC items for each step, describing the results with the appropriate metadata.
+Produce a STAC catalog/collection for NDWI and water-bodies outputs, then convert to Zarr STAC metadata.
 
 Input: 
 
@@ -85,4 +85,4 @@ Input:
 Output: 
 
 * Zarr encoded result
-* STAC item (including Datacube metadata)
+* STAC catalog and collection metadata

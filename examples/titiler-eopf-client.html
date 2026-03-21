@@ -172,6 +172,17 @@
       const setStatus = (msg) => {
         el("status").textContent = msg;
       };
+
+      async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          const res = await fetch(url, { ...options, signal: controller.signal });
+          return res;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
       const updateLinksVisibility = () => {
         const wrap = el("xyzLinksWrap");
         const btn = el("toggleLinksBtn");
@@ -238,6 +249,22 @@
         return match && match[1] ? match[1] : null;
       }
 
+      function addDateOptions(selectNode, dates) {
+        const existing = new Set(
+          Array.from(selectNode.options)
+            .map((opt) => opt.value)
+            .filter((v) => v)
+        );
+        dates.forEach((d) => {
+          if (!d || existing.has(d)) return;
+          const option = document.createElement("option");
+          option.value = d;
+          option.textContent = d;
+          selectNode.appendChild(option);
+          existing.add(d);
+        });
+      }
+
       function normalizeRenderDefinitions(effectiveKeys, renders) {
         const strippedKeys = effectiveKeys
           .filter((k) => typeof k === "string")
@@ -295,31 +322,41 @@
       async function loadMetadata() {
         setStatus("Loading metadata...");
         try {
-          const [keysRes, collRes] = await Promise.all([
-            fetch(buildKeysUrl()),
-            fetch(buildCollectionUrl()),
+          const keysUrl = buildKeysUrl();
+          const collectionUrl = buildCollectionUrl();
+          setStatus(`Loading metadata...\n- keys: ${keysUrl}\n- collection: ${collectionUrl}`);
+
+          const [keysRes, collRes] = await Promise.allSettled([
+            fetchWithTimeout(keysUrl, {}, 12000),
+            fetchWithTimeout(collectionUrl, {}, 12000),
           ]);
 
-          if (!keysRes.ok) {
-            throw new Error(`dataset/keys failed: ${keysRes.status}`);
+          let effectiveKeys = [];
+          let keysWarning = "";
+          if (keysRes.status === "fulfilled" && keysRes.value.ok) {
+            const keys = await keysRes.value.json();
+            const visibleKeys = keys.filter((k) => k.startsWith("/measurements:"));
+            effectiveKeys = visibleKeys.length > 0 ? visibleKeys : keys;
+          } else if (keysRes.status === "fulfilled") {
+            let body = "";
+            try {
+              body = await keysRes.value.text();
+            } catch (_err) {
+              body = "";
+            }
+            keysWarning = `dataset/keys failed: ${keysRes.value.status}${body ? ` ${body}` : ""}`;
+          } else {
+            keysWarning = `dataset/keys request error: ${keysRes.reason?.message || keysRes.reason}`;
           }
-          const keys = await keysRes.json();
-          const visibleKeys = keys.filter((k) => k.startsWith("/measurements:"));
-          const effectiveKeys = visibleKeys.length > 0 ? visibleKeys : keys;
           measurementKeys = effectiveKeys;
 
           const dateSel = el("date");
           dateSel.innerHTML = '<option value="">(none)</option>';
           let collectionPayload = null;
-          if (collRes.ok) {
-            collectionPayload = await collRes.json();
+          if (collRes.status === "fulfilled" && collRes.value.ok) {
+            collectionPayload = await collRes.value.json();
             const dates = collectionPayload?.summaries?.datetime || [];
-            dates.forEach((d) => {
-              const option = document.createElement("option");
-              option.value = d;
-              option.textContent = d;
-              dateSel.appendChild(option);
-            });
+            addDateOptions(dateSel, dates);
           }
 
           const initialRenders = collectionPayload?.renders || {};
@@ -328,7 +365,7 @@
           if (missingDates || missingRenders) {
             try {
               const fallbackUrl = await buildCollectionJsonFallbackUrl();
-              const fallbackRes = await fetch(fallbackUrl);
+              const fallbackRes = await fetchWithTimeout(fallbackUrl, {}, 12000);
               if (fallbackRes.ok) {
                 const fallbackColl = await fallbackRes.json();
                 if (!collectionPayload) {
@@ -352,38 +389,49 @@
                   }
                 }
                 const dates = fallbackColl?.summaries?.datetime || [];
-                dates.forEach((d) => {
-                  const option = document.createElement("option");
-                  option.value = d;
-                  option.textContent = d;
-                  dateSel.appendChild(option);
-                });
+                addDateOptions(dateSel, dates);
                 if (dates.length > 0) {
                   setStatus(
                     `Loaded ${effectiveKeys.length} measurement(s) and ${dates.length} date value(s) from fallback collection.json.`
                   );
                 }
+              } else {
+                setStatus(
+                  `Loaded ${effectiveKeys.length} measurement key(s). Fallback collection request failed: ${fallbackRes.status}`
+                );
               }
             } catch (err) {
               // Ignore fallback errors and keep basic metadata loaded.
+              setStatus(
+                `Loaded ${effectiveKeys.length} measurement key(s), but fallback collection load failed: ${err.message}`
+              );
             }
           }
 
           currentRenders = collectionPayload?.renders || {};
+          if (effectiveKeys.length === 0) {
+            const renderExprKeys = Object.values(currentRenders || {})
+              .map((r) => parseMeasurementFromExpression(r?.expression))
+              .filter((v) => typeof v === "string")
+              .map((v) => `/measurements:${v}`);
+            const itemAssetKeys = Object.keys(collectionPayload?.item_assets || {}).map(
+              (k) => `/measurements:${k}`
+            );
+            effectiveKeys = Array.from(new Set([...renderExprKeys, ...itemAssetKeys]));
+          }
           renderDefs = normalizeRenderDefinitions(effectiveKeys, currentRenders);
 
-          setStatus(
-            `Loaded ${effectiveKeys.length} measurement key(s), ${Math.max(
+          const summaryMsg = `Loaded ${effectiveKeys.length} measurement key(s), ${Math.max(
               0,
               dateSel.options.length - 1
-            )} date value(s), ${renderDefs.length} layer definition(s).`
-          );
+            )} date value(s), ${renderDefs.length} layer definition(s).`;
+          setStatus(keysWarning ? `${summaryMsg}\nWarning: ${keysWarning}` : summaryMsg);
         } catch (err) {
           setStatus(`Metadata load failed: ${err.message}`);
         }
       }
 
-      function buildTileJsonUrl(def) {
+      function buildTileJsonUrl(def, timeMode = "auto") {
         const params = new URLSearchParams();
         params.set("variables", `/measurements:${def.measurement}`);
         if (def.rescale) params.set("rescale", def.rescale);
@@ -394,14 +442,78 @@
         }
 
         const selectedDate = el("date").value.trim();
+        const toIsoBasicNoColon = (isoDate) => {
+          // Keep date separators, remove only HH:MM:SS colons to satisfy
+          // TiTiler sel validator that rejects ":" in sel value.
+          // Example: 2021-06-03T18:49:19.024000000Z -> 2021-06-03T184919.024000000Z
+          if (!isoDate.includes("T")) return isoDate;
+          const parts = isoDate.split("T");
+          if (parts.length !== 2) return isoDate;
+          return `${parts[0]}T${parts[1].replace(/:/g, "")}`;
+        };
+        const toEpochNs = (isoDate) => {
+          const ms = Date.parse(isoDate);
+          if (Number.isNaN(ms)) return null;
+          return (BigInt(ms) * 1000000n).toString();
+        };
+        const selectedEpochNs = selectedDate ? toEpochNs(selectedDate) : null;
+        const selectedIsoBasic = selectedDate ? toIsoBasicNoColon(selectedDate) : null;
+        const selectedDateIndex = (() => {
+          if (!selectedDate) return -1;
+          const values = Array.from(el("date").options)
+            .map((opt) => opt.value)
+            .filter((v) => v);
+          return values.indexOf(selectedDate);
+        })();
         if (selectedDate) {
-          params.set("sel", `time=${selectedDate}`);
-          params.set("sel_method", "nearest");
+          if (timeMode === "sel-iso+method" || timeMode === "auto") {
+            params.set("sel", `time=${selectedDate}`);
+            params.set("sel_method", "nearest");
+          } else if ((timeMode === "sel-ns+method" || timeMode === "auto") && selectedEpochNs) {
+            params.set("sel", `time=${selectedEpochNs}`);
+            params.set("sel_method", "nearest");
+          } else if (timeMode === "sel-ns" && selectedEpochNs) {
+            params.set("sel", `time=${selectedEpochNs}`);
+          } else if (timeMode === "sel-iso-basic+method" && selectedIsoBasic) {
+            params.set("sel", `time=${selectedIsoBasic}`);
+            params.set("sel_method", "nearest");
+          } else if (timeMode === "sel-iso-basic" && selectedIsoBasic) {
+            params.set("sel", `time=${selectedIsoBasic}`);
+          } else if (timeMode === "datetime-only") {
+            params.set("datetime", selectedDate);
+          } else if (timeMode === "no-time") {
+            params.set("bidx", String(selectedDateIndex >= 0 ? selectedDateIndex + 1 : 1));
+          }
         } else {
           params.set("bidx", "1");
         }
 
         return `${apiBase()}/collections/${collectionId()}/items/${itemId()}/WebMercatorQuad/tilejson.json?${params.toString()}`;
+      }
+
+      async function fetchTileJsonWithFallback(def) {
+        const selectedDate = el("date").value.trim();
+        const modes = selectedDate
+          ? ["sel-iso+method", "sel-ns+method", "sel-ns", "sel-iso-basic+method", "sel-iso-basic", "no-time"]
+          : ["no-time"];
+
+        const errors = [];
+        for (const mode of modes) {
+          const url = buildTileJsonUrl(def, mode);
+          const res = await fetch(url);
+          if (res.ok) {
+            return { tilejson: await res.json(), url, mode };
+          }
+          let detail = "";
+          try {
+            detail = await res.text();
+          } catch (_err) {
+            detail = "";
+          }
+          errors.push(`${mode}: ${res.status}${detail ? ` ${detail}` : ""}`);
+        }
+
+        throw new Error(errors.join("\n"));
       }
 
       async function buildLayersFromRenders() {
@@ -413,21 +525,20 @@
         try {
           clearLayer();
           const xyzLinks = [];
+          const modeCounts = {};
           let firstBounds = null;
           let firstCenter = null;
 
           for (const def of renderDefs) {
-            const url = buildTileJsonUrl(def);
-            const res = await fetch(url);
-            if (!res.ok) {
-              throw new Error(`tilejson failed for '${def.id}': ${res.status}`);
-            }
-            const tj = await res.json();
+            const { tilejson: tj, url, mode } = await fetchTileJsonWithFallback(def);
             if (!tj.tiles || !tj.tiles.length) {
               continue;
             }
             const xyz = tj.tiles[0];
-            xyzLinks.push({ id: def.id, xyz });
+            const queryString = url.includes("?") ? url.split("?")[1] : "";
+            const previewUrl = `${apiBase()}/collections/${collectionId()}/items/${itemId()}/preview.png?${queryString}`;
+            xyzLinks.push({ id: def.id, xyz, previewUrl, mode });
+            modeCounts[mode] = (modeCounts[mode] || 0) + 1;
             const layer = L.tileLayer(xyz, {
               maxZoom: tj.maxzoom || 22,
               opacity: 0.85,
@@ -442,6 +553,8 @@
             if (!firstCenter && Array.isArray(tj.center) && tj.center.length >= 2) {
               firstCenter = tj.center;
             }
+
+            // In strict time mode we do not silently fallback to bidx when a date is selected.
           }
 
           if (layerControl) {
@@ -451,19 +564,27 @@
 
           const linksNode = el("xyzLinks");
           linksNode.innerHTML = "";
-          xyzLinks.forEach(({ id, xyz }) => {
+          xyzLinks.forEach(({ id, xyz, previewUrl, mode }) => {
             const wrapper = document.createElement("div");
             wrapper.style.marginBottom = "6px";
             const label = document.createElement("div");
-            label.textContent = id;
+            label.textContent = `${id} (mode: ${mode})`;
             const link = document.createElement("a");
             link.href = xyz;
             link.target = "_blank";
             link.rel = "noopener noreferrer";
             link.style.wordBreak = "break-all";
             link.textContent = xyz;
+            const preview = document.createElement("a");
+            preview.href = previewUrl;
+            preview.target = "_blank";
+            preview.rel = "noopener noreferrer";
+            preview.style.wordBreak = "break-all";
+            preview.textContent = `preview: ${previewUrl}`;
             wrapper.appendChild(label);
             wrapper.appendChild(link);
+            wrapper.appendChild(document.createElement("br"));
+            wrapper.appendChild(preview);
             linksNode.appendChild(wrapper);
           });
 
@@ -476,7 +597,12 @@
             map.setView([firstCenter[1], firstCenter[0]], firstCenter[2] || 8);
           }
 
-          setStatus(`Built ${xyzLinks.length} layer(s) and reconstructed XYZ web-map links.`);
+          const modeSummary = Object.entries(modeCounts)
+            .map(([k, v]) => `${k}=${v}`)
+            .join(", ");
+          setStatus(
+            `Built ${xyzLinks.length} layer(s). Time mode usage: ${modeSummary || "n/a"}.`
+          );
         } catch (err) {
           setStatus(`Layer build failed: ${err.message}`);
         }
@@ -501,6 +627,10 @@
 
       el("loadMetaBtn").addEventListener("click", loadMetadata);
       el("buildLayersBtn").addEventListener("click", buildLayersFromRenders);
+      el("date").addEventListener("change", () => {
+        if (!renderDefs.length) return;
+        buildLayersFromRenders();
+      });
       el("toggleLinksBtn").addEventListener("click", () => {
         linksVisible = !linksVisible;
         updateLinksVisibility();

@@ -90,8 +90,7 @@ from stac_zarr.writer import run_to_zarr
     default=False,
     show_default=True,
     help=(
-        "Emit TiTiler-EOPF compatible layout by omitting root multiscales metadata "
-        "that requires root scale groups."
+        "Deprecated compatibility flag. GeoZarr v1 root metadata is always emitted."
     ),
 )
 @click.option(

@@ -127,6 +127,15 @@ $graph:
             - median
             - nearest
         default: "nearest"
+      stac_object_type:
+        label: STAC object type
+        doc: Output STAC object type emitted by stac-zarr (collection or item)
+        type:
+          type: enum
+          symbols:
+            - collection
+            - item
+        default: collection
     outputs:
       - id: zarr_stac_catalog
         label: Zarr STAC catalog
@@ -233,6 +242,7 @@ $graph:
           overview_levels: overview_levels
           continuous_overview_reducer: continuous_overview_reducer
           categorical_overview_reducer: categorical_overview_reducer
+          stac_object_type: stac_object_type
         out:
           - zarr_stac_catalog
 

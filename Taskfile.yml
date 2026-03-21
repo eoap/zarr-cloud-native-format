@@ -61,6 +61,15 @@ tasks:
           cwl-tests/jobs/producer-job.yml \
           > cwl-tests/results.json
 
+  cwl:run:producer:item:
+    desc: Run producer workflow and emit STAC Item output from stac-zarr
+    cmds:
+      - |
+        uv run --with cwltool cwltool \
+          cwl-workflow/app-water-bodies.cwl#water-bodies \
+          cwl-tests/jobs/producer-job-item.yml \
+          > cwl-tests/results-item.json
+
   cwl:test:e2e:
     desc: Run end-to-end CWL tests with cwltest
     cmds:
@@ -291,6 +300,25 @@ tasks:
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       RESULTS_FILE: '{{default "cwl-tests/results.json" .RESULTS_FILE}}'
+
+  titiler:eopf:run:results:item:
+    desc: Run TiTiler-EOPF using item-mode CWL output results-item.json
+    cmds:
+      - |
+        task titiler:eopf:run:results RESULTS_FILE={{.RESULTS_FILE}} TITILER_PORT={{.TITILER_PORT}} TITILER_IMAGE={{.TITILER_IMAGE}}
+    vars:
+      TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
+      RESULTS_FILE: '{{default "cwl-tests/results-item.json" .RESULTS_FILE}}'
+      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+
+  titiler:eopf:run:results:item:patched:
+    desc: Run patched TiTiler-EOPF using item-mode CWL output results-item.json
+    cmds:
+      - |
+        task titiler:eopf:run:results:item RESULTS_FILE={{.RESULTS_FILE}} TITILER_PORT={{.TITILER_PORT}} TITILER_IMAGE=titiler-eopf:patched
+    vars:
+      TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
+      RESULTS_FILE: '{{default "cwl-tests/results-item.json" .RESULTS_FILE}}'
 
   examples:serve:
     desc: Serve repository files over HTTP (for examples/titiler-eopf-client.html)

@@ -81,10 +81,92 @@ def patch_eopf_reader_sel_parsing() -> None:
 """
     if old not in text:
         raise RuntimeError("Expected sel parsing block was not found in titiler/eopf/reader.py")
+    text = text.replace(old, new)
+    reader_path.write_text(text)
+
+
+def patch_eopf_reader_dataarray_variable_lookup() -> None:
+    reader_path = Path("/usr/local/lib/python3.12/site-packages/titiler/eopf/reader.py")
+    text = reader_path.read_text()
+    old = 'if variable in tree[mt["asset"]].data_vars'
+    new = (
+        'if ('
+        'hasattr(tree[mt["asset"]], "data_vars") and variable in tree[mt["asset"]].data_vars'
+        ') or ('
+        'hasattr(tree[mt["asset"]], "name") and tree[mt["asset"]].name == variable'
+        ")"
+    )
+    if old not in text:
+        raise RuntimeError(
+            "Expected variable lookup condition was not found in titiler/eopf/reader.py"
+        )
+    reader_path.write_text(text.replace(old, new))
+
+
+def patch_eopf_reader_dataarray_scale_access() -> None:
+    reader_path = Path("/usr/local/lib/python3.12/site-packages/titiler/eopf/reader.py")
+    text = reader_path.read_text()
+    old = """                # Select the multiscale group and variable
+                da = tree[scale][variable]
+"""
+    new = """                # Select the multiscale group and variable
+                scale_node = tree[scale]
+                if hasattr(scale_node, "data_vars"):
+                    da = scale_node[variable]
+                elif hasattr(scale_node, "name") and scale_node.name == variable:
+                    da = scale_node
+                else:
+                    raise MissingVariables(
+                        f"Variable '{variable}' not found in selected multiscale asset '{scale}'"
+                    )
+"""
+    if old not in text:
+        raise RuntimeError(
+            "Expected multiscale variable selection block was not found in titiler/eopf/reader.py"
+        )
+    reader_path.write_text(text.replace(old, new))
+
+
+def patch_get_multiscale_level_v1_variable_filter() -> None:
+    reader_path = Path("/usr/local/lib/python3.12/site-packages/titiler/eopf/reader.py")
+    text = reader_path.read_text()
+    old = """    elif "layout" in dt.attrs.get("multiscales", {}):
+        ms_resolutions = [
+            (
+                ms["asset"],
+                min(abs(ms["spatial:transform"][0]), abs(ms["spatial:transform"][4])),
+            )
+            for ms in dt.attrs["multiscales"]["layout"]
+        ]
+"""
+    new = """    elif "layout" in dt.attrs.get("multiscales", {}):
+        ms_resolutions = [
+            (
+                ms["asset"],
+                min(abs(ms["spatial:transform"][0]), abs(ms["spatial:transform"][4])),
+            )
+            for ms in dt.attrs["multiscales"]["layout"]
+            if (
+                hasattr(dt[ms["asset"]], "data_vars")
+                and variable in dt[ms["asset"]].data_vars
+            )
+            or (
+                hasattr(dt[ms["asset"]], "name")
+                and dt[ms["asset"]].name == variable
+            )
+        ]
+"""
+    if old not in text:
+        raise RuntimeError(
+            "Expected GeoZarr V1 multiscale resolution block was not found in titiler/eopf/reader.py"
+        )
     reader_path.write_text(text.replace(old, new))
 
 
 if __name__ == "__main__":
     patch_sel_regex()
     patch_eopf_reader_sel_parsing()
-    print("Patched TiTiler-EOPF sel-time handling.")
+    patch_eopf_reader_dataarray_variable_lookup()
+    patch_eopf_reader_dataarray_scale_access()
+    patch_get_multiscale_level_v1_variable_filter()
+    print("Patched TiTiler-EOPF sel-time handling and item DataArray access.")

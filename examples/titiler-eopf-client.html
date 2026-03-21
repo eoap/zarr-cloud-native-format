@@ -211,6 +211,10 @@
         return `${apiBase()}/collections/${collectionId()}`;
       }
 
+      function buildItemUrl() {
+        return `${apiBase()}/collections/${collectionId()}/items/${itemId()}`;
+      }
+
       async function buildCollectionJsonFallbackUrl() {
         const explicit = el("collectionJsonUrl").value.trim();
         if (explicit) return explicit;
@@ -219,24 +223,59 @@
         const legacy = `${origin}/command-line-tools/stac-zarr/${id}/collection.json`;
 
         try {
-          const res = await fetch(`${origin}/cwl-tests/results.json`);
-          if (!res.ok) return legacy;
-          const payload = await res.json();
-          const zarrCatalog = payload?.zarr_stac_catalog || {};
-          const runDir = zarrCatalog?.basename;
-          if (!runDir) return legacy;
+          const candidates = [`${origin}/cwl-tests/results.json`, `${origin}/cwl-tests/results-item.json`];
+          for (const candidate of candidates) {
+            const res = await fetch(candidate);
+            if (!res.ok) continue;
+            const payload = await res.json();
+            const zarrCatalog = payload?.zarr_stac_catalog || {};
+            const runDir = zarrCatalog?.basename;
+            if (!runDir) continue;
 
-          const listing = Array.isArray(zarrCatalog?.listing) ? zarrCatalog.listing : [];
-          const directoryEntries = listing.filter((entry) => entry?.class === "Directory");
-          const preferred =
-            directoryEntries.find((entry) => entry?.basename === id)?.basename ||
-            directoryEntries[0]?.basename ||
-            id;
-
-          return `${origin}/${runDir}/${preferred}/collection.json`;
+            const listing = Array.isArray(zarrCatalog?.listing) ? zarrCatalog.listing : [];
+            const directoryEntries = listing.filter((entry) => entry?.class === "Directory");
+            const preferred =
+              directoryEntries.find((entry) => entry?.basename === id)?.basename ||
+              directoryEntries[0]?.basename ||
+              id;
+            const url = `${origin}/${runDir}/${preferred}/collection.json`;
+            const check = await fetchWithTimeout(url, {}, 8000);
+            if (check.ok) return url;
+          }
+          return legacy;
         } catch (err) {
           return legacy;
         }
+      }
+
+      async function buildItemJsonFallbackUrl() {
+        const id = decodeURIComponent(collectionId());
+        const iid = decodeURIComponent(itemId());
+        const origin = window.location.origin;
+        const candidates = [`${origin}/cwl-tests/results-item.json`, `${origin}/cwl-tests/results.json`];
+        try {
+          for (const candidate of candidates) {
+            const res = await fetch(candidate);
+            if (!res.ok) continue;
+            const payload = await res.json();
+            const zarrCatalog = payload?.zarr_stac_catalog || {};
+            const runDir = zarrCatalog?.basename;
+            if (!runDir) continue;
+
+            const listing = Array.isArray(zarrCatalog?.listing) ? zarrCatalog.listing : [];
+            const directoryEntries = listing.filter((entry) => entry?.class === "Directory");
+            const preferred =
+              directoryEntries.find((entry) => entry?.basename === id)?.basename ||
+              directoryEntries[0]?.basename ||
+              id;
+            const url = `${origin}/${runDir}/${preferred}/${iid}.json`;
+            const check = await fetchWithTimeout(url, {}, 8000);
+            if (check.ok) return url;
+          }
+        } catch (_err) {
+          // ignore and return null
+        }
+        return null;
       }
 
       function buildKeysUrl() {
@@ -247,6 +286,21 @@
         if (typeof expression !== "string") return null;
         const match = expression.match(/^\/[^:]+:([^\s]+)$/);
         return match && match[1] ? match[1] : null;
+      }
+
+      function getRenders(payload) {
+        if (!payload || typeof payload !== "object") return {};
+        if (payload.renders && typeof payload.renders === "object") return payload.renders;
+        if (payload.properties?.renders && typeof payload.properties.renders === "object") {
+          return payload.properties.renders;
+        }
+        return {};
+      }
+
+      function pickRenders(primaryPayload, fallbackPayload) {
+        const primary = getRenders(primaryPayload);
+        if (Object.keys(primary).length > 0) return primary;
+        return getRenders(fallbackPayload);
       }
 
       function addDateOptions(selectNode, dates) {
@@ -265,29 +319,19 @@
         });
       }
 
-      function normalizeRenderDefinitions(effectiveKeys, renders) {
-        const strippedKeys = effectiveKeys
-          .filter((k) => typeof k === "string")
-          .map((k) => k.replace(/^\/measurements:/, ""));
-
+      function normalizeRenderDefinitions(renders) {
         const defs = [];
         if (renders && typeof renders === "object" && Object.keys(renders).length > 0) {
           Object.entries(renders).forEach(([renderId, renderObj]) => {
             if (!renderObj || typeof renderObj !== "object") return;
-            let measurement = parseMeasurementFromExpression(renderObj.expression);
-            if (!measurement) {
-              const assets = renderObj.assets;
-              if (Array.isArray(assets) && assets.length > 0) {
-                const direct = assets.find((a) => strippedKeys.includes(a));
-                measurement = direct || null;
-              } else if (typeof assets === "string" && strippedKeys.includes(assets)) {
-                measurement = assets;
-              }
-            }
-            if (!measurement) return;
+            const expression =
+              typeof renderObj.expression === "string" ? renderObj.expression.trim() : "";
+            const measurement = parseMeasurementFromExpression(expression);
+            if (!expression || !measurement) return;
             defs.push({
               id: renderId,
               measurement,
+              expression,
               rescale:
                 Array.isArray(renderObj.rescale) &&
                 renderObj.rescale.length > 0 &&
@@ -304,18 +348,6 @@
           });
         }
 
-        if (defs.length === 0) {
-          strippedKeys.forEach((measurement) => {
-            defs.push({
-              id: measurement,
-              measurement,
-              rescale: measurement === "ndwi" ? "-1,1" : "0,1",
-              colormap_name: measurement === "water-bodies" ? "blues" : "viridis",
-              colormap: null,
-            });
-          });
-        }
-
         return defs;
       }
 
@@ -324,19 +356,22 @@
         try {
           const keysUrl = buildKeysUrl();
           const collectionUrl = buildCollectionUrl();
-          setStatus(`Loading metadata...\n- keys: ${keysUrl}\n- collection: ${collectionUrl}`);
+          const itemUrl = buildItemUrl();
+          setStatus(
+            `Loading metadata...\n- keys: ${keysUrl}\n- collection: ${collectionUrl}\n- item: ${itemUrl}`
+          );
 
-          const [keysRes, collRes] = await Promise.allSettled([
+          const [keysRes, collRes, itemRes] = await Promise.allSettled([
             fetchWithTimeout(keysUrl, {}, 12000),
             fetchWithTimeout(collectionUrl, {}, 12000),
+            fetchWithTimeout(itemUrl, {}, 12000),
           ]);
 
-          let effectiveKeys = [];
+          let measurements = [];
           let keysWarning = "";
           if (keysRes.status === "fulfilled" && keysRes.value.ok) {
             const keys = await keysRes.value.json();
-            const visibleKeys = keys.filter((k) => k.startsWith("/measurements:"));
-            effectiveKeys = visibleKeys.length > 0 ? visibleKeys : keys;
+            measurementKeys = Array.isArray(keys) ? keys : [];
           } else if (keysRes.status === "fulfilled") {
             let body = "";
             try {
@@ -348,18 +383,30 @@
           } else {
             keysWarning = `dataset/keys request error: ${keysRes.reason?.message || keysRes.reason}`;
           }
-          measurementKeys = effectiveKeys;
 
           const dateSel = el("date");
           dateSel.innerHTML = '<option value="">(none)</option>';
           let collectionPayload = null;
+          let itemPayload = null;
           if (collRes.status === "fulfilled" && collRes.value.ok) {
             collectionPayload = await collRes.value.json();
             const dates = collectionPayload?.summaries?.datetime || [];
             addDateOptions(dateSel, dates);
           }
+          if (itemRes.status === "fulfilled" && itemRes.value.ok) {
+            itemPayload = await itemRes.value.json();
+            const itemTimeValues =
+              itemPayload?.assets?.measurements?.["cube:dimensions"]?.time?.values ||
+              itemPayload?.properties?.["cube:dimensions"]?.time?.values ||
+              [];
+            if (Array.isArray(itemTimeValues) && itemTimeValues.length > 0) {
+              addDateOptions(dateSel, itemTimeValues);
+            } else if (itemPayload?.properties?.datetime) {
+              addDateOptions(dateSel, [itemPayload.properties.datetime]);
+            }
+          }
 
-          const initialRenders = collectionPayload?.renders || {};
+          const initialRenders = pickRenders(itemPayload, collectionPayload);
           const missingDates = dateSel.options.length <= 1;
           const missingRenders = Object.keys(initialRenders).length === 0;
           if (missingDates || missingRenders) {
@@ -372,11 +419,11 @@
                   collectionPayload = fallbackColl;
                 } else {
                   if (
-                    (!collectionPayload.renders ||
-                      Object.keys(collectionPayload.renders).length === 0) &&
-                    fallbackColl?.renders
+                    Object.keys(getRenders(collectionPayload)).length === 0 &&
+                    Object.keys(getRenders(fallbackColl)).length > 0
                   ) {
-                    collectionPayload.renders = fallbackColl.renders;
+                    collectionPayload.renders =
+                      fallbackColl.renders || fallbackColl?.properties?.renders;
                   }
                   if (
                     (!collectionPayload.summaries ||
@@ -392,39 +439,54 @@
                 addDateOptions(dateSel, dates);
                 if (dates.length > 0) {
                   setStatus(
-                    `Loaded ${effectiveKeys.length} measurement(s) and ${dates.length} date value(s) from fallback collection.json.`
+                    `Loaded ${measurements.length} measurement(s) and ${dates.length} date value(s) from fallback collection.json.`
                   );
                 }
               } else {
                 setStatus(
-                  `Loaded ${effectiveKeys.length} measurement key(s). Fallback collection request failed: ${fallbackRes.status}`
+                  `Loaded ${measurements.length} measurement key(s). Fallback collection request failed: ${fallbackRes.status}`
                 );
               }
             } catch (err) {
               // Ignore fallback errors and keep basic metadata loaded.
               setStatus(
-                `Loaded ${effectiveKeys.length} measurement key(s), but fallback collection load failed: ${err.message}`
+                `Loaded ${measurements.length} measurement key(s), but fallback collection load failed: ${err.message}`
               );
             }
           }
 
-          currentRenders = collectionPayload?.renders || {};
-          if (effectiveKeys.length === 0) {
-            const renderExprKeys = Object.values(currentRenders || {})
-              .map((r) => parseMeasurementFromExpression(r?.expression))
-              .filter((v) => typeof v === "string")
-              .map((v) => `/measurements:${v}`);
-            const itemAssetKeys = Object.keys(collectionPayload?.item_assets || {}).map(
-              (k) => `/measurements:${k}`
-            );
-            effectiveKeys = Array.from(new Set([...renderExprKeys, ...itemAssetKeys]));
+          if (dateSel.options.length <= 1) {
+            try {
+              const itemFallbackUrl = await buildItemJsonFallbackUrl();
+              if (itemFallbackUrl) {
+                const itemFallbackRes = await fetchWithTimeout(itemFallbackUrl, {}, 12000);
+                if (itemFallbackRes.ok) {
+                  const itemFallback = await itemFallbackRes.json();
+                  const fallbackTimeValues =
+                    itemFallback?.assets?.measurements?.["cube:dimensions"]?.time?.values ||
+                    itemFallback?.properties?.["cube:dimensions"]?.time?.values ||
+                    [];
+                  if (Array.isArray(fallbackTimeValues) && fallbackTimeValues.length > 0) {
+                    addDateOptions(dateSel, fallbackTimeValues);
+                  } else {
+                    const dt = itemFallback?.properties?.datetime;
+                    if (dt) addDateOptions(dateSel, [dt]);
+                  }
+                }
+              }
+            } catch (_err) {
+              // ignore item fallback errors
+            }
           }
-          renderDefs = normalizeRenderDefinitions(effectiveKeys, currentRenders);
 
-          const summaryMsg = `Loaded ${effectiveKeys.length} measurement key(s), ${Math.max(
+          currentRenders = pickRenders(itemPayload, collectionPayload);
+          renderDefs = normalizeRenderDefinitions(currentRenders);
+          measurements = renderDefs.map((d) => d.measurement);
+
+          const summaryMsg = `Loaded ${measurements.length} measurement key(s), ${Math.max(
               0,
               dateSel.options.length - 1
-            )} date value(s), ${renderDefs.length} layer definition(s).`;
+            )} date value(s), ${renderDefs.length} layer definition(s) from render expressions.`;
           setStatus(keysWarning ? `${summaryMsg}\nWarning: ${keysWarning}` : summaryMsg);
         } catch (err) {
           setStatus(`Metadata load failed: ${err.message}`);
@@ -433,7 +495,7 @@
 
       function buildTileJsonUrl(def, timeMode = "auto") {
         const params = new URLSearchParams();
-        params.set("variables", `/measurements:${def.measurement}`);
+        params.set("variables", def.expression);
         if (def.rescale) params.set("rescale", def.rescale);
         if (def.colormap) {
           params.set("colormap", def.colormap);
@@ -442,22 +504,6 @@
         }
 
         const selectedDate = el("date").value.trim();
-        const toIsoBasicNoColon = (isoDate) => {
-          // Keep date separators, remove only HH:MM:SS colons to satisfy
-          // TiTiler sel validator that rejects ":" in sel value.
-          // Example: 2021-06-03T18:49:19.024000000Z -> 2021-06-03T184919.024000000Z
-          if (!isoDate.includes("T")) return isoDate;
-          const parts = isoDate.split("T");
-          if (parts.length !== 2) return isoDate;
-          return `${parts[0]}T${parts[1].replace(/:/g, "")}`;
-        };
-        const toEpochNs = (isoDate) => {
-          const ms = Date.parse(isoDate);
-          if (Number.isNaN(ms)) return null;
-          return (BigInt(ms) * 1000000n).toString();
-        };
-        const selectedEpochNs = selectedDate ? toEpochNs(selectedDate) : null;
-        const selectedIsoBasic = selectedDate ? toIsoBasicNoColon(selectedDate) : null;
         const selectedDateIndex = (() => {
           if (!selectedDate) return -1;
           const values = Array.from(el("date").options)
@@ -466,19 +512,13 @@
           return values.indexOf(selectedDate);
         })();
         if (selectedDate) {
-          if (timeMode === "sel-iso+method" || timeMode === "auto") {
+          if (timeMode === "sel-nearest-inline" || timeMode === "auto") {
+            params.set("sel", `time=nearest::${selectedDate}`);
+          } else if (timeMode === "sel-method-param") {
             params.set("sel", `time=${selectedDate}`);
             params.set("sel_method", "nearest");
-          } else if ((timeMode === "sel-ns+method" || timeMode === "auto") && selectedEpochNs) {
-            params.set("sel", `time=${selectedEpochNs}`);
-            params.set("sel_method", "nearest");
-          } else if (timeMode === "sel-ns" && selectedEpochNs) {
-            params.set("sel", `time=${selectedEpochNs}`);
-          } else if (timeMode === "sel-iso-basic+method" && selectedIsoBasic) {
-            params.set("sel", `time=${selectedIsoBasic}`);
-            params.set("sel_method", "nearest");
-          } else if (timeMode === "sel-iso-basic" && selectedIsoBasic) {
-            params.set("sel", `time=${selectedIsoBasic}`);
+          } else if (timeMode === "sel-exact") {
+            params.set("sel", `time=${selectedDate}`);
           } else if (timeMode === "datetime-only") {
             params.set("datetime", selectedDate);
           } else if (timeMode === "no-time") {
@@ -494,7 +534,7 @@
       async function fetchTileJsonWithFallback(def) {
         const selectedDate = el("date").value.trim();
         const modes = selectedDate
-          ? ["sel-iso+method", "sel-ns+method", "sel-ns", "sel-iso-basic+method", "sel-iso-basic", "no-time"]
+          ? ["sel-nearest-inline", "sel-method-param", "sel-exact", "datetime-only"]
           : ["no-time"];
 
         const errors = [];
@@ -510,7 +550,7 @@
           } catch (_err) {
             detail = "";
           }
-          errors.push(`${mode}: ${res.status}${detail ? ` ${detail}` : ""}`);
+          errors.push(`${def.expression} | ${mode}: ${res.status}${detail ? ` ${detail}` : ""}`);
         }
 
         throw new Error(errors.join("\n"));

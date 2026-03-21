@@ -1,0 +1,29 @@
+aoi:
+  class: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+  type: Polygon
+  bbox:
+    - -121.399
+    - 39.834
+    - -120.74
+    - 40.472
+  coordinates:
+    - - [-121.399, 39.834]
+      - [-120.74, 39.834]
+      - [-120.74, 40.472]
+      - [-121.399, 40.472]
+      - [-121.399, 39.834]
+start-datetime:
+  value: "2021-06-01T00:00:00Z"
+end-datetime:
+  value: "2021-06-20T23:59:59Z"
+limit: 20
+max-items: 10
+filter-lang: null
+filter: null
+bands:
+  - green
+  - nir
+overview_levels: 2
+continuous_overview_reducer: mean
+categorical_overview_reducer: nearest
+stac_object_type: item

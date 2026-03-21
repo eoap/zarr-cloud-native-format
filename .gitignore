@@ -5,6 +5,8 @@ S2A*.json
 S2B*.json
 *.zarr
 *.json
+!docs/examples/
+!docs/examples/*.json
 params.yaml
 *.pyc
 __pycache__/

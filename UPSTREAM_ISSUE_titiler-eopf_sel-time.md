@@ -1,25 +1,23 @@
-# Bug: `sel=time` handling is broken for ISO datetimes on `titiler-eopf:main`
+# Bug: `sel=time` is unreliable on `ghcr.io/eopf-explorer/titiler-eopf:main`
 
 ## Summary
 
-Time selection for GeoZarr endpoints is currently inconsistent/broken on `ghcr.io/eopf-explorer/titiler-eopf:main`:
+On `ghcr.io/eopf-explorer/titiler-eopf:main`, time selection with `sel=time=...` is not reliable for GeoZarr datasets with a temporal dimension:
 
-1. API validation rejects common ISO datetime values in `sel` (422).
-2. Alternative accepted forms can fail later in xarray/pandas with datetime dtype errors (500), e.g. `datetime64[Y] is not supported`.
+1. Standard ISO datetime selectors can be rejected at request validation (`422`).
+2. Other accepted selector forms can fail later during xarray/pandas selection (`500`).
 
-This prevents robust time-based visualization requests and forces fallback to `bidx`.
+This blocks deterministic time-based rendering and forces index-based fallback (`bidx`), which is not equivalent.
 
 ## Environment
 
-* Image: `ghcr.io/eopf-explorer/titiler-eopf:main`
-* Endpoints used:
-  * `/collections/{collection_id}/items/{item_id}/preview.png`
-  * `/collections/{collection_id}/items/{item_id}/.../tilejson.json`
-* Dataset: any GeoZarr dataset exposing a `time` dimension (collection/item IDs below are examples).
+- Image: `ghcr.io/eopf-explorer/titiler-eopf:main`
+- Endpoint class: GeoZarr collection/item endpoints (`preview.png`, `tilejson.json`, tiles)
+- Dataset requirement: any dataset with `time` coordinate/dimension
 
 ## Reproduction
 
-### 1) Start container
+### 1) Start TiTiler-EOPF
 
 ```bash
 docker run --rm -it \
@@ -29,46 +27,41 @@ docker run --rm -it \
   ghcr.io/eopf-explorer/titiler-eopf:main
 ```
 
-### 2) Request with standard ISO datetime in `sel`
-
-Use a collection/item that exists in your local store (replace placeholders):
+### 2) Request using ISO datetime + `sel_method=nearest`
 
 ```bash
 curl -i \
 "http://127.0.0.1:8080/collections/<collection_id>/items/<item_id>/preview.png?variables=<group:variable>&sel=time=2021-06-08T18:49:21.024000000Z&sel_method=nearest"
 ```
 
-Concrete example used in this report:
+## Observed behavior
 
-```bash
-curl -i \
-"http://127.0.0.1:8080/collections/water-bodies/items/water-bodies/preview.png?variables=/measurements:ndwi&sel=time=2021-06-08T18:49:21.024000000Z&sel_method=nearest&rescale=-1,1&colormap_name=viridis"
-```
+### A) Validation error (`422`)
 
-### 3) Observed response
+The request above can fail with:
 
-`422 Unprocessable Entity`:
+- `String should match pattern '^[^=]+=((nearest|pad|ffill|backfill|bfill)::)?[^=::]+$'`
 
-* `"String should match pattern '^[^=]+=((nearest|pad|ffill|backfill|bfill)::)?[^=::]+$'"`
-* input rejected because value contains `:`.
+This regex disallows `:` in the selector value, but ISO datetimes require `:`.
 
-### 4) Alternative requests
+### B) Runtime selection error (`500`)
 
-These are accepted by validation but fail in reader/indexing:
+Alternative selector shapes can pass validation but fail later in selection:
 
-* `sel=time=1623178161024000000&sel_method=nearest`
-* `sel=time=nearest::2021-06-08T184921.024000000Z`
+- `sel=time=1623178161024000000&sel_method=nearest`
+- `sel=time=nearest::2021-06-08T184921.024000000Z`
 
-Observed failure:
+Observed traceback contains:
 
-* `500 Internal Server Error`
-* `TypeError: dtype=datetime64[Y] is not supported. Supported resolutions are 's', 'ms', 'us', and 'ns'`
+- `TypeError: dtype=datetime64[Y] is not supported. Supported resolutions are 's', 'ms', 'us', and 'ns'`
 
 ## Expected behavior
 
-Time selection should work with standard ISO datetimes:
+Requests like below should work consistently:
 
-* `sel=time=<ISO-8601>&sel_method=nearest`
+```text
+sel=time=<ISO-8601>&sel_method=nearest
+```
 
 Example:
 
@@ -76,34 +69,28 @@ Example:
 sel=time=2021-06-08T18:49:21.024000000Z&sel_method=nearest
 ```
 
-## Actual behavior
-
-Current validator pattern for `SelDimStr` disallows `:` in `sel` value, which conflicts with valid ISO datetime formats.
-
-Additionally, reader-side casting can produce unsupported datetime unit paths when numeric selectors are used.
-
 ## Likely root causes
 
-1. `titiler.xarray.dependencies.SelDimStr` regex is too restrictive for datetime use:
-   * current: `^[^=]+=((nearest|pad|ffill|backfill|bfill)::)?[^=::]+$`
-2. In `titiler.eopf.reader.GeoZarrReader._get_variable`, datetime selector casting path may coerce to problematic units instead of normalizing to `datetime64[ns]`.
-3. Method handling is split between:
-   * inline `sel=time=nearest::<value>`
-   * `sel_method=nearest`
-   and behavior is not consistent across validation and reader parsing.
+1. `SelDimStr` validation is too restrictive for ISO datetime values.
+2. Reader-side datetime casting/normalization in temporal `.sel(...)` path is not robust.
+3. Handling of inline `method::value` vs `sel_method` is inconsistent.
 
-## Proposed fix
+## Proposed upstream fix
 
-1. Relax `SelDimStr` to allow `:` in value part for ISO datetimes.
-2. In EOPF reader selector casting:
-   * detect datetime dimensions,
-   * normalize selected values to `datetime64[ns]`,
-   * support both inline `method::value` and `sel_method`.
-3. Add tests for:
-   * ISO datetime `sel` + `sel_method`
-   * nearest selection against time dimension
-   * regression for current 422 and 500 scenarios.
+1. Relax selector validation so ISO datetime values are accepted.
+2. In temporal selection path, normalize selectors to a pandas/xarray-safe datetime precision (e.g. `datetime64[ns]`).
+3. Harmonize behavior across:
+   - `sel=time=<value>&sel_method=<method>`
+   - `sel=time=<method>::<value>`
+4. Add regression tests for:
+   - ISO datetime selector acceptance
+   - nearest temporal selection
+   - previously failing `422` and `500` cases
 
-## Temporary local workaround
+## Local status / workaround
 
-Using `bidx=<n>` works, but does not provide semantic time selection and is not ideal for client UX.
+- `bidx=<n>` works but is index-based and not semantically equivalent to datetime selection.
+- A local patched image in this repo fixes `sel=time` behavior for our use case:
+  - `docker/titiler-eopf-patched/Dockerfile`
+  - `docker/titiler-eopf-patched/patch_titiler_eopf.py`
+  - `docs/how-to/titiler-eopf-patch.md`

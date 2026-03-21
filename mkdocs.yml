@@ -66,6 +66,7 @@ nav:
   - Producer Outputs Contract: 'producer-outputs.md'
   - How-to:
     - stac-zarr Usage: 'how-to/stac-zarr-usage.md'
+    - Produced STAC Objects: 'how-to/stac-produced-objects.md'
     - TiTiler-EOPF + Collection: 'how-to/titiler-eopf-collection.md'
     - TiTiler-EOPF + Item: 'how-to/titiler-eopf-item.md'
     - TiTiler-EOPF HTML Client: 'how-to/titiler-eopf-html-client.md'

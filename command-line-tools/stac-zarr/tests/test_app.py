@@ -22,6 +22,7 @@ from stac_zarr.app import (
     validate_items_have_measurements,
 )
 from stac_zarr.writer import (
+    build_item_temporal_metadata,
     consolidate_zarr_store,
     ensure_unique_time_index,
     format_time_values_for_summaries,
@@ -514,3 +515,18 @@ def test_to_pystac_renders_returns_render_objects():
     assert renders is not None
     assert "ndwi_default" in renders
     assert renders["ndwi_default"].to_dict()["expression"] == "/measurements:ndwi"
+
+
+def test_build_item_temporal_metadata_sets_end_datetime_and_interval_properties():
+    temporal_extent = (
+        datetime(2021, 6, 3, 18, 49, 19, 24000, tzinfo=timezone.utc),
+        datetime(2021, 6, 18, 18, 49, 21, 24000, tzinfo=timezone.utc),
+    )
+
+    item_datetime, item_properties = build_item_temporal_metadata(temporal_extent)
+
+    assert item_datetime == temporal_extent[1]
+    assert item_properties == {
+        "start_datetime": "2021-06-03T18:49:19.024000Z",
+        "end_datetime": "2021-06-18T18:49:21.024000Z",
+    }

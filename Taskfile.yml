@@ -354,9 +354,12 @@ tasks:
         cleanup() { docker rm -f "$CID" >/dev/null 2>&1 || true; }
         trap cleanup EXIT
         sleep 4
+        TMP_OUT=$(mktemp)
         curl -fsSL \
           "http://127.0.0.1:{{.TITILER_PORT}}/collections/{{.COLLECTION_ID}}/items/{{.ITEM_ID}}/dataset" \
-          | head -c 400 && echo
+          -o "$TMP_OUT"
+        head -c 400 "$TMP_OUT" && echo
+        rm -f "$TMP_OUT"
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       DATA_ROOT: '{{default "command-line-tools/stac-zarr" .DATA_ROOT}}'

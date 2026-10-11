@@ -436,6 +436,13 @@ tasks:
         cd command-line-tools/otsu && \
         uv run --with pytest --with-editable . pytest -q tests
 
+  test:occurrence:
+    desc: Verify occurrence raster georeferencing
+    cmds:
+      - |
+        cd command-line-tools/occurrence && \
+        uv run --no-project --python 3.12 --with pytest --with-editable . pytest -q tests
+
   test:unit:scoped:
     desc: Run all scoped unit test suites
     deps:
@@ -445,6 +452,7 @@ tasks:
       - task: test:crop
       - task: test:norm-diff
       - task: test:otsu
+      - task: test:occurrence
 
   titiler:eopf:publish:
     desc: Publish completed CWL catalog output at titiler-data for the Kubernetes viewer

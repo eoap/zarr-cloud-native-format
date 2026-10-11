@@ -4,6 +4,7 @@ import pystac
 from loguru import logger
 import shutil
 import xarray as xr
+import rioxarray  # Register the xarray .rio accessor before georeferencing.
 import rio_stac
 import pandas as pd
 from pystac import Catalog, Collection, Asset

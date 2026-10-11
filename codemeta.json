@@ -11,7 +11,7 @@
     "familyName": "Brito",
     "givenName": "Fabrice"
   },
-  "codeRepository": {},
+  "codeRepository": "https://github.com/eoap/zarr-cloud-native-format.git",
   "dateCreated": "2026-03-19",
   "description": "Water bodies detection based on NDWI and Otsu threshold applied to Sentinel-2 COG STAC items",
   "license": "https://spdx.org/licenses/MIT.html",
@@ -25,5 +25,5 @@
     "name": "Zarr Cloud-Native Format documentation",
     "url": "https://eoap.github.io/zarr-cloud-native-format/"
   },
-  "softwareVersion": "1.1.0"
+  "softwareVersion": "2.0.0"
 }

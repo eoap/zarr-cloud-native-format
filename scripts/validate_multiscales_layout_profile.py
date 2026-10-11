@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the repository GeoZarr v1 multiscales layout profile."""
+"""Validate the repository GeoZarr convention v0.1 multiscales layout profile."""
 
 from __future__ import annotations
 

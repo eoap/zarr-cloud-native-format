@@ -4,6 +4,7 @@ import pystac
 from loguru import logger
 import shutil
 import xarray as xr
+import rioxarray  # Register the xarray .rio accessor before georeferencing.
 import rio_stac
 import pandas as pd
 from pystac import Catalog, Collection, Asset
@@ -104,7 +105,7 @@ def occurrence(stac_catalog):
 
     measurements: Asset = collection.get_assets()["measurements"]
 
-    water_bodies = xr.open_zarr(measurements.get_absolute_href(), consolidated=False)[
+    water_bodies = xr.open_zarr(measurements.get_absolute_href(), group="measurements", consolidated=False)[
         "water-bodies"
     ]
 

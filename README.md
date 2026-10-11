@@ -61,3 +61,7 @@ There's a single step that:
 Use the approach described in https://github.com/eoap/dev-platform-eoap to run this module on Minikube using skaffold
 
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
+
+## Kubernetes viewer
+
+See [Display producer outputs on Kubernetes](docs/how-to/titiler-eopf-kubernetes.md) for the separate TiTiler server and HTML client deployments and publication of completed module outputs.

@@ -94,7 +94,7 @@ Generated files are written to:
 
 Notes:
 
-* `geo-proj` schema is modular, so generation creates a package:
+* `proj` schema is modular (the generated package retains the `geo_proj` name), so generation creates a package:
   * `command-line-tools/stac-zarr/stac_zarr/models/generated/geo_proj/__init__.py`
   * `command-line-tools/stac-zarr/stac_zarr/models/generated/geo_proj/_internal.py`
   * `command-line-tools/stac-zarr/stac_zarr/models/generated/geo_proj/projjson.py`
@@ -102,3 +102,18 @@ Notes:
   * `.../generated/spatial.py`
   * `.../generated/multiscales.py`
 * Runtime `stac-zarr` uses generated convention/spatial models; legacy hand-written models were removed.
+
+## Refresh generated documentation
+
+Run `task docs:refresh` from the repository root with Java installed. It regenerates
+workflow Markdown and SVG diagrams from the checked-in CWL, corrects generated
+boolean CLI examples, and refreshes the producer, subworkflow, and CLI notebook
+outputs in Python 3.12. MkDocs renders these saved outputs instead of executing
+notebooks during site builds. PlantUML renders locally; its pinned jar is downloaded
+from Maven Central if needed. Set `PLANTUML_JAR` to use an existing local jar.
+The notebook store-validation example is tagged `skip-execution` because it needs
+a real CWL output path; set that path and run the cell manually.
+
+The consumer notebook documents release `0.3.0`; its CWL source is not checked
+into this repository. It is labeled as a historical example and is excluded from
+the current producer refresh.

@@ -47,13 +47,7 @@ def build_multiscales_payload() -> dict:
         "attributes": {
             "zarr_conventions": [
                 MultiscalesConventionMetadata.model_validate(
-                    {
-                        "schema_url": "https://raw.githubusercontent.com/zarr-conventions/multiscales/refs/tags/v1/schema.json",
-                        "spec_url": "https://github.com/zarr-conventions/multiscales/blob/v1/README.md",
-                        "uuid": "d35379db-88df-4056-af3a-620245f8e347",
-                        "name": "multiscales",
-                        "description": "Multiscale layout of zarr datasets",
-                    }
+                    MULTISCALES_CONVENTION
                 ).model_dump()
             ],
             "multiscales": {

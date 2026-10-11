@@ -107,7 +107,7 @@ tasks:
         python ../../scripts/validate_multiscales_schema.py
 
   compliance:check:multiscales-layout:
-    desc: Validate GeoZarr v1 multiscales layout profile used by this repository
+    desc: Validate GeoZarr convention v0.1 multiscales layout profile used by this repository
     cmds:
       - |
         cd command-line-tools/stac-zarr && \
@@ -139,13 +139,30 @@ tasks:
         python ../../scripts/validate_eopf_explorer_profile.py
 
   compliance:check:all:
-    desc: Run strict local profile checks and upstream compatibility report
+    desc: Validate published conventions and generated stores
     deps:
       - task: compliance:check:multiscales-layout
       - task: compliance:check:geo-proj
       - task: compliance:check:spatial
       - task: compliance:check:eopf-explorer
       - task: compliance:check:multiscales
+      - task: compliance:check:geozarr-toolkit
+
+  compliance:check:geozarr-toolkit:
+    desc: Exercise real generated stores with GeoZarr Toolkit, including rejection checks
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with pytest --with-editable . pytest -q tests/test_geozarr.py
+
+  compliance:check:store:
+    desc: Validate an existing Zarr store recursively (pass STORE=/path/to/store.zarr)
+    requires:
+      vars: [STORE]
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with-editable . python ../../scripts/validate_geozarr_store.py "{{.STORE}}"
 
   models:generate:spatial:
     desc: Regenerate Pydantic model from zarr-conventions spatial JSON Schema
@@ -158,9 +175,10 @@ tasks:
           --output-model-type pydantic_v2.BaseModel \
           --base-class stac_zarr.models.base.GeoZarrBaseModel \
           --snake-case-field \
+          --disable-timestamp \
           --output stac_zarr/models/generated/spatial.py
     vars:
-      SPATIAL_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/spatial/main/schema.json" .SPATIAL_SCHEMA_URL}}'
+      SPATIAL_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v0.1/schema.json" .SPATIAL_SCHEMA_URL}}'
 
   models:generate:geo-proj:
     desc: Regenerate Pydantic model from zarr-conventions geo-proj JSON Schema
@@ -173,9 +191,10 @@ tasks:
           --output-model-type pydantic_v2.BaseModel \
           --base-class stac_zarr.models.base.GeoZarrBaseModel \
           --snake-case-field \
+          --disable-timestamp \
           --output stac_zarr/models/generated/geo_proj/
     vars:
-      GEO_PROJ_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json" .GEO_PROJ_SCHEMA_URL}}'
+      GEO_PROJ_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json" .GEO_PROJ_SCHEMA_URL}}'
 
   models:generate:multiscales:
     desc: Regenerate Pydantic model from zarr-conventions multiscales JSON Schema
@@ -188,9 +207,10 @@ tasks:
           --output-model-type pydantic_v2.BaseModel \
           --base-class stac_zarr.models.base.GeoZarrBaseModel \
           --snake-case-field \
+          --disable-timestamp \
           --output stac_zarr/models/generated/multiscales.py
     vars:
-      MULTISCALES_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/multiscales/main/schema.json" .MULTISCALES_SCHEMA_URL}}'
+      MULTISCALES_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/multiscales/refs/tags/v0.1/schema.json" .MULTISCALES_SCHEMA_URL}}'
 
   models:generate:all:
     desc: Regenerate all schema-derived Pydantic models used by stac-zarr
@@ -212,15 +232,25 @@ tasks:
           mkdocs serve
 
   docs:generate:uml:
-    desc: Generate UML documentation
+    desc: Regenerate current workflow Markdown and diagrams locally (requires Java)
     cmds:
-    - defer: rm -f docs/ml4floods/*.puml
-    - |
-      uv run --no-cache --with "transpiler-mate>=0.31.0" transpiler-mate markdown --workflow-id water-bodies --output docs/design --code-repository $(git remote get-url origin) cwl-workflow/app-water-bodies.cwl
-      uv run --with cwl2puml cwl2puml --workflow-id water-bodies --output docs/design/water-bodies --convert-image --image-format svg cwl-workflow/app-water-bodies.cwl
-      uv run --with cwl2puml cwl2puml --workflow-id detect_water_body --output docs/design/detect_water_body --convert-image --image-format svg cwl-workflow/app-water-bodies.cwl
-      rm -f docs/design/water-bodies/*.puml
-      rm -f docs/design/detect_water_body/*.puml
+      - uv run --no-project --python 3.12 --with transpiler-mate --with cwl-loader --with "cwl2puml==0.47.0" python scripts/refresh-workflow-docs.py
+
+  docs:refresh:notebooks:
+    desc: Refresh producer documentation notebook outputs (requires local PlantUML jar)
+    cmds:
+      - |
+        uv run --no-project --python 3.12 \
+          --with cwl-loader --with "cwl2puml==0.47.0" --with eoap-cwlwrap \
+          --with nbclient --with ipykernel --with graphviz --with pillow \
+          --with-editable ./command-line-tools/stac-zarr \
+          python scripts/refresh-doc-notebooks.py
+
+  docs:refresh:
+    desc: Refresh generated workflow documentation and producer notebooks
+    cmds:
+      - task: docs:generate:uml
+      - task: docs:refresh:notebooks
 
   titiler:eopf:run:
     desc: Run titiler-eopf locally against a mounted data root
@@ -234,7 +264,7 @@ tasks:
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       DATA_ROOT: '{{default "." .DATA_ROOT}}'
-      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+      TITILER_IMAGE: '{{default "titiler-eopf:patched" .TITILER_IMAGE}}'
 
   titiler:eopf:build:patched:
     desc: Build a patched TiTiler-EOPF image with sel-time fixes
@@ -290,7 +320,7 @@ tasks:
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       RESULTS_FILE: '{{default "cwl-tests/results.json" .RESULTS_FILE}}'
-      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+      TITILER_IMAGE: '{{default "titiler-eopf:patched" .TITILER_IMAGE}}'
 
   titiler:eopf:run:results:patched:
     desc: Run patched TiTiler-EOPF using zarr_stac_catalog path from CWL results.json
@@ -309,7 +339,7 @@ tasks:
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       RESULTS_FILE: '{{default "cwl-tests/results-item.json" .RESULTS_FILE}}'
-      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+      TITILER_IMAGE: '{{default "titiler-eopf:patched" .TITILER_IMAGE}}'
 
   titiler:eopf:run:results:item:patched:
     desc: Run patched TiTiler-EOPF using item-mode CWL output results-item.json
@@ -365,7 +395,7 @@ tasks:
       DATA_ROOT: '{{default "command-line-tools/stac-zarr" .DATA_ROOT}}'
       COLLECTION_ID: '{{default "water-bodies" .COLLECTION_ID}}'
       ITEM_ID: '{{default "water-bodies" .ITEM_ID}}'
-      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+      TITILER_IMAGE: '{{default "titiler-eopf:patched" .TITILER_IMAGE}}'
 
   test:stac-collection:
     desc: Run scoped unit tests for stac-collection
@@ -409,6 +439,13 @@ tasks:
         cd command-line-tools/otsu && \
         uv run --with pytest --with-editable . pytest -q tests
 
+  test:occurrence:
+    desc: Verify occurrence raster georeferencing
+    cmds:
+      - |
+        cd command-line-tools/occurrence && \
+        uv run --no-project --python 3.12 --with pytest --with-editable . pytest -q tests
+
   test:unit:scoped:
     desc: Run all scoped unit test suites
     deps:
@@ -418,3 +455,34 @@ tasks:
       - task: test:crop
       - task: test:norm-diff
       - task: test:otsu
+      - task: test:occurrence
+
+  titiler:eopf:publish:
+    desc: Publish completed CWL catalog output at titiler-data for the Kubernetes viewer
+    cmds:
+      - python scripts/publish-titiler-store.py --results {{.RESULTS | shellQuote}}
+    vars:
+      RESULTS: '{{default "cwl-tests/results.json" .RESULTS}}'
+
+  cwl:wrap:producer:
+    desc: Compose the final producer output with S3 stage-out using eoap-cwlwrap
+    cmds:
+      - uv run --frozen --with eoap-cwlwrap==0.32.0 --with cwl-loader==0.27.0 --with PyYAML python scripts/wrap-producer.py --image {{.STAGE_OUT_IMAGE | shellQuote}}
+      - uv run --frozen --with cwltool cwltool --validate cwl-workflow/app-water-bodies-s3.cwl
+    vars:
+      STAGE_OUT_IMAGE: '{{default "ghcr.io/eoap/mastering-app-package/stage-out:2.0.0@sha256:2974b42df1722ebf4d220c041e4345a94553b1bb81188b545fd58c70e93f490a" .STAGE_OUT_IMAGE}}'
+
+  cwl:run:producer:s3:
+    desc: Run the wrapped producer with an explicit S3-enabled JOB file
+    requires:
+      vars: [JOB]
+    cmds:
+      - uv run --frozen --with cwltool cwltool cwl-workflow/app-water-bodies-s3.cwl#main {{.JOB | shellQuote}} > cwl-tests/results-s3.json
+
+  labs:prepare:
+    desc: Download and validate matching published application packages and lab inputs
+    cmds:
+      - uv run --no-project --python 3.12 --with cwltool --with PyYAML python scripts/prepare-practice-labs.py --version {{.APPLICATION_PACKAGE_VERSION | shellQuote}} --destination {{.PACKAGE_DIRECTORY | shellQuote}}
+    vars:
+      APPLICATION_PACKAGE_VERSION: '{{default "2.0.0" .APPLICATION_PACKAGE_VERSION}}'
+      PACKAGE_DIRECTORY: '{{default (printf "runs/%s/packages" .APPLICATION_PACKAGE_VERSION) .PACKAGE_DIRECTORY}}'

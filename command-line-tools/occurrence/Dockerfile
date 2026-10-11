@@ -15,11 +15,11 @@ COPY . /src
 
 RUN hatch build -t wheel
 
-FROM rockylinux/rockylinux:10.1-minimal AS runtime
+FROM python:3.12-slim AS runtime
 
-RUN microdnf -y update && \
-    microdnf -y install python3 python3-pip && \
-    microdnf clean all
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends ca-certificates libgomp1 libexpat1 && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/neo
 RUN /usr/sbin/groupadd -g 1000 neo && \
@@ -37,9 +37,10 @@ RUN PYBIN="$(command -v python3 || command -v python3.12 || command -v python ||
     [ -n "$PYBIN" ] && \
     echo "Using Python interpreter: $PYBIN" && \
     "$PYBIN" -m venv /app/venv && \
-    /app/venv/bin/pip install --no-cache-dir --upgrade pip
+    /app/venv/bin/pip install --no-cache-dir --upgrade pip "setuptools>=78.1.1"
 
 COPY --from=builder /src/dist/*.whl /app/dist/
 
-RUN /app/venv/bin/pip install --no-cache-dir /app/dist/*.whl && \
+RUN /app/venv/bin/pip install --no-cache-dir /app/dist/*.whl "msgpack>=1.2.1" "urllib3>=2.8.0" && \
+    /app/venv/bin/pip check && \
     occurrence --help

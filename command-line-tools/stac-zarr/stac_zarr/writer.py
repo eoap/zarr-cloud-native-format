@@ -32,6 +32,9 @@ from zarr.types import AnyArray
 
 from stac_zarr.cf import validate_dataset_group, write_cf_dataset_members
 from stac_zarr.constants import (
+    GEO_PROJ_CONVENTION,
+    MULTISCALES_CONVENTION,
+    SPATIAL_CONVENTION,
     STAC_EXTENSION_URIS,
     ZARR_V3_MULTISCALES_MEDIA_TYPE,
 )
@@ -53,6 +56,7 @@ from stac_zarr.contract import (
 )
 from stac_zarr.multiscales import build_v1_layout
 from stac_zarr.reducers import downsample_2x, get_variable_type, to_resampling_method
+from stac_zarr.validation import validate_geozarr_store
 
 
 def build_root_proj_metadata(crs_obj: Any, proj_code: str) -> Dict[str, Any]:
@@ -80,34 +84,32 @@ def build_root_proj_metadata(crs_obj: Any, proj_code: str) -> Dict[str, Any]:
 def _convention_metadata_models() -> list[dict[str, Any]]:
     """Build convention metadata entries validated by generated models."""
     return [
-        MultiscalesConventionMetadata.model_validate(
-            {
-                "schema_url": "https://raw.githubusercontent.com/zarr-conventions/multiscales/refs/tags/v1/schema.json",
-                "spec_url": "https://github.com/zarr-conventions/multiscales/blob/v1/README.md",
-                "uuid": "d35379db-88df-4056-af3a-620245f8e347",
-                "name": "multiscales",
-                "description": "Multiscale layout of zarr datasets",
-            }
-        ).model_dump(),
-        GeoProjConventionMetadata.model_validate(
-            {
-                "schema_url": "https://raw.githubusercontent.com/zarr-experimental/geo-proj/refs/tags/v1/schema.json",
-                "spec_url": "https://github.com/zarr-experimental/geo-proj/blob/v1/README.md",
-                "uuid": "f17cb550-5864-4468-aeb7-f3180cfb622f",
-                "name": "proj:",
-                "description": "Coordinate reference system information for geospatial data",
-            }
-        ).model_dump(),
-        SpatialConventionMetadata.model_validate(
-            {
-                "schema_url": "https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v1/schema.json",
-                "spec_url": "https://github.com/zarr-conventions/spatial/blob/v1/README.md",
-                "uuid": "689b58e2-cf7b-45e0-9fff-9cfc0883d6b4",
-                "name": "spatial:",
-                "description": "Spatial coordinate information",
-            }
-        ).model_dump(),
+        model.model_validate(metadata).model_dump(exclude_none=True)
+        for model, metadata in [
+            (MultiscalesConventionMetadata, MULTISCALES_CONVENTION),
+            (GeoProjConventionMetadata, GEO_PROJ_CONVENTION),
+            (SpatialConventionMetadata, SPATIAL_CONVENTION),
+        ]
     ]
+
+
+def spatial_array_metadata(
+    projection: dict[str, Any], transform: list[float], shape: list[int]
+) -> dict[str, Any]:
+    """Make each spatial data array independently georeferenced."""
+    return {
+        "zarr_conventions": [
+            entry
+            for entry in _convention_metadata_models()
+            if entry["uuid"] != MULTISCALES_CONVENTION["uuid"]
+        ],
+        **projection,
+        "spatial:dimensions": ["y", "x"],
+        "spatial:shape": shape,
+        "spatial:transform": transform,
+        "spatial:transform_type": "affine",
+        "spatial:registration": "pixel",
+    }
 
 
 def consolidate_zarr_store(store_path: Path) -> None:
@@ -327,16 +329,11 @@ def run_to_zarr(
     )
     output_collection.add_link(store_link)
 
-    spatial_bbox = [
-        float(min(stac_catalog_dataset.x.values)),
-        float(min(stac_catalog_dataset.y.values)),
-        float(max(stac_catalog_dataset.x.values)),
-        float(max(stac_catalog_dataset.y.values)),
-    ]
-
     measurement_name = "measurements"
     gbox = stac_catalog_dataset.odc.geobox
     affine_6 = list(gbox.transform)[:6]
+    bounds = gbox.extent.boundingbox
+    spatial_bbox = [float(bounds.left), float(bounds.bottom), float(bounds.right), float(bounds.top)]
     proj_code = f"EPSG:{gbox.crs.epsg}" if gbox.crs.epsg is not None else crs.upper()
 
     root = zarr.open_group(Path(collection.id, zarr_uri), mode="w")
@@ -374,6 +371,7 @@ def run_to_zarr(
             dtype=da.dtype,
             overwrite=True,
             attributes={
+                **spatial_array_metadata(root_proj_metadata, affine_6, list(da.shape[-2:])),
                 "title": title,
                 "description": description,
                 "grid_mapping": "spatial_ref",
@@ -436,6 +434,7 @@ def run_to_zarr(
                 dtype=level_da.dtype,
                 overwrite=True,
                 attributes={
+                    **spatial_array_metadata(root_proj_metadata, level_affine_6, list(level_da.shape[-2:])),
                     "title": title,
                     "description": f"{description} (overview level {level})",
                     "grid_mapping": "spatial_ref",
@@ -490,7 +489,7 @@ def run_to_zarr(
     if titiler_eopf_compatible:
         logger.warning(
             "--titiler-eopf-compatible no longer suppresses root GeoZarr metadata. "
-            "GeoZarr v1 metadata is now always emitted."
+            "GeoZarr convention v0.1 metadata is now always emitted."
         )
 
     root.attrs.update(
@@ -505,13 +504,15 @@ def run_to_zarr(
         }
     )
 
-    logger.info(f"Creating STAC asset {zarr_uri}/measurements...")
+    validate_geozarr_store(root)
+
+    logger.info(f"Creating STAC asset {zarr_uri}...")
     zarr_asset: Asset = Asset(
-        href=f"{zarr_uri}/measurements",
+        href=zarr_uri,
         media_type=ZARR_V3_MULTISCALES_MEDIA_TYPE,
         roles=["data"],
         title="Measurements",
-        description="Zarr measurements group",
+        description="Complete GeoZarr store with measurements and multiscale overviews",
     )
     output_collection.add_asset(key="measurements", asset=zarr_asset)
 

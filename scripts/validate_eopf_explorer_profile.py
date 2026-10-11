@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from stac_zarr.models.generated.spatial import SpatialAttributes
-
 from validate_multiscales_layout_profile import build_multiscales_payload
 
 

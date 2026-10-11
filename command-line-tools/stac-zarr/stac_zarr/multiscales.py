@@ -1,12 +1,12 @@
-from typing import Any, Dict, List
+from typing import Any
 
 
 def build_tile_matrix_set(
     proj_code: str,
-    affine_6: List[float],
-    base_shape: List[List[int]],
-    chunk_shape: List[int],
-) -> Dict[str, Any]:
+    affine_6: list[float],
+    base_shape: list[list[int]],
+    chunk_shape: list[int],
+) -> dict[str, Any]:
     """Build a minimal TileMatrixSet from generated overview shapes."""
     point_of_origin = [float(affine_6[2]), float(affine_6[5])]
     cell_size = abs(float(affine_6[0]))
@@ -41,10 +41,10 @@ def build_tile_matrix_set(
 
 
 def build_tile_matrix_limits(
-    tile_matrix_set: Dict[str, Any],
-) -> List[Dict[str, int | str]]:
+    tile_matrix_set: dict[str, Any],
+) -> list[dict[str, int | str]]:
     """Build OGC-style tile matrix limits from a TileMatrixSet."""
-    limits: List[Dict[str, int | str]] = []
+    limits: list[dict[str, int | str]] = []
     for matrix in tile_matrix_set["tileMatrices"]:
         limits.append(
             {
@@ -58,14 +58,12 @@ def build_tile_matrix_limits(
     return limits
 
 
-def build_v1_layout(multiscales_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def build_v1_layout(multiscales_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Build GeoZarr convention v0.1 multiscales.layout entries from per-measurement datasets."""
-    layout: List[Dict[str, Any]] = []
+    layout: list[dict[str, Any]] = []
 
     for entry in multiscales_entries:
-        datasets = sorted(
-            entry.get("datasets", []), key=lambda ds: int(ds.get("level", 0))
-        )
+        datasets = sorted(entry.get("datasets", []), key=lambda ds: int(ds.get("level", 0)))
         previous_asset: str | None = None
         previous_factor: int = 1
 
@@ -79,7 +77,7 @@ def build_v1_layout(multiscales_entries: List[Dict[str, Any]]) -> List[Dict[str,
             asset = asset.rsplit("/", 1)[0]
             current_factor = int(ds.get("downsampling_factor", 1))
             relative_scale = max(1, current_factor // max(1, previous_factor))
-            layout_entry: Dict[str, Any] = {
+            layout_entry: dict[str, Any] = {
                 "asset": asset,
                 "spatial:shape": ds.get("spatial:shape"),
                 "spatial:transform": ds.get("spatial:transform"),

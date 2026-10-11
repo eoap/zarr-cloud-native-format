@@ -1,15 +1,17 @@
-import os
-import json
 import copy
+import json
+import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Literal
 
 import dask.array
 import numpy as np
 import zarr
+from dask.delayed import delayed
 from loguru import logger
 from odc.stac import stac_load
+from pydantic import BaseModel
 from pystac import (
     Asset,
     Catalog,
@@ -18,16 +20,19 @@ from pystac import (
     Extent,
     Item,
     Link,
-    STACObject,
     SpatialExtent,
+    STACObject,
     TemporalExtent,
+)
+from pystac import (
     read_file as read_stac_file,
 )
 from pystac.extensions.datacube import DatacubeExtension
 from pystac.extensions.projection import ProjectionExtension
-from pystac.extensions.raster import RasterBand, RasterExtension
+from pystac.extensions.raster import DataType, RasterBand, RasterExtension
 from pystac.extensions.render import Render, RenderExtension
 from xarray import DataArray, Dataset
+from zarr.core.common import JSON
 from zarr.types import AnyArray
 
 from stac_zarr.cf import validate_dataset_group, write_cf_dataset_members
@@ -38,15 +43,6 @@ from stac_zarr.constants import (
     STAC_EXTENSION_URIS,
     ZARR_V3_MULTISCALES_MEDIA_TYPE,
 )
-from stac_zarr.models.generated.geo_proj import ConventionMetadata as GeoProjConventionMetadata
-from stac_zarr.models.generated.multiscales import (
-    ConventionMetadata as MultiscalesConventionMetadata,
-    MultiscalesProperties,
-)
-from stac_zarr.models.generated.spatial import (
-    ConventionMetadata as SpatialConventionMetadata,
-    SpatialAttributes,
-)
 from stac_zarr.contract import (
     extract_crs,
     get_measurement_keys,
@@ -54,12 +50,25 @@ from stac_zarr.contract import (
     get_temporal_extent,
     validate_items_have_measurements,
 )
+from stac_zarr.models.generated.geo_proj import ConventionMetadata as GeoProjConventionMetadata
+from stac_zarr.models.generated.multiscales import (
+    ConventionMetadata as MultiscalesConventionMetadata,
+)
+from stac_zarr.models.generated.multiscales import (
+    MultiscalesProperties,
+)
+from stac_zarr.models.generated.spatial import (
+    ConventionMetadata as SpatialConventionMetadata,
+)
+from stac_zarr.models.generated.spatial import (
+    SpatialAttributes,
+)
 from stac_zarr.multiscales import build_v1_layout
 from stac_zarr.reducers import downsample_2x, get_variable_type, to_resampling_method
 from stac_zarr.validation import validate_geozarr_store
 
 
-def build_root_proj_metadata(crs_obj: Any, proj_code: str) -> Dict[str, Any]:
+def build_root_proj_metadata(crs_obj: Any, proj_code: str) -> dict[str, Any]:
     """Build root projection metadata with strict one-of semantics."""
     try:
         if hasattr(crs_obj, "to_json_dict"):
@@ -81,15 +90,16 @@ def build_root_proj_metadata(crs_obj: Any, proj_code: str) -> Dict[str, Any]:
         return {"proj:code": proj_code}
 
 
-def _convention_metadata_models() -> list[dict[str, Any]]:
+def _convention_metadata_models() -> list[dict[str, JSON]]:
     """Build convention metadata entries validated by generated models."""
+    models: list[tuple[type[BaseModel], dict[str, str]]] = [
+        (MultiscalesConventionMetadata, MULTISCALES_CONVENTION),
+        (GeoProjConventionMetadata, GEO_PROJ_CONVENTION),
+        (SpatialConventionMetadata, SPATIAL_CONVENTION),
+    ]
     return [
-        model.model_validate(metadata).model_dump(exclude_none=True)
-        for model, metadata in [
-            (MultiscalesConventionMetadata, MULTISCALES_CONVENTION),
-            (GeoProjConventionMetadata, GEO_PROJ_CONVENTION),
-            (SpatialConventionMetadata, SPATIAL_CONVENTION),
-        ]
+        model.model_validate(metadata).model_dump(exclude_none=True, mode="json")
+        for model, metadata in models
     ]
 
 
@@ -143,7 +153,7 @@ def ensure_unique_time_index(dataset: Dataset) -> Dataset:
     return dataset.isel(time=keep_indices)
 
 
-def format_time_values_for_summaries(dataset: Dataset) -> List[str]:
+def format_time_values_for_summaries(dataset: Dataset) -> list[str]:
     """Format dataset time coordinate as unique RFC3339 strings for STAC summaries."""
     if "time" not in dataset.coords:
         return []
@@ -154,16 +164,13 @@ def format_time_values_for_summaries(dataset: Dataset) -> List[str]:
 
     if np.issubdtype(values.dtype, np.datetime64):
         unique_values = np.unique(values.astype("datetime64[ns]"))
-        return [
-            np.datetime_as_string(v, unit="ns", timezone="UTC")
-            for v in unique_values
-        ]
+        return [np.datetime_as_string(v, unit="ns", timezone="UTC") for v in unique_values]
 
     unique_values = np.unique(values)
     return [str(v) for v in unique_values]
 
 
-def _bbox_to_polygon(bbox: List[float]) -> Dict[str, Any]:
+def _bbox_to_polygon(bbox: list[float]) -> dict[str, Any]:
     """Convert [minx, miny, maxx, maxy] bbox to a GeoJSON polygon."""
     minx, miny, maxx, maxy = bbox
     return {
@@ -180,7 +187,9 @@ def _bbox_to_polygon(bbox: List[float]) -> Dict[str, Any]:
     }
 
 
-def build_item_temporal_metadata(temporal_extent: tuple[datetime, datetime]) -> tuple[datetime, Dict[str, str]]:
+def build_item_temporal_metadata(
+    temporal_extent: tuple[datetime, datetime],
+) -> tuple[datetime, dict[str, str]]:
     """Build STAC Item temporal metadata for multi-time cubes.
 
     The Item datetime uses the end of the interval, while interval bounds are
@@ -194,8 +203,8 @@ def build_item_temporal_metadata(temporal_extent: tuple[datetime, datetime]) -> 
 
 
 def normalize_renders_for_zarr(
-    input_renders: Any, measurement_keys: List[str], output_asset_key: str = "measurements"
-) -> Dict[str, Dict[str, Any]] | None:
+    input_renders: Any, measurement_keys: list[str], output_asset_key: str = "measurements"
+) -> dict[str, dict[str, Any]] | None:
     """Normalize Render extension payload for emitted Zarr STAC objects.
 
     Rules:
@@ -207,17 +216,21 @@ def normalize_renders_for_zarr(
     if not isinstance(input_renders, dict) or not input_renders:
         return None
 
-    normalized: Dict[str, Dict[str, Any]] = {}
+    normalized: dict[str, dict[str, Any]] = {}
     for render_id, render_obj in input_renders.items():
         if not isinstance(render_obj, dict):
             continue
 
-        out_obj: Dict[str, Any] = copy.deepcopy(render_obj)
+        out_obj: dict[str, Any] = copy.deepcopy(render_obj)
         original_assets = render_obj.get("assets")
         matched_asset = None
         if isinstance(original_assets, list):
             matched_asset = next(
-                (asset for asset in original_assets if isinstance(asset, str) and asset in measurement_keys),
+                (
+                    asset
+                    for asset in original_assets
+                    if isinstance(asset, str) and asset in measurement_keys
+                ),
                 None,
             )
         elif isinstance(original_assets, str) and original_assets in measurement_keys:
@@ -233,12 +246,117 @@ def normalize_renders_for_zarr(
 
 
 def to_pystac_renders(
-    normalized_renders: Dict[str, Dict[str, Any]] | None,
-) -> Dict[str, Render] | None:
+    normalized_renders: dict[str, dict[str, Any]] | None,
+) -> dict[str, Render] | None:
     """Convert normalized render dicts into typed PySTAC Render objects."""
     if not normalized_renders:
         return None
-    return {render_id: Render(copy.deepcopy(render_obj)) for render_id, render_obj in normalized_renders.items()}
+    return {
+        render_id: Render(copy.deepcopy(render_obj))
+        for render_id, render_obj in normalized_renders.items()
+    }
+
+
+def _load_input_dataset(
+    stac_catalog: Path,
+    chunks: str,
+    chunk_x: int,
+    chunk_y: int,
+    chunk_time: int,
+    resolution: float | None,
+) -> tuple[Collection, list[Item], list[str], str, Dataset]:
+    logger.info(f"Reading STAC catalog from {stac_catalog}...")
+    catalog: STACObject = read_stac_file(os.path.join(stac_catalog, "catalog.json"))
+
+    if not isinstance(catalog, Catalog):
+        raise Exception(
+            f"{stac_catalog} is not a valid STAC Catalog instance, found {type(catalog)}"
+        )
+
+    collection = next(iter(catalog.get_children()))
+    if not isinstance(collection, Collection):
+        raise Exception(
+            f"{stac_catalog} does not contain a valid STAC Collection instance, found {type(collection)}"
+        )
+
+    items: list[Item] = list(collection.get_all_items())
+    if not items:
+        raise ValueError("Input STAC Collection contains no items")
+
+    logger.info(f"Found {len(items)} STAC Items in {stac_catalog} STAC Catalog")
+    measurement_keys = get_measurement_keys(collection)
+    validate_items_have_measurements(items, measurement_keys)
+
+    crs = extract_crs(items[0])
+    chunk_sizes: dict[str, int | Literal["auto"]] | None = (
+        {"x": chunk_x, "y": chunk_y, "time": chunk_time} if chunks == "manual" else None
+    )
+    stac_catalog_dataset: Dataset = stac_load(
+        items,
+        bands=measurement_keys,
+        crs=crs,
+        groupby="time",
+        chunks=chunk_sizes,
+        resolution=resolution,
+    )
+    stac_catalog_dataset = ensure_unique_time_index(stac_catalog_dataset)
+
+    return collection, items, measurement_keys, crs, stac_catalog_dataset
+
+
+def _save_output_catalog(
+    collection: Collection,
+    items: list[Item],
+    output_collection: Collection,
+    stac_object_type: str,
+    pystac_renders: dict[str, Render] | None,
+    store_link: Link,
+    zarr_asset: Asset,
+    raster_bands: list[RasterBand],
+) -> None:
+    logger.info("Creating STAC Catalog for the output...")
+    output_cat = Catalog(
+        id=collection.id, description=collection.description, title=collection.title
+    )
+    raster_ext = RasterExtension.ext(zarr_asset, add_if_missing=True)
+    raster_ext.bands = raster_bands
+    if stac_object_type == "item":
+        temporal_extent = get_temporal_extent(items)
+        item_bbox = get_spatial_extent(items)
+        item_geometry = (
+            items[0].geometry if items[0].geometry is not None else _bbox_to_polygon(item_bbox)
+        )
+        item_datetime, item_properties = build_item_temporal_metadata(
+            (temporal_extent[0], temporal_extent[1])
+        )
+        output_item = Item(
+            id=collection.id,
+            geometry=item_geometry,
+            bbox=item_bbox,
+            datetime=item_datetime,
+            properties=item_properties,
+        )
+        output_item.stac_extensions = list(STAC_EXTENSION_URIS)
+        if pystac_renders is not None:
+            RenderExtension.ext(output_item, add_if_missing=True).renders = copy.deepcopy(
+                pystac_renders
+            )
+        output_item.add_link(copy.deepcopy(store_link))
+        output_item.add_asset("measurements", copy.deepcopy(zarr_asset))
+        output_cat.add_item(output_item)
+    else:
+        output_cat.add_child(output_collection)
+    output_cat.normalize_and_save(root_href=str(Path(".")), catalog_type=CatalogType.SELF_CONTAINED)
+
+    # Remove stale opposite output type files from previous runs.
+    if stac_object_type == "item":
+        stale_collection = Path(collection.id, "collection.json")
+        if stale_collection.exists():
+            stale_collection.unlink()
+    else:
+        stale_item = Path(collection.id, f"{collection.id}.json")
+        if stale_item.exists():
+            stale_item.unlink()
 
 
 def run_to_zarr(
@@ -255,41 +373,9 @@ def run_to_zarr(
     titiler_eopf_compatible: bool = False,
     stac_object_type: str = "collection",
 ) -> None:
-    logger.info(f"Reading STAC catalog from {stac_catalog}...")
-    catalog: STACObject = read_stac_file(os.path.join(stac_catalog, "catalog.json"))
-
-    if not isinstance(catalog, Catalog):
-        raise Exception(
-            f"{stac_catalog} is not a valid STAC Catalog instance, found {type(catalog)}"
-        )
-
-    collection = next(catalog.get_children())
-    if not isinstance(collection, Collection):
-        raise Exception(
-            f"{stac_catalog} does not contain a valid STAC Collection instance, found {type(collection)}"
-        )
-
-    items: List[Item] = list(collection.get_all_items())
-    if not items:
-        raise ValueError("Input STAC Collection contains no items")
-
-    logger.info(f"Found {len(items)} STAC Items in {stac_catalog} STAC Catalog")
-    measurement_keys = get_measurement_keys(collection)
-    validate_items_have_measurements(items, measurement_keys)
-
-    crs = extract_crs(items[0])
-    stac_load_kwargs: Dict[str, Any] = {
-        "bands": measurement_keys,
-        "crs": crs,
-        "groupby": "time",
-    }
-    if chunks == "manual":
-        stac_load_kwargs["chunks"] = {"x": chunk_x, "y": chunk_y, "time": chunk_time}
-    if resolution is not None:
-        stac_load_kwargs["resolution"] = resolution
-
-    stac_catalog_dataset: Dataset = stac_load(items, **stac_load_kwargs)
-    stac_catalog_dataset = ensure_unique_time_index(stac_catalog_dataset)
+    collection, items, measurement_keys, crs, stac_catalog_dataset = _load_input_dataset(
+        stac_catalog, chunks, chunk_x, chunk_y, chunk_time, resolution
+    )
 
     logger.info("Loaded data using odc.stac")
     logger.info("Serializing the STAC Collection...")
@@ -333,21 +419,24 @@ def run_to_zarr(
     gbox = stac_catalog_dataset.odc.geobox
     affine_6 = list(gbox.transform)[:6]
     bounds = gbox.extent.boundingbox
-    spatial_bbox = [float(bounds.left), float(bounds.bottom), float(bounds.right), float(bounds.top)]
+    spatial_bbox = [
+        float(bounds.left),
+        float(bounds.bottom),
+        float(bounds.right),
+        float(bounds.top),
+    ]
     proj_code = f"EPSG:{gbox.crs.epsg}" if gbox.crs.epsg is not None else crs.upper()
 
     root = zarr.open_group(Path(collection.id, zarr_uri), mode="w")
     measurements_grp = root.require_group(measurement_name)
     overviews_measurements_grp = (
-        root.require_group(f"{measurement_name}_overviews")
-        if overview_levels > 0
-        else None
+        root.require_group(f"{measurement_name}_overviews") if overview_levels > 0 else None
     )
 
     bands = []
     cube_variables = {}
     raster_bands = []
-    multiscales_entries: List[Dict[str, Any]] = []
+    multiscales_entries: list[dict[str, Any]] = []
     default_resampling_method = to_resampling_method(continuous_overview_reducer)
     crs_wkt = gbox.crs.to_wkt("WKT2_2019")
     root_proj_metadata = build_root_proj_metadata(gbox.crs, proj_code)
@@ -380,19 +469,19 @@ def run_to_zarr(
             dimension_names=["time", "y", "x"],
         )
         write_cf_dataset_members(measurements_grp, da, affine_6, crs_wkt)
-        dask.array.store(da.data, z, lock=True)
+        dask.array.store(da.data, delayed(z, traverse=False), lock=True)
         validate_dataset_group(measurements_grp)
 
         bands.append({"name": measurement, "description": description})
         cube_variables[measurement] = {"type": "data", "dimensions": ["time", "y", "x"]}
         raster_bands.append(
             RasterBand.create(
-                data_type=da.dtype.name,
+                data_type=DataType(da.dtype.name),
                 nodata=None,
-                spatial_resolution=[
-                    abs(da.x.values[1] - da.x.values[0]),
-                    abs(da.y.values[1] - da.y.values[0]),
-                ],
+                spatial_resolution=float(
+                    (abs(da.x.values[1] - da.x.values[0]) + abs(da.y.values[1] - da.y.values[0]))
+                    / 2
+                ),
             )
         )
 
@@ -434,7 +523,9 @@ def run_to_zarr(
                 dtype=level_da.dtype,
                 overwrite=True,
                 attributes={
-                    **spatial_array_metadata(root_proj_metadata, level_affine_6, list(level_da.shape[-2:])),
+                    **spatial_array_metadata(
+                        root_proj_metadata, level_affine_6, list(level_da.shape[-2:])
+                    ),
                     "title": title,
                     "description": f"{description} (overview level {level})",
                     "grid_mapping": "spatial_ref",
@@ -443,7 +534,7 @@ def run_to_zarr(
                 dimension_names=["time", "y", "x"],
             )
             write_cf_dataset_members(level_grp, level_da, level_affine_6, crs_wkt)
-            dask.array.store(level_da.data, level_array, lock=True)
+            dask.array.store(level_da.data, delayed(level_array, traverse=False), lock=True)
             validate_dataset_group(level_grp)
 
             datasets.append(
@@ -553,41 +644,16 @@ def run_to_zarr(
     proj_ext.bbox = spatial_bbox
     proj_ext.geometry = gbox.extent.to_crs(crs).json
 
-    logger.info("Creating STAC Catalog for the output...")
-    output_cat = Catalog(id=collection.id, description=collection.description, title=collection.title)
-    raster_ext = RasterExtension.ext(zarr_asset, add_if_missing=True)
-    raster_ext.bands = raster_bands
-    if stac_object_type == "item":
-        temporal_extent = get_temporal_extent(items)
-        item_bbox = get_spatial_extent(items)
-        item_geometry = items[0].geometry if items[0].geometry is not None else _bbox_to_polygon(item_bbox)
-        item_datetime, item_properties = build_item_temporal_metadata(temporal_extent)
-        output_item = Item(
-            id=collection.id,
-            geometry=item_geometry,
-            bbox=item_bbox,
-            datetime=item_datetime,
-            properties=item_properties,
-        )
-        output_item.stac_extensions = list(STAC_EXTENSION_URIS)
-        if pystac_renders is not None:
-            RenderExtension.ext(output_item, add_if_missing=True).renders = copy.deepcopy(pystac_renders)
-        output_item.add_link(copy.deepcopy(store_link))
-        output_item.add_asset("measurements", copy.deepcopy(zarr_asset))
-        output_cat.add_item(output_item)
-    else:
-        output_cat.add_child(output_collection)
-    output_cat.normalize_and_save(root_href=str(Path(".")), catalog_type=CatalogType.SELF_CONTAINED)
-
-    # Remove stale opposite output type files from previous runs.
-    if stac_object_type == "item":
-        stale_collection = Path(collection.id, "collection.json")
-        if stale_collection.exists():
-            stale_collection.unlink()
-    else:
-        stale_item = Path(collection.id, f"{collection.id}.json")
-        if stale_item.exists():
-            stale_item.unlink()
+    _save_output_catalog(
+        collection,
+        items,
+        output_collection,
+        stac_object_type,
+        pystac_renders,
+        store_link,
+        zarr_asset,
+        raster_bands,
+    )
 
     if consolidate:
         zarr_store_path = Path(collection.id, zarr_uri)

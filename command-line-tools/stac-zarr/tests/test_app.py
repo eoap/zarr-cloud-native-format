@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import numpy as np
@@ -8,6 +8,7 @@ from click.testing import CliRunner
 from pystac import Asset, Collection, Extent, Item, SpatialExtent, TemporalExtent
 from xarray import DataArray, Dataset
 
+import stac_zarr.cli as cli_mod
 from stac_zarr.app import (
     _write_cf_dataset_members,
     build_root_proj_metadata,
@@ -21,6 +22,7 @@ from stac_zarr.app import (
     to_resampling_method,
     validate_items_have_measurements,
 )
+from stac_zarr.multiscales import build_v1_layout
 from stac_zarr.writer import (
     build_item_temporal_metadata,
     consolidate_zarr_store,
@@ -29,8 +31,6 @@ from stac_zarr.writer import (
     normalize_renders_for_zarr,
     to_pystac_renders,
 )
-import stac_zarr.cli as cli_mod
-from stac_zarr.multiscales import build_v1_layout
 
 
 def _make_collection(item_assets):
@@ -51,12 +51,10 @@ def _make_item(item_id: str, asset_names):
         id=item_id,
         geometry={
             "type": "Polygon",
-            "coordinates": [
-                [[-1.0, -1.0], [-1.0, 1.0], [1.0, 1.0], [1.0, -1.0], [-1.0, -1.0]]
-            ],
+            "coordinates": [[[-1.0, -1.0], [-1.0, 1.0], [1.0, 1.0], [1.0, -1.0], [-1.0, -1.0]]],
         },
         bbox=[-1.0, -1.0, 1.0, 1.0],
-        datetime=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        datetime=datetime(2024, 1, 1, tzinfo=UTC),
         properties={},
     )
     for name in asset_names:
@@ -199,9 +197,7 @@ def test_write_cf_dataset_members(tmp_path):
         np.arange(24, dtype=np.float32).reshape(2, 3, 4),
         dims=["time", "y", "x"],
         coords={
-            "time": np.array(
-                ["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"
-            ),
+            "time": np.array(["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"),
             "y": np.array([1000.0, 990.0, 980.0], dtype=np.float64),
             "x": np.array([200.0, 210.0, 220.0, 230.0], dtype=np.float64),
         },
@@ -244,17 +240,13 @@ def test_check_valid_coordinates_and_grid_mapping_ok(tmp_path):
         np.arange(24, dtype=np.float32).reshape(2, 3, 4),
         dims=["time", "y", "x"],
         coords={
-            "time": np.array(
-                ["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"
-            ),
+            "time": np.array(["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"),
             "y": np.array([1000.0, 990.0, 980.0], dtype=np.float64),
             "x": np.array([200.0, 210.0, 220.0, 230.0], dtype=np.float64),
         },
     )
     group = zarr.open_group(tmp_path / "cf-validate-ok.zarr", mode="w")
-    _write_cf_dataset_members(
-        group, da, [10.0, 0.0, 195.0, 0.0, -10.0, 1005.0], "EPSG:32610-WKT"
-    )
+    _write_cf_dataset_members(group, da, [10.0, 0.0, 195.0, 0.0, -10.0, 1005.0], "EPSG:32610-WKT")
     _make_data_array(group, "water")
 
     check_valid_coordinates(group)
@@ -273,17 +265,13 @@ def test_check_grid_mapping_fails_on_missing_member(tmp_path):
         np.arange(24, dtype=np.float32).reshape(2, 3, 4),
         dims=["time", "y", "x"],
         coords={
-            "time": np.array(
-                ["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"
-            ),
+            "time": np.array(["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"),
             "y": np.array([1000.0, 990.0, 980.0], dtype=np.float64),
             "x": np.array([200.0, 210.0, 220.0, 230.0], dtype=np.float64),
         },
     )
     group = zarr.open_group(tmp_path / "cf-validate-missing-gm.zarr", mode="w")
-    _write_cf_dataset_members(
-        group, da, [10.0, 0.0, 195.0, 0.0, -10.0, 1005.0], "EPSG:32610-WKT"
-    )
+    _write_cf_dataset_members(group, da, [10.0, 0.0, 195.0, 0.0, -10.0, 1005.0], "EPSG:32610-WKT")
     _make_data_array(group, "water", grid_mapping="missing_spatial_ref")
     with pytest.raises(ValueError, match="missing_spatial_ref"):
         check_grid_mapping(group)
@@ -326,45 +314,35 @@ def test_get_variable_type():
 
 
 def test_downsample_2x_nearest():
-    da = DataArray(
-        np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"]
-    )
+    da = DataArray(np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"])
     out = downsample_2x(da, "nearest")
     assert out.shape == (1, 2, 2)
     assert out.values.tolist() == [[[0.0, 2.0], [8.0, 10.0]]]
 
 
 def test_downsample_2x_mean():
-    da = DataArray(
-        np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"]
-    )
+    da = DataArray(np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"])
     out = downsample_2x(da, "mean")
     assert out.shape == (1, 2, 2)
     assert out.values.tolist() == [[[2.5, 4.5], [10.5, 12.5]]]
 
 
 def test_downsample_2x_max():
-    da = DataArray(
-        np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"]
-    )
+    da = DataArray(np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"])
     out = downsample_2x(da, "max")
     assert out.shape == (1, 2, 2)
     assert out.values.tolist() == [[[5.0, 7.0], [13.0, 15.0]]]
 
 
 def test_downsample_2x_median():
-    da = DataArray(
-        np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"]
-    )
+    da = DataArray(np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"])
     out = downsample_2x(da, "median")
     assert out.shape == (1, 2, 2)
     assert out.values.tolist() == [[[2.5, 4.5], [10.5, 12.5]]]
 
 
 def test_downsample_2x_rejects_unknown_reducer():
-    da = DataArray(
-        np.arange(4, dtype=np.float32).reshape(1, 2, 2), dims=["time", "y", "x"]
-    )
+    da = DataArray(np.arange(4, dtype=np.float32).reshape(1, 2, 2), dims=["time", "y", "x"])
     with pytest.raises(ValueError, match="Unsupported overview reducer"):
         downsample_2x(da, "p90")
 
@@ -565,8 +543,8 @@ def test_multiscale_group_layout_deduplicates_shared_base():
 
 def test_build_item_temporal_metadata_sets_end_datetime_and_interval_properties():
     temporal_extent = (
-        datetime(2021, 6, 3, 18, 49, 19, 24000, tzinfo=timezone.utc),
-        datetime(2021, 6, 18, 18, 49, 21, 24000, tzinfo=timezone.utc),
+        datetime(2021, 6, 3, 18, 49, 19, 24000, tzinfo=UTC),
+        datetime(2021, 6, 18, 18, 49, 21, 24000, tzinfo=UTC),
     )
 
     item_datetime, item_properties = build_item_temporal_metadata(temporal_extent)

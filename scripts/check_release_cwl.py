@@ -1,12 +1,18 @@
 """Validate each standalone application package using its public entrypoint."""
-from pathlib import Path
+
 import subprocess
+from pathlib import Path
+
 import yaml
 
-ENTRIES = {"app-water-bodies": "water-bodies", "app-water-bodies-s3": "main", "app-water-bodies-occurrence": "water-bodies-occurrence"}
+ENTRIES = {
+    "app-water-bodies": "water-bodies",
+    "app-water-bodies-s3": "main",
+    "app-water-bodies-occurrence": "water-bodies-occurrence",
+}
 
 
-def validate(path, entry):
+def validate(path: Path, entry: str) -> None:
     document = yaml.safe_load(path.read_text())
     if document.get("cwlVersion") != "v1.2":
         raise ValueError(f"Expected CWL v1.2: {path}")

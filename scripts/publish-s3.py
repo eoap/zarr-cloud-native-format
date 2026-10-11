@@ -3,10 +3,11 @@
 import argparse
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 from uuid import uuid4
+
 import yaml
 
 root = Path(__file__).resolve().parents[1]
@@ -27,7 +28,7 @@ if args.results:
         catalog = value["value"]
         source = None
     else:
-        from urllib.parse import urlsplit, unquote
+        from urllib.parse import unquote, urlsplit
 
         source = Path(unquote(urlsplit(value.get("location") or value["path"]).path))
 if source is not None:
@@ -48,9 +49,7 @@ if source is not None:
             raise
         options = {"Bucket": settings["bucket"]}
         if settings["region"] != "us-east-1":
-            options["CreateBucketConfiguration"] = {
-                "LocationConstraint": settings["region"]
-            }
+            options["CreateBucketConfiguration"] = {"LocationConstraint": settings["region"]}
         client.create_bucket(**options)
     source = source.resolve(strict=True)
     workflow = {

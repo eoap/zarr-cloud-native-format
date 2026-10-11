@@ -3,161 +3,172 @@
 
 from __future__ import annotations
 
-from enum import Enum
-from typing import Any, Literal
+from enum import StrEnum
+from typing import Annotated, Any, Literal
 
-from pydantic import ConfigDict, Field, RootModel, constr
+from pydantic import ConfigDict, Field, RootModel
+
 from stac_zarr.models.base import GeoZarrBaseModel
 
 
-class NodeType(Enum):
-    array = 'array'
-    group = 'group'
+class NodeType(StrEnum):
+    array = "array"
+    group = "group"
 
 
 class ConventionMetadata1(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    schema_url: Literal[
-        'https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json'
-    ] = Field(..., description='URL to the JSON Schema definition for this convention')
-    spec_url: (
-        Literal['https://github.com/zarr-conventions/proj/blob/v0.1/README.md'] | None
-    ) = Field(None, description='URL to the full specification document')
-    uuid: Literal['f17cb550-5864-4468-aeb7-f3180cfb622f'] | None = Field(
-        None, description='UUID that permanently identifies this convention'
-    )
-    name: Literal['proj'] | None = Field(
-        None, description='Human-readable name of the convention'
-    )
-    description: (
-        Literal['Coordinate reference system information for geospatial data'] | None
-    ) = Field(
-        None, description="Brief description of the convention's purpose and usage"
-    )
+    schema_url: Annotated[
+        Literal[
+            "https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json"
+        ],
+        Field(description="URL to the JSON Schema definition for this convention"),
+    ]
+    spec_url: Annotated[
+        Literal["https://github.com/zarr-conventions/proj/blob/v0.1/README.md"] | None,
+        Field(description="URL to the full specification document"),
+    ] = None
+    uuid: Annotated[
+        Literal["f17cb550-5864-4468-aeb7-f3180cfb622f"] | None,
+        Field(description="UUID that permanently identifies this convention"),
+    ] = None
+    name: Annotated[
+        Literal["proj"] | None, Field(description="Human-readable name of the convention")
+    ] = None
+    description: Annotated[
+        Literal["Coordinate reference system information for geospatial data"] | None,
+        Field(description="Brief description of the convention's purpose and usage"),
+    ] = None
 
 
 class ConventionMetadata2(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    schema_url: (
+    schema_url: Annotated[
         Literal[
-            'https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json'
+            "https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json"
         ]
-        | None
-    ) = Field(None, description='URL to the JSON Schema definition for this convention')
-    spec_url: Literal[
-        'https://github.com/zarr-conventions/proj/blob/v0.1/README.md'
-    ] = Field(..., description='URL to the full specification document')
-    uuid: Literal['f17cb550-5864-4468-aeb7-f3180cfb622f'] | None = Field(
-        None, description='UUID that permanently identifies this convention'
-    )
-    name: Literal['proj'] | None = Field(
-        None, description='Human-readable name of the convention'
-    )
-    description: (
-        Literal['Coordinate reference system information for geospatial data'] | None
-    ) = Field(
-        None, description="Brief description of the convention's purpose and usage"
-    )
+        | None,
+        Field(description="URL to the JSON Schema definition for this convention"),
+    ] = None
+    spec_url: Annotated[
+        Literal["https://github.com/zarr-conventions/proj/blob/v0.1/README.md"],
+        Field(description="URL to the full specification document"),
+    ]
+    uuid: Annotated[
+        Literal["f17cb550-5864-4468-aeb7-f3180cfb622f"] | None,
+        Field(description="UUID that permanently identifies this convention"),
+    ] = None
+    name: Annotated[
+        Literal["proj"] | None, Field(description="Human-readable name of the convention")
+    ] = None
+    description: Annotated[
+        Literal["Coordinate reference system information for geospatial data"] | None,
+        Field(description="Brief description of the convention's purpose and usage"),
+    ] = None
 
 
 class ConventionMetadata3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    schema_url: (
+    schema_url: Annotated[
         Literal[
-            'https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json'
+            "https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json"
         ]
-        | None
-    ) = Field(None, description='URL to the JSON Schema definition for this convention')
-    spec_url: (
-        Literal['https://github.com/zarr-conventions/proj/blob/v0.1/README.md'] | None
-    ) = Field(None, description='URL to the full specification document')
-    uuid: Literal['f17cb550-5864-4468-aeb7-f3180cfb622f'] = Field(
-        ..., description='UUID that permanently identifies this convention'
-    )
-    name: Literal['proj'] | None = Field(
-        None, description='Human-readable name of the convention'
-    )
-    description: (
-        Literal['Coordinate reference system information for geospatial data'] | None
-    ) = Field(
-        None, description="Brief description of the convention's purpose and usage"
-    )
+        | None,
+        Field(description="URL to the JSON Schema definition for this convention"),
+    ] = None
+    spec_url: Annotated[
+        Literal["https://github.com/zarr-conventions/proj/blob/v0.1/README.md"] | None,
+        Field(description="URL to the full specification document"),
+    ] = None
+    uuid: Annotated[
+        Literal["f17cb550-5864-4468-aeb7-f3180cfb622f"],
+        Field(description="UUID that permanently identifies this convention"),
+    ]
+    name: Annotated[
+        Literal["proj"] | None, Field(description="Human-readable name of the convention")
+    ] = None
+    description: Annotated[
+        Literal["Coordinate reference system information for geospatial data"] | None,
+        Field(description="Brief description of the convention's purpose and usage"),
+    ] = None
 
 
 class ConventionMetadata(
     RootModel[ConventionMetadata1 | ConventionMetadata2 | ConventionMetadata3]
 ):
-    root: ConventionMetadata1 | ConventionMetadata2 | ConventionMetadata3 = Field(
-        ...,
-        description='Geospatial projection convention metadata object for use in zarr_conventions array',
-    )
+    root: Annotated[
+        ConventionMetadata1 | ConventionMetadata2 | ConventionMetadata3,
+        Field(
+            description="Geospatial projection convention metadata object for use in zarr_conventions array"
+        ),
+    ]
 
 
-class Type(Enum):
-    abridged_transformation = 'AbridgedTransformation'
+class Type(StrEnum):
+    abridged_transformation = "AbridgedTransformation"
 
 
-class Type1(Enum):
-    axis = 'Axis'
+class Type1(StrEnum):
+    axis = "Axis"
 
 
-class Direction(Enum):
-    north = 'north'
-    north_north_east = 'northNorthEast'
-    north_east = 'northEast'
-    east_north_east = 'eastNorthEast'
-    east = 'east'
-    east_south_east = 'eastSouthEast'
-    south_east = 'southEast'
-    south_south_east = 'southSouthEast'
-    south = 'south'
-    south_south_west = 'southSouthWest'
-    south_west = 'southWest'
-    west_south_west = 'westSouthWest'
-    west = 'west'
-    west_north_west = 'westNorthWest'
-    north_west = 'northWest'
-    north_north_west = 'northNorthWest'
-    up = 'up'
-    down = 'down'
-    geocentric_x = 'geocentricX'
-    geocentric_y = 'geocentricY'
-    geocentric_z = 'geocentricZ'
-    column_positive = 'columnPositive'
-    column_negative = 'columnNegative'
-    row_positive = 'rowPositive'
-    row_negative = 'rowNegative'
-    display_right = 'displayRight'
-    display_left = 'displayLeft'
-    display_up = 'displayUp'
-    display_down = 'displayDown'
-    forward = 'forward'
-    aft = 'aft'
-    port = 'port'
-    starboard = 'starboard'
-    clockwise = 'clockwise'
-    counter_clockwise = 'counterClockwise'
-    towards = 'towards'
-    away_from = 'awayFrom'
-    future = 'future'
-    past = 'past'
-    unspecified = 'unspecified'
+class Direction(StrEnum):
+    north = "north"
+    north_north_east = "northNorthEast"
+    north_east = "northEast"
+    east_north_east = "eastNorthEast"
+    east = "east"
+    east_south_east = "eastSouthEast"
+    south_east = "southEast"
+    south_south_east = "southSouthEast"
+    south = "south"
+    south_south_west = "southSouthWest"
+    south_west = "southWest"
+    west_south_west = "westSouthWest"
+    west = "west"
+    west_north_west = "westNorthWest"
+    north_west = "northWest"
+    north_north_west = "northNorthWest"
+    up = "up"
+    down = "down"
+    geocentric_x = "geocentricX"
+    geocentric_y = "geocentricY"
+    geocentric_z = "geocentricZ"
+    column_positive = "columnPositive"
+    column_negative = "columnNegative"
+    row_positive = "rowPositive"
+    row_negative = "rowNegative"
+    display_right = "displayRight"
+    display_left = "displayLeft"
+    display_up = "displayUp"
+    display_down = "displayDown"
+    forward = "forward"
+    aft = "aft"
+    port = "port"
+    starboard = "starboard"
+    clockwise = "clockwise"
+    counter_clockwise = "counterClockwise"
+    towards = "towards"
+    away_from = "awayFrom"
+    future = "future"
+    past = "past"
+    unspecified = "unspecified"
 
 
-class RangeMeaning(Enum):
-    exact = 'exact'
-    wraparound = 'wraparound'
+class RangeMeaning(StrEnum):
+    exact = "exact"
+    wraparound = "wraparound"
 
 
 class Bbox(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     east_longitude: float
     west_longitude: float
@@ -165,79 +176,79 @@ class Bbox(GeoZarrBaseModel):
     north_latitude: float
 
 
-class Type2(Enum):
-    bound_crs = 'BoundCRS'
+class Type2(StrEnum):
+    bound_crs = "BoundCRS"
 
 
-class Type5(Enum):
-    compound_crs = 'CompoundCRS'
+class Type5(StrEnum):
+    compound_crs = "CompoundCRS"
 
 
-class Type8(Enum):
-    concatenated_operation = 'ConcatenatedOperation'
+class Type8(StrEnum):
+    concatenated_operation = "ConcatenatedOperation"
 
 
-class Type11(Enum):
-    conversion = 'Conversion'
+class Type11(StrEnum):
+    conversion = "Conversion"
 
 
-class Type12(Enum):
-    coordinate_metadata = 'CoordinateMetadata'
+class Type12(StrEnum):
+    coordinate_metadata = "CoordinateMetadata"
 
 
-class Type13(Enum):
-    coordinate_system = 'CoordinateSystem'
+class Type13(StrEnum):
+    coordinate_system = "CoordinateSystem"
 
 
-class Subtype(Enum):
-    cartesian = 'Cartesian'
-    spherical = 'spherical'
-    ellipsoidal = 'ellipsoidal'
-    vertical = 'vertical'
-    ordinal = 'ordinal'
-    parametric = 'parametric'
-    affine = 'affine'
-    temporal_date_time = 'TemporalDateTime'
-    temporal_count = 'TemporalCount'
-    temporal_measure = 'TemporalMeasure'
+class Subtype(StrEnum):
+    cartesian = "Cartesian"
+    spherical = "spherical"
+    ellipsoidal = "ellipsoidal"
+    vertical = "vertical"
+    ordinal = "ordinal"
+    parametric = "parametric"
+    affine = "affine"
+    temporal_date_time = "TemporalDateTime"
+    temporal_count = "TemporalCount"
+    temporal_measure = "TemporalMeasure"
 
 
-class Type14(Enum):
-    datum_ensemble = 'DatumEnsemble'
+class Type14(StrEnum):
+    datum_ensemble = "DatumEnsemble"
 
 
-class Type15(Enum):
-    derived_engineering_crs = 'DerivedEngineeringCRS'
+class Type15(StrEnum):
+    derived_engineering_crs = "DerivedEngineeringCRS"
 
 
-class Type18(Enum):
-    derived_geodetic_crs = 'DerivedGeodeticCRS'
-    derived_geographic_crs = 'DerivedGeographicCRS'
+class Type18(StrEnum):
+    derived_geodetic_crs = "DerivedGeodeticCRS"
+    derived_geographic_crs = "DerivedGeographicCRS"
 
 
-class Type21(Enum):
-    derived_parametric_crs = 'DerivedParametricCRS'
+class Type21(StrEnum):
+    derived_parametric_crs = "DerivedParametricCRS"
 
 
-class Type24(Enum):
-    derived_projected_crs = 'DerivedProjectedCRS'
+class Type24(StrEnum):
+    derived_projected_crs = "DerivedProjectedCRS"
 
 
-class Type27(Enum):
-    derived_temporal_crs = 'DerivedTemporalCRS'
+class Type27(StrEnum):
+    derived_temporal_crs = "DerivedTemporalCRS"
 
 
-class Type30(Enum):
-    derived_vertical_crs = 'DerivedVerticalCRS'
+class Type30(StrEnum):
+    derived_vertical_crs = "DerivedVerticalCRS"
 
 
-class Type33(Enum):
-    dynamic_geodetic_reference_frame = 'DynamicGeodeticReferenceFrame'
+class Type33(StrEnum):
+    dynamic_geodetic_reference_frame = "DynamicGeodeticReferenceFrame"
 
 
 class DynamicGeodeticReferenceFrame3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type33 | None = None
     name: Any
@@ -246,7 +257,7 @@ class DynamicGeodeticReferenceFrame3(GeoZarrBaseModel):
     ellipsoid: Any
     prime_meridian: Any | None = None
     frame_reference_epoch: float
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -258,20 +269,20 @@ class DynamicGeodeticReferenceFrame3(GeoZarrBaseModel):
     ids: Any | None = None
 
 
-class Type36(Enum):
-    dynamic_vertical_reference_frame = 'DynamicVerticalReferenceFrame'
+class Type36(StrEnum):
+    dynamic_vertical_reference_frame = "DynamicVerticalReferenceFrame"
 
 
 class DynamicVerticalReferenceFrame3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type36 | None = None
     name: Any
     anchor: Any | None = None
     anchor_epoch: Any | None = None
     frame_reference_epoch: float
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -283,26 +294,26 @@ class DynamicVerticalReferenceFrame3(GeoZarrBaseModel):
     ids: Any | None = None
 
 
-class Type39(Enum):
-    ellipsoid = 'Ellipsoid'
+class Type39(StrEnum):
+    ellipsoid = "Ellipsoid"
 
 
-class Type42(Enum):
-    engineering_crs = 'EngineeringCRS'
+class Type42(StrEnum):
+    engineering_crs = "EngineeringCRS"
 
 
-class Type45(Enum):
-    engineering_datum = 'EngineeringDatum'
+class Type45(StrEnum):
+    engineering_datum = "EngineeringDatum"
 
 
 class EngineeringDatum3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type45 | None = None
     name: str
     anchor: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -314,18 +325,18 @@ class EngineeringDatum3(GeoZarrBaseModel):
     ids: Any | None = None
 
 
-class Type48(Enum):
-    geodetic_crs = 'GeodeticCRS'
-    geographic_crs = 'GeographicCRS'
+class Type48(StrEnum):
+    geodetic_crs = "GeodeticCRS"
+    geographic_crs = "GeographicCRS"
 
 
-class Type51(Enum):
-    geodetic_reference_frame = 'GeodeticReferenceFrame'
+class Type51(StrEnum):
+    geodetic_reference_frame = "GeodeticReferenceFrame"
 
 
 class Id(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     authority: str
     code: str | int
@@ -338,8 +349,8 @@ class Ids(RootModel[list[Id]]):
     root: list[Id]
 
 
-class Type54(Enum):
-    operation_method = 'OperationMethod'
+class Type54(StrEnum):
+    operation_method = "OperationMethod"
 
 
 class IdIdsMutuallyExclusive(RootModel[Any]):
@@ -350,30 +361,30 @@ class OneAndOnlyOneOfDatumOrDatumEnsemble(GeoZarrBaseModel):
     pass
 
 
-class Type55(Enum):
-    meridian = 'Meridian'
+class Type55(StrEnum):
+    meridian = "Meridian"
 
 
-class Type56(Enum):
-    parameter_value = 'ParameterValue'
+class Type56(StrEnum):
+    parameter_value = "ParameterValue"
 
 
-class Type57(Enum):
-    parametric_crs = 'ParametricCRS'
+class Type57(StrEnum):
+    parametric_crs = "ParametricCRS"
 
 
-class Type60(Enum):
-    parametric_datum = 'ParametricDatum'
+class Type60(StrEnum):
+    parametric_datum = "ParametricDatum"
 
 
 class ParametricDatum3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type60 | None = None
     name: str
     anchor: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -385,35 +396,35 @@ class ParametricDatum3(GeoZarrBaseModel):
     ids: Any | None = None
 
 
-class Type63(Enum):
-    point_motion_operation = 'PointMotionOperation'
+class Type63(StrEnum):
+    point_motion_operation = "PointMotionOperation"
 
 
-class Type66(Enum):
-    prime_meridian = 'PrimeMeridian'
+class Type66(StrEnum):
+    prime_meridian = "PrimeMeridian"
 
 
-class Type67(Enum):
-    projected_crs = 'ProjectedCRS'
+class Type67(StrEnum):
+    projected_crs = "ProjectedCRS"
 
 
-class Type70(Enum):
-    temporal_crs = 'TemporalCRS'
+class Type70(StrEnum):
+    temporal_crs = "TemporalCRS"
 
 
-class Type73(Enum):
-    temporal_datum = 'TemporalDatum'
+class Type73(StrEnum):
+    temporal_datum = "TemporalDatum"
 
 
 class TemporalDatum3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type73 | None = None
     name: str
     calendar: str
     time_origin: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -427,34 +438,34 @@ class TemporalDatum3(GeoZarrBaseModel):
 
 class TemporalExtent(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     start: str
     end: str
 
 
-class Type76(Enum):
-    transformation = 'Transformation'
+class Type76(StrEnum):
+    transformation = "Transformation"
 
 
-class Unit1(Enum):
-    metre = 'metre'
-    degree = 'degree'
-    unity = 'unity'
+class Unit1(StrEnum):
+    metre = "metre"
+    degree = "degree"
+    unity = "unity"
 
 
-class Type79(Enum):
-    linear_unit = 'LinearUnit'
-    angular_unit = 'AngularUnit'
-    scale_unit = 'ScaleUnit'
-    time_unit = 'TimeUnit'
-    parametric_unit = 'ParametricUnit'
-    unit = 'Unit'
+class Type79(StrEnum):
+    linear_unit = "LinearUnit"
+    angular_unit = "AngularUnit"
+    scale_unit = "ScaleUnit"
+    time_unit = "TimeUnit"
+    parametric_unit = "ParametricUnit"
+    unit = "Unit"
 
 
 class Unit2(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type79
     name: str
@@ -469,7 +480,7 @@ class Unit(RootModel[Unit1 | Unit2]):
 
 class ValueAndUnit(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     value: float
     unit: Unit
@@ -483,13 +494,13 @@ class ValueInMetreOrValueAndUnit(RootModel[float | ValueAndUnit]):
     root: float | ValueAndUnit
 
 
-class Type80(Enum):
-    vertical_crs = 'VerticalCRS'
+class Type80(StrEnum):
+    vertical_crs = "VerticalCRS"
 
 
 class VerticalExtent(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     minimum: float
     maximum: float
@@ -497,7 +508,7 @@ class VerticalExtent(GeoZarrBaseModel):
 
 
 class VerticalReferenceFrame1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -508,19 +519,19 @@ class VerticalReferenceFrame1(GeoZarrBaseModel):
     ids: Ids | None = None
 
 
-class Type83(Enum):
-    vertical_reference_frame = 'VerticalReferenceFrame'
+class Type83(StrEnum):
+    vertical_reference_frame = "VerticalReferenceFrame"
 
 
 class VerticalReferenceFrame3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type83 | None = None
     name: str
     anchor: str | None = None
     anchor_epoch: float | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -534,13 +545,13 @@ class VerticalReferenceFrame3(GeoZarrBaseModel):
 
 class VerticalReferenceFrame4(VerticalReferenceFrame1, VerticalReferenceFrame3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type83 | None = None
     name: str
     anchor: str | None = None
     anchor_epoch: float | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -553,7 +564,7 @@ class VerticalReferenceFrame4(VerticalReferenceFrame1, VerticalReferenceFrame3):
 
 
 class BoundCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -565,7 +576,7 @@ class BoundCrs1(GeoZarrBaseModel):
 
 
 class CompoundCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -577,7 +588,7 @@ class CompoundCrs1(GeoZarrBaseModel):
 
 
 class ConcatenatedOperation1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -590,7 +601,7 @@ class ConcatenatedOperation1(GeoZarrBaseModel):
 
 class Member(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     name: str
     id: Id | None = None
@@ -599,14 +610,14 @@ class Member(GeoZarrBaseModel):
 
 class DeformationModel(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     name: str
     id: Id | None = None
 
 
 class DerivedEngineeringCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -618,7 +629,7 @@ class DerivedEngineeringCrs1(GeoZarrBaseModel):
 
 
 class DerivedGeodeticCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -630,7 +641,7 @@ class DerivedGeodeticCrs1(GeoZarrBaseModel):
 
 
 class DerivedParametricCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -642,7 +653,7 @@ class DerivedParametricCrs1(GeoZarrBaseModel):
 
 
 class DerivedProjectedCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -654,7 +665,7 @@ class DerivedProjectedCrs1(GeoZarrBaseModel):
 
 
 class DerivedTemporalCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -666,7 +677,7 @@ class DerivedTemporalCrs1(GeoZarrBaseModel):
 
 
 class DerivedVerticalCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -678,7 +689,7 @@ class DerivedVerticalCrs1(GeoZarrBaseModel):
 
 
 class DynamicGeodeticReferenceFrame1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -690,10 +701,11 @@ class DynamicGeodeticReferenceFrame1(GeoZarrBaseModel):
 
 
 class DynamicGeodeticReferenceFrame4(
-    DynamicGeodeticReferenceFrame1, DynamicGeodeticReferenceFrame3
+    DynamicGeodeticReferenceFrame1,
+    DynamicGeodeticReferenceFrame3,
 ):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type33 | None = None
     name: Any
@@ -702,7 +714,7 @@ class DynamicGeodeticReferenceFrame4(
     ellipsoid: Any
     prime_meridian: Any | None = None
     frame_reference_epoch: float
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -715,7 +727,7 @@ class DynamicGeodeticReferenceFrame4(
 
 
 class DynamicVerticalReferenceFrame1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -727,17 +739,18 @@ class DynamicVerticalReferenceFrame1(GeoZarrBaseModel):
 
 
 class DynamicVerticalReferenceFrame4(
-    DynamicVerticalReferenceFrame1, DynamicVerticalReferenceFrame3
+    DynamicVerticalReferenceFrame1,
+    DynamicVerticalReferenceFrame3,
 ):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type36 | None = None
     name: Any
     anchor: Any | None = None
     anchor_epoch: Any | None = None
     frame_reference_epoch: float
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -751,9 +764,9 @@ class DynamicVerticalReferenceFrame4(
 
 class Ellipsoid1(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type39 | None = None
     name: str
     semi_major_axis: ValueInMetreOrValueAndUnit
@@ -764,9 +777,9 @@ class Ellipsoid1(GeoZarrBaseModel):
 
 class Ellipsoid2(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type39 | None = None
     name: str
     semi_major_axis: ValueInMetreOrValueAndUnit
@@ -777,9 +790,9 @@ class Ellipsoid2(GeoZarrBaseModel):
 
 class Ellipsoid3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type39 | None = None
     name: str
     radius: ValueInMetreOrValueAndUnit
@@ -792,7 +805,7 @@ class Ellipsoid(RootModel[Ellipsoid1 | Ellipsoid2 | Ellipsoid3]):
 
 
 class EngineeringCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -804,7 +817,7 @@ class EngineeringCrs1(GeoZarrBaseModel):
 
 
 class EngineeringDatum1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -817,12 +830,12 @@ class EngineeringDatum1(GeoZarrBaseModel):
 
 class EngineeringDatum4(EngineeringDatum1, EngineeringDatum3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type45 | None = None
     name: str
     anchor: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -835,7 +848,7 @@ class EngineeringDatum4(EngineeringDatum1, EngineeringDatum3):
 
 
 class GeodeticCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -847,7 +860,7 @@ class GeodeticCrs1(GeoZarrBaseModel):
 
 
 class GeodeticReferenceFrame1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -860,9 +873,9 @@ class GeodeticReferenceFrame1(GeoZarrBaseModel):
 
 class Method(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type54 | None = None
     name: str
     id: Id | None = None
@@ -871,9 +884,9 @@ class Method(GeoZarrBaseModel):
 
 class Meridian(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type55 | None = None
     longitude: ValueInDegreeOrValueAndUnit
     id: Id | None = None
@@ -881,7 +894,7 @@ class Meridian(GeoZarrBaseModel):
 
 
 class ObjectUsage1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -894,9 +907,9 @@ class ObjectUsage1(GeoZarrBaseModel):
 
 class ParameterValue(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type56 | None = None
     name: str
     value: str | float
@@ -906,7 +919,7 @@ class ParameterValue(GeoZarrBaseModel):
 
 
 class ParametricCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -918,7 +931,7 @@ class ParametricCrs1(GeoZarrBaseModel):
 
 
 class ParametricDatum1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -931,12 +944,12 @@ class ParametricDatum1(GeoZarrBaseModel):
 
 class ParametricDatum4(ParametricDatum1, ParametricDatum3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type60 | None = None
     name: str
     anchor: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -949,7 +962,7 @@ class ParametricDatum4(ParametricDatum1, ParametricDatum3):
 
 
 class PointMotionOperation1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -962,9 +975,9 @@ class PointMotionOperation1(GeoZarrBaseModel):
 
 class PrimeMeridian(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type66 | None = None
     name: str
     longitude: ValueInDegreeOrValueAndUnit | None = None
@@ -973,7 +986,7 @@ class PrimeMeridian(GeoZarrBaseModel):
 
 
 class ProjectedCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -985,7 +998,7 @@ class ProjectedCrs1(GeoZarrBaseModel):
 
 
 class TemporalCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -997,7 +1010,7 @@ class TemporalCrs1(GeoZarrBaseModel):
 
 
 class TemporalDatum1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -1010,13 +1023,13 @@ class TemporalDatum1(GeoZarrBaseModel):
 
 class TemporalDatum4(TemporalDatum1, TemporalDatum3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type73 | None = None
     name: str
     calendar: str
     time_origin: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1029,7 +1042,7 @@ class TemporalDatum4(TemporalDatum1, TemporalDatum3):
 
 
 class Transformation1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -1042,7 +1055,7 @@ class Transformation1(GeoZarrBaseModel):
 
 class Usage(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     scope: str | None = None
     area: str | None = None
@@ -1056,7 +1069,7 @@ class Usages(RootModel[list[Usage]]):
 
 
 class VerticalCrs1(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     scope: str | None = None
     area: str | None = None
     bbox: Bbox | None = None
@@ -1068,7 +1081,7 @@ class VerticalCrs1(GeoZarrBaseModel):
 
 
 class VerticalCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1076,7 +1089,7 @@ class VerticalCrs2(GeoZarrBaseModel):
 
 
 class VerticalReferenceFrame2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1085,13 +1098,13 @@ class VerticalReferenceFrame2(GeoZarrBaseModel):
 
 class VerticalReferenceFrame5(VerticalReferenceFrame2, VerticalReferenceFrame3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type83 | None = None
     name: str
     anchor: str | None = None
     anchor_epoch: float | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1103,17 +1116,15 @@ class VerticalReferenceFrame5(VerticalReferenceFrame2, VerticalReferenceFrame3):
     ids: Any | None = None
 
 
-class VerticalReferenceFrame(
-    RootModel[VerticalReferenceFrame4 | VerticalReferenceFrame5]
-):
+class VerticalReferenceFrame(RootModel[VerticalReferenceFrame4 | VerticalReferenceFrame5]):
     root: VerticalReferenceFrame4 | VerticalReferenceFrame5
 
 
 class Axis(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type1 | None = None
     name: str
     abbreviation: str
@@ -1128,7 +1139,7 @@ class Axis(GeoZarrBaseModel):
 
 
 class BoundCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1136,7 +1147,7 @@ class BoundCrs2(GeoZarrBaseModel):
 
 
 class CompoundCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1144,7 +1155,7 @@ class CompoundCrs2(GeoZarrBaseModel):
 
 
 class ConcatenatedOperation2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1153,9 +1164,9 @@ class ConcatenatedOperation2(GeoZarrBaseModel):
 
 class Conversion(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type11 | None = None
     name: str
     method: Method
@@ -1166,9 +1177,9 @@ class Conversion(GeoZarrBaseModel):
 
 class CoordinateSystem(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type13 | None = None
     name: str | None = None
     subtype: Subtype
@@ -1179,9 +1190,9 @@ class CoordinateSystem(GeoZarrBaseModel):
 
 class DatumEnsemble(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type14 | None = None
     name: str
     members: list[Member]
@@ -1192,7 +1203,7 @@ class DatumEnsemble(GeoZarrBaseModel):
 
 
 class DerivedEngineeringCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1200,7 +1211,7 @@ class DerivedEngineeringCrs2(GeoZarrBaseModel):
 
 
 class DerivedGeodeticCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1208,7 +1219,7 @@ class DerivedGeodeticCrs2(GeoZarrBaseModel):
 
 
 class DerivedParametricCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1216,7 +1227,7 @@ class DerivedParametricCrs2(GeoZarrBaseModel):
 
 
 class DerivedProjectedCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1224,7 +1235,7 @@ class DerivedProjectedCrs2(GeoZarrBaseModel):
 
 
 class DerivedTemporalCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1232,7 +1243,7 @@ class DerivedTemporalCrs2(GeoZarrBaseModel):
 
 
 class DerivedVerticalCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1240,7 +1251,7 @@ class DerivedVerticalCrs2(GeoZarrBaseModel):
 
 
 class DynamicGeodeticReferenceFrame2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1248,10 +1259,11 @@ class DynamicGeodeticReferenceFrame2(GeoZarrBaseModel):
 
 
 class DynamicGeodeticReferenceFrame5(
-    DynamicGeodeticReferenceFrame2, DynamicGeodeticReferenceFrame3
+    DynamicGeodeticReferenceFrame2,
+    DynamicGeodeticReferenceFrame3,
 ):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type33 | None = None
     name: Any
@@ -1260,7 +1272,7 @@ class DynamicGeodeticReferenceFrame5(
     ellipsoid: Any
     prime_meridian: Any | None = None
     frame_reference_epoch: float
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1279,7 +1291,7 @@ class DynamicGeodeticReferenceFrame(
 
 
 class DynamicVerticalReferenceFrame2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1287,17 +1299,18 @@ class DynamicVerticalReferenceFrame2(GeoZarrBaseModel):
 
 
 class DynamicVerticalReferenceFrame5(
-    DynamicVerticalReferenceFrame2, DynamicVerticalReferenceFrame3
+    DynamicVerticalReferenceFrame2,
+    DynamicVerticalReferenceFrame3,
 ):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type36 | None = None
     name: Any
     anchor: Any | None = None
     anchor_epoch: Any | None = None
     frame_reference_epoch: float
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1316,7 +1329,7 @@ class DynamicVerticalReferenceFrame(
 
 
 class EngineeringCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1324,7 +1337,7 @@ class EngineeringCrs2(GeoZarrBaseModel):
 
 
 class EngineeringDatum2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1333,12 +1346,12 @@ class EngineeringDatum2(GeoZarrBaseModel):
 
 class EngineeringDatum5(EngineeringDatum2, EngineeringDatum3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type45 | None = None
     name: str
     anchor: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1355,7 +1368,7 @@ class EngineeringDatum(RootModel[EngineeringDatum4 | EngineeringDatum5]):
 
 
 class GeodeticCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1363,7 +1376,7 @@ class GeodeticCrs2(GeoZarrBaseModel):
 
 
 class GeodeticReferenceFrame2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1372,7 +1385,7 @@ class GeodeticReferenceFrame2(GeoZarrBaseModel):
 
 class GeodeticReferenceFrame3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type51 | None = None
     name: str
@@ -1380,7 +1393,7 @@ class GeodeticReferenceFrame3(GeoZarrBaseModel):
     anchor_epoch: float | None = None
     ellipsoid: Ellipsoid
     prime_meridian: PrimeMeridian | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1394,7 +1407,7 @@ class GeodeticReferenceFrame3(GeoZarrBaseModel):
 
 class GeodeticReferenceFrame4(GeodeticReferenceFrame1, GeodeticReferenceFrame3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type51 | None = None
     name: str
@@ -1402,7 +1415,7 @@ class GeodeticReferenceFrame4(GeodeticReferenceFrame1, GeodeticReferenceFrame3):
     anchor_epoch: float | None = None
     ellipsoid: Ellipsoid
     prime_meridian: PrimeMeridian | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1416,7 +1429,7 @@ class GeodeticReferenceFrame4(GeodeticReferenceFrame1, GeodeticReferenceFrame3):
 
 class GeodeticReferenceFrame5(GeodeticReferenceFrame2, GeodeticReferenceFrame3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type51 | None = None
     name: str
@@ -1424,7 +1437,7 @@ class GeodeticReferenceFrame5(GeodeticReferenceFrame2, GeodeticReferenceFrame3):
     anchor_epoch: float | None = None
     ellipsoid: Ellipsoid
     prime_meridian: PrimeMeridian | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1436,14 +1449,12 @@ class GeodeticReferenceFrame5(GeodeticReferenceFrame2, GeodeticReferenceFrame3):
     ids: Any | None = None
 
 
-class GeodeticReferenceFrame(
-    RootModel[GeodeticReferenceFrame4 | GeodeticReferenceFrame5]
-):
+class GeodeticReferenceFrame(RootModel[GeodeticReferenceFrame4 | GeodeticReferenceFrame5]):
     root: GeodeticReferenceFrame4 | GeodeticReferenceFrame5
 
 
 class ObjectUsage2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1455,7 +1466,7 @@ class ObjectUsage(RootModel[ObjectUsage1 | ObjectUsage2]):
 
 
 class ParametricCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1463,7 +1474,7 @@ class ParametricCrs2(GeoZarrBaseModel):
 
 
 class ParametricDatum2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1472,12 +1483,12 @@ class ParametricDatum2(GeoZarrBaseModel):
 
 class ParametricDatum5(ParametricDatum2, ParametricDatum3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type60 | None = None
     name: str
     anchor: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1494,7 +1505,7 @@ class ParametricDatum(RootModel[ParametricDatum4 | ParametricDatum5]):
 
 
 class PointMotionOperation2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1502,7 +1513,7 @@ class PointMotionOperation2(GeoZarrBaseModel):
 
 
 class ProjectedCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1510,7 +1521,7 @@ class ProjectedCrs2(GeoZarrBaseModel):
 
 
 class TemporalCrs2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1518,7 +1529,7 @@ class TemporalCrs2(GeoZarrBaseModel):
 
 
 class TemporalDatum2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1527,13 +1538,13 @@ class TemporalDatum2(GeoZarrBaseModel):
 
 class TemporalDatum5(TemporalDatum2, TemporalDatum3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type73 | None = None
     name: str
     calendar: str
     time_origin: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1550,7 +1561,7 @@ class TemporalDatum(RootModel[TemporalDatum4 | TemporalDatum5]):
 
 
 class Transformation2(GeoZarrBaseModel):
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     usages: Usages | None = None
     remarks: str | None = None
     id: Id | None = None
@@ -1581,13 +1592,13 @@ class Datum(
 
 class EngineeringCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type42 | None = None
     name: str
     datum: EngineeringDatum
     coordinate_system: CoordinateSystem | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1601,13 +1612,13 @@ class EngineeringCrs3(GeoZarrBaseModel):
 
 class EngineeringCrs4(EngineeringCrs1, EngineeringCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type42 | None = None
     name: str
     datum: EngineeringDatum
     coordinate_system: CoordinateSystem | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1621,13 +1632,13 @@ class EngineeringCrs4(EngineeringCrs1, EngineeringCrs3):
 
 class EngineeringCrs5(EngineeringCrs2, EngineeringCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type42 | None = None
     name: str
     datum: EngineeringDatum
     coordinate_system: CoordinateSystem | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1645,7 +1656,7 @@ class EngineeringCrs(RootModel[EngineeringCrs4 | EngineeringCrs5]):
 
 class GeodeticCrs3(OneAndOnlyOneOfDatumOrDatumEnsemble):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type48 | None = None
     name: str
@@ -1653,7 +1664,7 @@ class GeodeticCrs3(OneAndOnlyOneOfDatumOrDatumEnsemble):
     datum_ensemble: DatumEnsemble | None = None
     coordinate_system: CoordinateSystem | None = None
     deformation_models: list[DeformationModel] | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1667,7 +1678,7 @@ class GeodeticCrs3(OneAndOnlyOneOfDatumOrDatumEnsemble):
 
 class GeodeticCrs4(GeodeticCrs1, GeodeticCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type48 | None = None
     name: str
@@ -1675,7 +1686,7 @@ class GeodeticCrs4(GeodeticCrs1, GeodeticCrs3):
     datum_ensemble: DatumEnsemble | None = None
     coordinate_system: CoordinateSystem | None = None
     deformation_models: list[DeformationModel] | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1689,7 +1700,7 @@ class GeodeticCrs4(GeodeticCrs1, GeodeticCrs3):
 
 class GeodeticCrs5(GeodeticCrs2, GeodeticCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type48 | None = None
     name: str
@@ -1697,7 +1708,7 @@ class GeodeticCrs5(GeodeticCrs2, GeodeticCrs3):
     datum_ensemble: DatumEnsemble | None = None
     coordinate_system: CoordinateSystem | None = None
     deformation_models: list[DeformationModel] | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1710,20 +1721,21 @@ class GeodeticCrs5(GeodeticCrs2, GeodeticCrs3):
 
 
 class GeodeticCrs(RootModel[GeodeticCrs4 | GeodeticCrs5]):
-    root: GeodeticCrs4 | GeodeticCrs5 = Field(
-        ..., description='One and only one of datum and datum_ensemble must be provided'
-    )
+    root: Annotated[
+        GeodeticCrs4 | GeodeticCrs5,
+        Field(description="One and only one of datum and datum_ensemble must be provided"),
+    ]
 
 
 class ParametricCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type57 | None = None
     name: str
     datum: ParametricDatum
     coordinate_system: CoordinateSystem | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1737,13 +1749,13 @@ class ParametricCrs3(GeoZarrBaseModel):
 
 class ParametricCrs4(ParametricCrs1, ParametricCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type57 | None = None
     name: str
     datum: ParametricDatum
     coordinate_system: CoordinateSystem | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1757,13 +1769,13 @@ class ParametricCrs4(ParametricCrs1, ParametricCrs3):
 
 class ParametricCrs5(ParametricCrs2, ParametricCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type57 | None = None
     name: str
     datum: ParametricDatum
     coordinate_system: CoordinateSystem | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1781,14 +1793,14 @@ class ParametricCrs(RootModel[ParametricCrs4 | ParametricCrs5]):
 
 class ProjectedCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type67 | None = None
     name: str
     base_crs: GeodeticCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1802,14 +1814,14 @@ class ProjectedCrs3(GeoZarrBaseModel):
 
 class ProjectedCrs4(ProjectedCrs1, ProjectedCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type67 | None = None
     name: str
     base_crs: GeodeticCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1823,14 +1835,14 @@ class ProjectedCrs4(ProjectedCrs1, ProjectedCrs3):
 
 class ProjectedCrs5(ProjectedCrs2, ProjectedCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type67 | None = None
     name: str
     base_crs: GeodeticCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1848,13 +1860,13 @@ class ProjectedCrs(RootModel[ProjectedCrs4 | ProjectedCrs5]):
 
 class TemporalCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type70 | None = None
     name: str
     datum: TemporalDatum
     coordinate_system: CoordinateSystem | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1868,13 +1880,13 @@ class TemporalCrs3(GeoZarrBaseModel):
 
 class TemporalCrs4(TemporalCrs1, TemporalCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type70 | None = None
     name: str
     datum: TemporalDatum
     coordinate_system: CoordinateSystem | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1888,13 +1900,13 @@ class TemporalCrs4(TemporalCrs1, TemporalCrs3):
 
 class TemporalCrs5(TemporalCrs2, TemporalCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type70 | None = None
     name: str
     datum: TemporalDatum
     coordinate_system: CoordinateSystem | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1912,14 +1924,14 @@ class TemporalCrs(RootModel[TemporalCrs4 | TemporalCrs5]):
 
 class DerivedEngineeringCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type15 | None = None
     name: str
     base_crs: EngineeringCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1933,14 +1945,14 @@ class DerivedEngineeringCrs3(GeoZarrBaseModel):
 
 class DerivedEngineeringCrs4(DerivedEngineeringCrs1, DerivedEngineeringCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type15 | None = None
     name: str
     base_crs: EngineeringCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1954,14 +1966,14 @@ class DerivedEngineeringCrs4(DerivedEngineeringCrs1, DerivedEngineeringCrs3):
 
 class DerivedEngineeringCrs5(DerivedEngineeringCrs2, DerivedEngineeringCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type15 | None = None
     name: str
     base_crs: EngineeringCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -1979,14 +1991,14 @@ class DerivedEngineeringCrs(RootModel[DerivedEngineeringCrs4 | DerivedEngineerin
 
 class DerivedGeodeticCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type18 | None = None
     name: str
     base_crs: GeodeticCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2000,14 +2012,14 @@ class DerivedGeodeticCrs3(GeoZarrBaseModel):
 
 class DerivedGeodeticCrs4(DerivedGeodeticCrs1, DerivedGeodeticCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type18 | None = None
     name: str
     base_crs: GeodeticCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2021,14 +2033,14 @@ class DerivedGeodeticCrs4(DerivedGeodeticCrs1, DerivedGeodeticCrs3):
 
 class DerivedGeodeticCrs5(DerivedGeodeticCrs2, DerivedGeodeticCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type18 | None = None
     name: str
     base_crs: GeodeticCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2046,14 +2058,14 @@ class DerivedGeodeticCrs(RootModel[DerivedGeodeticCrs4 | DerivedGeodeticCrs5]):
 
 class DerivedParametricCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type21 | None = None
     name: str
     base_crs: ParametricCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2067,14 +2079,14 @@ class DerivedParametricCrs3(GeoZarrBaseModel):
 
 class DerivedParametricCrs4(DerivedParametricCrs1, DerivedParametricCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type21 | None = None
     name: str
     base_crs: ParametricCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2088,14 +2100,14 @@ class DerivedParametricCrs4(DerivedParametricCrs1, DerivedParametricCrs3):
 
 class DerivedParametricCrs5(DerivedParametricCrs2, DerivedParametricCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type21 | None = None
     name: str
     base_crs: ParametricCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2113,14 +2125,14 @@ class DerivedParametricCrs(RootModel[DerivedParametricCrs4 | DerivedParametricCr
 
 class DerivedProjectedCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type24 | None = None
     name: str
     base_crs: ProjectedCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2134,14 +2146,14 @@ class DerivedProjectedCrs3(GeoZarrBaseModel):
 
 class DerivedProjectedCrs4(DerivedProjectedCrs1, DerivedProjectedCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type24 | None = None
     name: str
     base_crs: ProjectedCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2155,14 +2167,14 @@ class DerivedProjectedCrs4(DerivedProjectedCrs1, DerivedProjectedCrs3):
 
 class DerivedProjectedCrs5(DerivedProjectedCrs2, DerivedProjectedCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type24 | None = None
     name: str
     base_crs: ProjectedCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2180,14 +2192,14 @@ class DerivedProjectedCrs(RootModel[DerivedProjectedCrs4 | DerivedProjectedCrs5]
 
 class DerivedTemporalCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type27 | None = None
     name: str
     base_crs: TemporalCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2201,14 +2213,14 @@ class DerivedTemporalCrs3(GeoZarrBaseModel):
 
 class DerivedTemporalCrs4(DerivedTemporalCrs1, DerivedTemporalCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type27 | None = None
     name: str
     base_crs: TemporalCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2222,14 +2234,14 @@ class DerivedTemporalCrs4(DerivedTemporalCrs1, DerivedTemporalCrs3):
 
 class DerivedTemporalCrs5(DerivedTemporalCrs2, DerivedTemporalCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type27 | None = None
     name: str
     base_crs: TemporalCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2247,147 +2259,179 @@ class DerivedTemporalCrs(RootModel[DerivedTemporalCrs4 | DerivedTemporalCrs5]):
 
 class Attributes(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    zarr_conventions: list[Any] = Field(
-        ..., description='Array of convention metadata objects'
-    )
-    proj_code: constr(pattern=r'^[^:]+:[^:]+$') = Field(
-        ...,
-        alias='proj:code',
-        description='CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)',
-    )
-    proj_wkt2: str | None = Field(
-        None, alias='proj:wkt2', description='WKT2 (ISO 19162:2019) CRS representation'
-    )
-    proj_projjson: Schema | None = Field(
-        None,
-        alias='proj:projjson',
-        description='PROJJSON CRS representation following PROJ specification',
-    )
+    zarr_conventions: Annotated[
+        list[Any], Field(description="Array of convention metadata objects")
+    ]
+    proj_code: Annotated[
+        str,
+        Field(
+            alias="proj:code",
+            description="CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)",
+            pattern="^[^:]+:[^:]+$",
+        ),
+    ]
+    proj_wkt2: Annotated[
+        str | None, Field(alias="proj:wkt2", description="WKT2 (ISO 19162:2019) CRS representation")
+    ] = None
+    proj_projjson: Annotated[
+        Schema | None,
+        Field(
+            alias="proj:projjson",
+            description="PROJJSON CRS representation following PROJ specification",
+        ),
+    ] = None
 
 
 class Attributes1(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    zarr_conventions: list[Any] = Field(
-        ..., description='Array of convention metadata objects'
-    )
-    proj_code: constr(pattern=r'^[^:]+:[^:]+$') | None = Field(
-        None,
-        alias='proj:code',
-        description='CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)',
-    )
-    proj_wkt2: str = Field(
-        ..., alias='proj:wkt2', description='WKT2 (ISO 19162:2019) CRS representation'
-    )
-    proj_projjson: Schema | None = Field(
-        None,
-        alias='proj:projjson',
-        description='PROJJSON CRS representation following PROJ specification',
-    )
+    zarr_conventions: Annotated[
+        list[Any], Field(description="Array of convention metadata objects")
+    ]
+    proj_code: Annotated[
+        str | None,
+        Field(
+            alias="proj:code",
+            description="CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)",
+            pattern="^[^:]+:[^:]+$",
+        ),
+    ] = None
+    proj_wkt2: Annotated[
+        str, Field(alias="proj:wkt2", description="WKT2 (ISO 19162:2019) CRS representation")
+    ]
+    proj_projjson: Annotated[
+        Schema | None,
+        Field(
+            alias="proj:projjson",
+            description="PROJJSON CRS representation following PROJ specification",
+        ),
+    ] = None
 
 
 class Attributes2(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    zarr_conventions: list[Any] = Field(
-        ..., description='Array of convention metadata objects'
-    )
-    proj_code: constr(pattern=r'^[^:]+:[^:]+$') | None = Field(
-        None,
-        alias='proj:code',
-        description='CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)',
-    )
-    proj_wkt2: str | None = Field(
-        None, alias='proj:wkt2', description='WKT2 (ISO 19162:2019) CRS representation'
-    )
-    proj_projjson: Schema = Field(
-        ...,
-        alias='proj:projjson',
-        description='PROJJSON CRS representation following PROJ specification',
-    )
+    zarr_conventions: Annotated[
+        list[Any], Field(description="Array of convention metadata objects")
+    ]
+    proj_code: Annotated[
+        str | None,
+        Field(
+            alias="proj:code",
+            description="CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)",
+            pattern="^[^:]+:[^:]+$",
+        ),
+    ] = None
+    proj_wkt2: Annotated[
+        str | None, Field(alias="proj:wkt2", description="WKT2 (ISO 19162:2019) CRS representation")
+    ] = None
+    proj_projjson: Annotated[
+        Schema,
+        Field(
+            alias="proj:projjson",
+            description="PROJJSON CRS representation following PROJ specification",
+        ),
+    ]
 
 
 class GeospatialProjectionConventionProj(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    zarr_format: int = Field(..., description='Zarr format version')
-    node_type: NodeType = Field(..., description='Type of Zarr node')
-    attributes: Attributes | Attributes1 | Attributes2 = Field(
-        ...,
-        description='Zarr attributes containing convention metadata and proj: prefixed properties',
-    )
+    zarr_format: Annotated[int, Field(description="Zarr format version")]
+    node_type: Annotated[NodeType, Field(description="Type of Zarr node")]
+    attributes: Annotated[
+        Attributes | Attributes1 | Attributes2,
+        Field(
+            description="Zarr attributes containing convention metadata and proj: prefixed properties"
+        ),
+    ]
 
 
 class ProjAttributes1(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
     zarr_conventions: Any | None = None
-    proj_code: constr(pattern=r'^[^:]+:[^:]+$') = Field(
-        ...,
-        alias='proj:code',
-        description='CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)',
-    )
-    proj_wkt2: str | None = Field(
-        None, alias='proj:wkt2', description='WKT2 (ISO 19162:2019) CRS representation'
-    )
-    proj_projjson: Schema | None = Field(
-        None,
-        alias='proj:projjson',
-        description='PROJJSON CRS representation following PROJ specification',
-    )
+    proj_code: Annotated[
+        str,
+        Field(
+            alias="proj:code",
+            description="CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)",
+            pattern="^[^:]+:[^:]+$",
+        ),
+    ]
+    proj_wkt2: Annotated[
+        str | None, Field(alias="proj:wkt2", description="WKT2 (ISO 19162:2019) CRS representation")
+    ] = None
+    proj_projjson: Annotated[
+        Schema | None,
+        Field(
+            alias="proj:projjson",
+            description="PROJJSON CRS representation following PROJ specification",
+        ),
+    ] = None
 
 
 class ProjAttributes2(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
     zarr_conventions: Any | None = None
-    proj_code: constr(pattern=r'^[^:]+:[^:]+$') | None = Field(
-        None,
-        alias='proj:code',
-        description='CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)',
-    )
-    proj_wkt2: str = Field(
-        ..., alias='proj:wkt2', description='WKT2 (ISO 19162:2019) CRS representation'
-    )
-    proj_projjson: Schema | None = Field(
-        None,
-        alias='proj:projjson',
-        description='PROJJSON CRS representation following PROJ specification',
-    )
+    proj_code: Annotated[
+        str | None,
+        Field(
+            alias="proj:code",
+            description="CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)",
+            pattern="^[^:]+:[^:]+$",
+        ),
+    ] = None
+    proj_wkt2: Annotated[
+        str, Field(alias="proj:wkt2", description="WKT2 (ISO 19162:2019) CRS representation")
+    ]
+    proj_projjson: Annotated[
+        Schema | None,
+        Field(
+            alias="proj:projjson",
+            description="PROJJSON CRS representation following PROJ specification",
+        ),
+    ] = None
 
 
 class ProjAttributes3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
     zarr_conventions: Any | None = None
-    proj_code: constr(pattern=r'^[^:]+:[^:]+$') | None = Field(
-        None,
-        alias='proj:code',
-        description='CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)',
-    )
-    proj_wkt2: str | None = Field(
-        None, alias='proj:wkt2', description='WKT2 (ISO 19162:2019) CRS representation'
-    )
-    proj_projjson: Schema = Field(
-        ...,
-        alias='proj:projjson',
-        description='PROJJSON CRS representation following PROJ specification',
-    )
+    proj_code: Annotated[
+        str | None,
+        Field(
+            alias="proj:code",
+            description="CRS authority:code identifier (e.g., EPSG:4326, EPSG:32633)",
+            pattern="^[^:]+:[^:]+$",
+        ),
+    ] = None
+    proj_wkt2: Annotated[
+        str | None, Field(alias="proj:wkt2", description="WKT2 (ISO 19162:2019) CRS representation")
+    ] = None
+    proj_projjson: Annotated[
+        Schema,
+        Field(
+            alias="proj:projjson",
+            description="PROJJSON CRS representation following PROJ specification",
+        ),
+    ]
 
 
 class AbridgedTransformation(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type | None = None
     name: str
     source_crs: Crs | None = None
@@ -2399,9 +2443,9 @@ class AbridgedTransformation(GeoZarrBaseModel):
 
 class BoundCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type2 | None = None
     name: str | None = None
     source_crs: Crs
@@ -2420,12 +2464,12 @@ class BoundCrs3(GeoZarrBaseModel):
 
 class CompoundCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type5 | None = None
     name: str
     components: list[Crs]
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2439,7 +2483,7 @@ class CompoundCrs3(GeoZarrBaseModel):
 
 class ConcatenatedOperation3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type8 | None = None
     name: str
@@ -2447,7 +2491,7 @@ class ConcatenatedOperation3(GeoZarrBaseModel):
     target_crs: Crs
     steps: list[SingleOperation]
     accuracy: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2461,24 +2505,24 @@ class ConcatenatedOperation3(GeoZarrBaseModel):
 
 class CoordinateMetadata(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type12 | None = None
     crs: Crs
-    coordinate_epoch: float | None = Field(None, alias='coordinateEpoch')
+    coordinate_epoch: Annotated[float | None, Field(alias="coordinateEpoch")] = None
 
 
 class DerivedVerticalCrs3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type30 | None = None
     name: str
     base_crs: VerticalCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2492,7 +2536,7 @@ class DerivedVerticalCrs3(GeoZarrBaseModel):
 
 class GeoidModel(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     name: str
     interpolation_crs: Crs | None = None
@@ -2501,7 +2545,7 @@ class GeoidModel(GeoZarrBaseModel):
 
 class PointMotionOperation3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type63 | None = None
     name: str
@@ -2509,7 +2553,7 @@ class PointMotionOperation3(GeoZarrBaseModel):
     method: Method
     parameters: list[ParameterValue]
     accuracy: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2523,7 +2567,7 @@ class PointMotionOperation3(GeoZarrBaseModel):
 
 class Transformation3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type76 | None = None
     name: str
@@ -2533,7 +2577,7 @@ class Transformation3(GeoZarrBaseModel):
     method: Method
     parameters: list[ParameterValue]
     accuracy: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2547,7 +2591,7 @@ class Transformation3(GeoZarrBaseModel):
 
 class VerticalCrs3(OneAndOnlyOneOfDatumOrDatumEnsemble):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type80 | None = None
     name: str
@@ -2557,7 +2601,7 @@ class VerticalCrs3(OneAndOnlyOneOfDatumOrDatumEnsemble):
     geoid_model: GeoidModel | None = None
     geoid_models: list[GeoidModel] | None = None
     deformation_models: list[DeformationModel] | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2570,17 +2614,19 @@ class VerticalCrs3(OneAndOnlyOneOfDatumOrDatumEnsemble):
 
 
 class ProjAttributes(RootModel[ProjAttributes1 | ProjAttributes2 | ProjAttributes3]):
-    root: ProjAttributes1 | ProjAttributes2 | ProjAttributes3 = Field(
-        ...,
-        description='Geospatial projection properties using proj: key prefix. For spatial coordinate information (bbox, transform, shape, dimensions), compose with the spatial: convention.',
-    )
+    root: Annotated[
+        ProjAttributes1 | ProjAttributes2 | ProjAttributes3,
+        Field(
+            description="Geospatial projection properties using proj: key prefix. For spatial coordinate information (bbox, transform, shape, dimensions), compose with the spatial: convention."
+        ),
+    ]
 
 
 class BoundCrs4(BoundCrs1, BoundCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type2 | None = None
     name: str | None = None
     source_crs: Crs
@@ -2599,9 +2645,9 @@ class BoundCrs4(BoundCrs1, BoundCrs3):
 
 class BoundCrs5(BoundCrs2, BoundCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    field_schema: str | None = Field(None, alias='$schema')
+    field_schema: Annotated[str | None, Field(alias="$schema")] = None
     type: Type2 | None = None
     name: str | None = None
     source_crs: Crs
@@ -2620,12 +2666,12 @@ class BoundCrs5(BoundCrs2, BoundCrs3):
 
 class CompoundCrs4(CompoundCrs1, CompoundCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type5 | None = None
     name: str
     components: list[Crs]
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2639,12 +2685,12 @@ class CompoundCrs4(CompoundCrs1, CompoundCrs3):
 
 class CompoundCrs5(CompoundCrs2, CompoundCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type5 | None = None
     name: str
     components: list[Crs]
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2658,7 +2704,7 @@ class CompoundCrs5(CompoundCrs2, CompoundCrs3):
 
 class ConcatenatedOperation4(ConcatenatedOperation1, ConcatenatedOperation3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type8 | None = None
     name: str
@@ -2666,7 +2712,7 @@ class ConcatenatedOperation4(ConcatenatedOperation1, ConcatenatedOperation3):
     target_crs: Crs
     steps: list[SingleOperation]
     accuracy: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2680,7 +2726,7 @@ class ConcatenatedOperation4(ConcatenatedOperation1, ConcatenatedOperation3):
 
 class ConcatenatedOperation5(ConcatenatedOperation2, ConcatenatedOperation3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type8 | None = None
     name: str
@@ -2688,7 +2734,7 @@ class ConcatenatedOperation5(ConcatenatedOperation2, ConcatenatedOperation3):
     target_crs: Crs
     steps: list[SingleOperation]
     accuracy: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2702,14 +2748,14 @@ class ConcatenatedOperation5(ConcatenatedOperation2, ConcatenatedOperation3):
 
 class DerivedVerticalCrs4(DerivedVerticalCrs1, DerivedVerticalCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type30 | None = None
     name: str
     base_crs: VerticalCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2723,14 +2769,14 @@ class DerivedVerticalCrs4(DerivedVerticalCrs1, DerivedVerticalCrs3):
 
 class DerivedVerticalCrs5(DerivedVerticalCrs2, DerivedVerticalCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type30 | None = None
     name: str
     base_crs: VerticalCrs
     conversion: Conversion
     coordinate_system: CoordinateSystem
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2744,7 +2790,7 @@ class DerivedVerticalCrs5(DerivedVerticalCrs2, DerivedVerticalCrs3):
 
 class PointMotionOperation4(PointMotionOperation1, PointMotionOperation3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type63 | None = None
     name: str
@@ -2752,7 +2798,7 @@ class PointMotionOperation4(PointMotionOperation1, PointMotionOperation3):
     method: Method
     parameters: list[ParameterValue]
     accuracy: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2766,7 +2812,7 @@ class PointMotionOperation4(PointMotionOperation1, PointMotionOperation3):
 
 class PointMotionOperation5(PointMotionOperation2, PointMotionOperation3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type63 | None = None
     name: str
@@ -2774,7 +2820,7 @@ class PointMotionOperation5(PointMotionOperation2, PointMotionOperation3):
     method: Method
     parameters: list[ParameterValue]
     accuracy: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2788,7 +2834,7 @@ class PointMotionOperation5(PointMotionOperation2, PointMotionOperation3):
 
 class Transformation4(Transformation1, Transformation3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type76 | None = None
     name: str
@@ -2798,7 +2844,7 @@ class Transformation4(Transformation1, Transformation3):
     method: Method
     parameters: list[ParameterValue]
     accuracy: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2812,7 +2858,7 @@ class Transformation4(Transformation1, Transformation3):
 
 class Transformation5(Transformation2, Transformation3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type76 | None = None
     name: str
@@ -2822,7 +2868,7 @@ class Transformation5(Transformation2, Transformation3):
     method: Method
     parameters: list[ParameterValue]
     accuracy: str | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2836,7 +2882,7 @@ class Transformation5(Transformation2, Transformation3):
 
 class VerticalCrs4(VerticalCrs1, VerticalCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type80 | None = None
     name: str
@@ -2846,7 +2892,7 @@ class VerticalCrs4(VerticalCrs1, VerticalCrs3):
     geoid_model: GeoidModel | None = None
     geoid_models: list[GeoidModel] | None = None
     deformation_models: list[DeformationModel] | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2860,7 +2906,7 @@ class VerticalCrs4(VerticalCrs1, VerticalCrs3):
 
 class VerticalCrs5(VerticalCrs2, VerticalCrs3):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     type: Type80 | None = None
     name: str
@@ -2870,7 +2916,7 @@ class VerticalCrs5(VerticalCrs2, VerticalCrs3):
     geoid_model: GeoidModel | None = None
     geoid_models: list[GeoidModel] | None = None
     deformation_models: list[DeformationModel] | None = None
-    field_schema: Any | None = Field(None, alias='$schema')
+    field_schema: Annotated[Any | None, Field(alias="$schema")] = None
     scope: Any | None = None
     area: Any | None = None
     bbox: Any | None = None
@@ -2907,9 +2953,10 @@ class Transformation(RootModel[Transformation4 | Transformation5]):
 
 
 class VerticalCrs(RootModel[VerticalCrs4 | VerticalCrs5]):
-    root: VerticalCrs4 | VerticalCrs5 = Field(
-        ..., description='One and only one of datum and datum_ensemble must be provided'
-    )
+    root: Annotated[
+        VerticalCrs4 | VerticalCrs5,
+        Field(description="One and only one of datum and datum_ensemble must be provided"),
+    ]
 
 
 class SingleOperation(RootModel[Conversion | Transformation | PointMotionOperation]):
@@ -2964,7 +3011,7 @@ class Schema(
         | CoordinateMetadata
     ]
 ):
-    root: (
+    root: Annotated[
         Crs
         | Datum
         | DatumEnsemble
@@ -2972,8 +3019,9 @@ class Schema(
         | PrimeMeridian
         | SingleOperation
         | ConcatenatedOperation
-        | CoordinateMetadata
-    ) = Field(..., description='Schema for PROJJSON (v0.7)')
+        | CoordinateMetadata,
+        Field(description="Schema for PROJJSON (v0.7)"),
+    ]
 
 
 Attributes.model_rebuild()

@@ -7,7 +7,7 @@ from stac_zarr.multiscales import build_v1_layout
 from stac_zarr.reducers import to_resampling_method
 
 
-def build_multiscales_payload() -> dict:
+def build_multiscales_payload() -> dict[str, object]:
     entries = [
         {
             "name": "water-bodies",
@@ -38,7 +38,7 @@ def build_multiscales_payload() -> dict:
 def main() -> int:
     payload = build_multiscales_payload()
     layout = payload.get("layout") or []
-    if not layout:
+    if not isinstance(layout, list) or not layout:
         print("multiscales layout-profile validation: FAIL")
         print("layout is missing or empty")
         return 1

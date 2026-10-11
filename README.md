@@ -65,3 +65,30 @@ Use the approach described in https://github.com/eoap/dev-platform-eoap to run t
 ## Kubernetes viewer
 
 See [Display producer outputs on Kubernetes](docs/how-to/titiler-eopf-kubernetes.md) for the separate TiTiler server and HTML client deployments and publication of completed module outputs.
+
+## Packaging and processing-image validation
+
+Python packages use Hatchling and Python 3.12. Each package keeps its runtime and
+development dependency hashes under `requirements/`. Run `hatch run dev:check` and
+`hatch run test:test` from the repository root or a `command-line-tools/` package.
+The bootstrap command explicitly installs the lock because Hatch skips install
+hooks when `skip-install = true`.
+
+Processing Dockerfiles build a wheel with Hatch in Rocky Linux 10.1 and install
+it into `/app/venv` in a separate Rocky runtime. Processing runs as `neo`
+(UID/GID 2000); the runtime checks dependencies, checks its CLI, and removes its
+virtual-environment pip. Build a tool with
+`docker build -t crop:test command-line-tools/crop`.
+
+Keep the EOPF and STAC-Zarr environments separate: the accepted EOPF dependency
+set uses Zarr 2, while the GeoZarr writer uses Zarr 3. Publication tooling has its
+own `requirements/cwl-release.txt` hash lock because its Click requirement differs
+from EOPF's. The upstream Go `yq` utility and TiTiler service image are explicit
+exceptions to the Python-wheel processing model; neither contains a module-owned
+Python processing package.
+
+The wrapper restores published EOAP schema imports after SDK serialization;
+module-owned types stay inline in the standalone CWL. It never uses a packing
+command. Passing local package gates and container smoke checks prepares a
+candidate; real-data notebook acceptance on Kubernetes and validation of published
+candidate artifacts are required before release promotion.

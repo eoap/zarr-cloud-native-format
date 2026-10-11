@@ -3,32 +3,25 @@
 
 from __future__ import annotations
 
-import json
-import urllib.request
-
+from eoap_http import read_json_object
 from jsonschema import ValidationError, validate
-
 from stac_zarr.constants import SPATIAL_CONVENTION
-
 from stac_zarr.models.generated.spatial import ConventionMetadata as SpatialConventionMetadata
 
 SPATIAL_SCHEMA_URL = SPATIAL_CONVENTION["schema_url"]
 
 
-def fetch_schema(url: str) -> dict:
-    with urllib.request.urlopen(url, timeout=30) as response:
-        return json.loads(response.read().decode("utf-8"))
+def fetch_schema(url: str) -> dict[str, object]:
+    return read_json_object(url)
 
 
-def build_spatial_payload() -> dict:
+def build_spatial_payload() -> dict[str, object]:
     return {
         "zarr_format": 3,
         "node_type": "group",
         "attributes": {
             "zarr_conventions": [
-                SpatialConventionMetadata.model_validate(
-                    SPATIAL_CONVENTION
-                ).model_dump()
+                SpatialConventionMetadata.model_validate(SPATIAL_CONVENTION).model_dump()
             ],
             "spatial:dimensions": ["y", "x"],
             "spatial:bbox": [300000.0, 4989060.0, 310940.0, 5000000.0],

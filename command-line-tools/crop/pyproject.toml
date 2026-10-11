@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
 
 [project]
@@ -9,23 +9,20 @@ description = "Crop STAC item assets by AOI and band"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = "MIT"
-authors = [
-  { name = "Fabrice Brito", email = "info@terradue.com" },
-]
-dependencies = [
-  "click==8.2.1",
-  "loguru==0.7.3",
-  "planetary-computer==1.0.0",
-  "pyproj==3.7.2",
-  "pystac==1.13.0",
-  "rasterio==1.4.3",
-  "shapely==2.1.1",
-]
+dependencies = ["click==8.2.1", "loguru==0.7.3", "planetary-computer==1.0.0", "pyproj==3.7.2", "pystac==1.13.0", "rasterio==1.4.3", "shapely==2.1.1"]
+classifiers = []
+
+[[project.authors]]
+name = "Fabrice Brito"
+email = "info@terradue.com"
 
 [project.urls]
 Documentation = "https://eoap.github.io/zarr-cloud-native-format/"
 Issues = "https://github.com/eoap/zarr-cloud-native-format/issues"
 Source = "https://github.com/eoap/zarr-cloud-native-format"
+
+[project.scripts]
+crop = "crop_tool.cli:to_crop"
 
 [tool.hatch.version]
 path = "crop_tool/__about__.py"
@@ -33,5 +30,50 @@ path = "crop_tool/__about__.py"
 [tool.hatch.build.targets.wheel]
 packages = ["crop_tool"]
 
-[project.scripts]
-crop = "crop_tool.cli:to_crop"
+[tool.hatch.build.targets.sdist]
+include = ["/crop_tool", "/tests", "/requirements", "/README.md", "/LICENSE", "/pyproject.toml", "/Dockerfile"]
+
+[tool.hatch.envs.dev]
+template = "dev"
+python = "3.12"
+skip-install = true
+installer = "uv"
+post-install-commands = ["uv pip install --require-hashes -r requirements/development.txt", "uv pip install --no-deps --no-build-isolation -e ."]
+
+[tool.hatch.envs.dev.scripts]
+bootstrap = ["uv pip install --require-hashes -r requirements/development.txt", "uv pip install --no-deps --no-build-isolation -e ."]
+check = ["bootstrap", "format-check", "lint-check", "typecheck", "security"]
+format-check = "ruff format --check crop_tool tests"
+lint-check = "ruff check crop_tool tests"
+typecheck = "mypy crop_tool"
+security = "bandit -r crop_tool -ll"
+
+[tool.hatch.envs.test]
+template = "dev"
+
+[tool.hatch.envs.test.scripts]
+test = ["bootstrap", "pytest -q {args}"]
+
+[tool.hatch.envs.default]
+template = "dev"
+skip-install = false
+pre-install-commands = ["uv pip install --require-hashes -r requirements/development.txt"]
+post-install-commands = ["uv pip install --no-deps --no-build-isolation -e ."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "C4", "SIM", "C90"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.mypy]
+ignore_missing_imports = true
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"

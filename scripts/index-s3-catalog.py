@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from urllib.parse import quote, urlencode, urlsplit
 from uuid import uuid4
+
 import boto3
 import pystac
 import rustac
@@ -19,27 +20,28 @@ parser.add_argument(
     default=Path(__file__).resolve().parents[1] / "titiler-index",
 )
 args = parser.parse_args()
+# CWL staging supplies lowercase environment names.
+environment = dict(os.environ)
 client = boto3.client(
     "s3",
-    endpoint_url=os.environ["aws_endpoint_url"],
-    aws_access_key_id=os.environ["aws_access_key_id"],
-    aws_secret_access_key=os.environ["aws_secret_access_key"],
-    region_name=os.environ.get("aws_region_name", "us-east-1"),
+    endpoint_url=environment["aws_endpoint_url"],
+    aws_access_key_id=environment["aws_access_key_id"],
+    aws_secret_access_key=environment["aws_secret_access_key"],
+    region_name=environment.get("aws_region_name", "us-east-1"),
 )
 
 
 class S3IO(DefaultStacIO):
-    def read_text(self, source, *a, **kw):
+    def read_text(self, source: object, *a: object, **kw: object) -> str:
         parsed = urlsplit(str(source))
         if parsed.scheme == "s3":
-            return (
-                client.get_object(Bucket=parsed.netloc, Key=parsed.path.lstrip("/"))[
-                    "Body"
-                ]
+            result: str = (
+                client.get_object(Bucket=parsed.netloc, Key=parsed.path.lstrip("/"))["Body"]
                 .read()
                 .decode()
             )
-        return super().read_text(source, *a, **kw)
+            return result
+        return super().read_text(str(source), *a, **kw)
 
 
 catalog = pystac.Catalog.from_file(args.catalog, stac_io=S3IO())
@@ -56,19 +58,32 @@ for item in items:
     # Root-relative viewer URLs work with port forwarding and an Ingress alike.
     route = f"/api/collections/{quote(collection_id, safe='')}/items/{quote(item.id, safe='')}/assets/measurements"
     item.links = [link for link in item.links if not link.extra_fields.get("eoap:viewer")]
-    for variable, rescale, colormap in (("ndwi", "-1,1", "viridis"), ("water-bodies", "0,1", "blues")):
-        query = urlencode({"variables": variable, "rescale": rescale, "colormap_name": colormap, "bidx": 1})
-        item.add_link(pystac.Link(
-            "tilejson", f"{route}/WebMercatorQuad/tilejson.json?{query}",
-            media_type="application/json", title=f"{variable} TileJSON",
-            extra_fields={"eoap:viewer": True},
-        ))
+    for variable, rescale, colormap in (
+        ("ndwi", "-1,1", "viridis"),
+        ("water-bodies", "0,1", "blues"),
+    ):
+        query = urlencode(
+            {"variables": variable, "rescale": rescale, "colormap_name": colormap, "bidx": 1}
+        )
+        item.add_link(
+            pystac.Link(
+                "tilejson",
+                f"{route}/WebMercatorQuad/tilejson.json?{query}",
+                media_type="application/json",
+                title=f"{variable} TileJSON",
+                extra_fields={"eoap:viewer": True},
+            )
+        )
     # Keep the staged source Item and the API index consistent.
     source = urlsplit(item.get_self_href())
     if source.scheme != "s3":
         parser.error("Published Item metadata must have an S3 self URL")
-    client.put_object(Bucket=source.netloc, Key=source.path.lstrip("/"),
-                      Body=json.dumps(item.to_dict()).encode(), ContentType="application/geo+json")
+    client.put_object(
+        Bucket=source.netloc,
+        Key=source.path.lstrip("/"),
+        Body=json.dumps(item.to_dict()).encode(),
+        ContentType="application/geo+json",
+    )
 index = args.index_dir
 index.mkdir(parents=True, exist_ok=True)
 version = uuid4().hex
@@ -94,15 +109,11 @@ collection.extra_fields["summaries"] = {
 }
 collection.add_asset(
     "index",
-    pystac.Asset(
-        str(path), media_type="application/vnd.apache.parquet", roles=["metadata"]
-    ),
+    pystac.Asset(str(path), media_type="application/vnd.apache.parquet", roles=["metadata"]),
 )
 manifest = index / "collections.json"
 existing = json.loads(manifest.read_text()) if manifest.exists() else []
-collections = [entry for entry in existing if entry["id"] != collection_id] + [
-    collection.to_dict()
-]
+collections = [entry for entry in existing if entry["id"] != collection_id] + [collection.to_dict()]
 # Retain a portable metadata index alongside the staged catalog in S3.
 parsed = urlsplit(args.catalog)
 key = parsed.path.lstrip("/").rsplit("/", 1)[0] + "/items.parquet"

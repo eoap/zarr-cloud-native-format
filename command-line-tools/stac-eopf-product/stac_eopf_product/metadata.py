@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List, Tuple
 
 from pystac import Collection, Extent, SpatialExtent, TemporalExtent
 from xarray import Dataset
@@ -7,8 +6,8 @@ from xarray import Dataset
 
 def build_output_collection(
     input_collection: Collection,
-    spatial_extent: List[float],
-    temporal_extent: List[datetime],
+    spatial_extent: list[float],
+    temporal_extent: list[datetime],
 ) -> Collection:
     return Collection(
         id=input_collection.id,
@@ -21,12 +20,12 @@ def build_output_collection(
     )
 
 
-def get_measurement_text(collection: Collection, measurement: str) -> Tuple[str, str]:
+def get_measurement_text(collection: Collection, measurement: str) -> tuple[str, str]:
     item_asset = collection.item_assets.get(measurement) if collection.item_assets else None
     if isinstance(item_asset, dict):
         title = item_asset.get("title") or measurement
         description = item_asset.get("description") or measurement
-        return title, description
+        return title or measurement, description or measurement
 
     title = item_asset.title if item_asset and getattr(item_asset, "title", None) else measurement
     description = (
@@ -34,10 +33,10 @@ def get_measurement_text(collection: Collection, measurement: str) -> Tuple[str,
         if item_asset and getattr(item_asset, "description", None)
         else measurement
     )
-    return title, description
+    return title or measurement, description or measurement
 
 
-def build_cube_dimensions(dataset: Dataset, temporal_extent: List[datetime]) -> dict:
+def build_cube_dimensions(dataset: Dataset, temporal_extent: list[datetime]) -> dict[str, object]:
     return {
         "time": {
             "type": "temporal",

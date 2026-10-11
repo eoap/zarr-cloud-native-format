@@ -1,0 +1,5 @@
+odc-stac
+loguru
+zarr>=3.0.0
+pydantic>=2,<3
+geozarr-toolkit>=0.1.2,<0.2

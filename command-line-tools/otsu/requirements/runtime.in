@@ -1,0 +1,5 @@
+click==8.2.1
+loguru==0.7.3
+numpy==2.2.6
+rasterio==1.4.3
+scikit-image==0.25.2

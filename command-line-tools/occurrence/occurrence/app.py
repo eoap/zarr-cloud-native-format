@@ -1,19 +1,17 @@
-import click
 import os
-import pystac
-from loguru import logger
 import shutil
-import xarray as xr
-import rioxarray  # Register the xarray .rio accessor before georeferencing.
+
+import click
+import pystac
 import rio_stac
-import pandas as pd
-from pystac import Catalog, Collection, Asset
-
+import rioxarray as rioxarray
+import xarray as xr
 from affine import Affine
-from pyproj import CRS
-
+from loguru import logger
 from odc.geo import GeoBox
 from odc.geo.crs import CRS as OdcCRS
+from pyproj import CRS
+from pystac import Asset, Catalog, Collection
 
 
 def attach_geobox_to_xarray(da: xr.DataArray, asset: Asset) -> xr.DataArray:
@@ -92,22 +90,22 @@ def crs_from_stac_asset(asset: Asset) -> CRS:
     help="STAC Catalog folder",
     required=True,
 )
-def occurrence(stac_catalog):
+def occurrence(stac_catalog: str) -> None:
     logger.info("Water occurrence")
 
     logger.info(f"Reading STAC catalog from {stac_catalog}")
 
-    src_cat: Catalog = pystac.Catalog.from_file(
-        os.path.join(stac_catalog, "catalog.json")
-    )
+    src_cat: Catalog = pystac.Catalog.from_file(os.path.join(stac_catalog, "catalog.json"))
 
-    collection: Collection = next(src_cat.get_children())
+    collection = next(iter(src_cat.get_children()))
+    if not isinstance(collection, Collection):
+        raise ValueError("Input catalog must contain a Collection")
 
     measurements: Asset = collection.get_assets()["measurements"]
 
-    water_bodies = xr.open_zarr(measurements.get_absolute_href(), group="measurements", consolidated=False)[
-        "water-bodies"
-    ]
+    water_bodies = xr.open_zarr(
+        measurements.get_absolute_href(), group="measurements", consolidated=False
+    )["water-bodies"]
 
     mean = water_bodies.mean("time")
     mean = attach_geobox_to_xarray(mean, asset=measurements)
@@ -135,9 +133,7 @@ def occurrence(stac_catalog):
 
     cat.add_items([out_item])
 
-    cat.normalize_and_save(
-        root_href="./", catalog_type=pystac.CatalogType.SELF_CONTAINED
-    )
+    cat.normalize_and_save(root_href="./", catalog_type=pystac.CatalogType.SELF_CONTAINED)
     logger.info("Done!")
 
 

@@ -1,42 +1,21 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
 
 [project]
 name = "zarr-cloud-native-format"
 dynamic = ["version"]
-description = 'Zarr Cloud-Native Workflow for Water Body Detection'
-
+description = "Zarr Cloud-Native Workflow for Water Body Detection"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = "MIT"
 keywords = []
-authors = [
-  { name = "Fabrice Brito", email = "info@terradue.com" },
-]
-classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
-]
-dependencies = [
-  "numpy==2.3.5",
-  "eopf",
-  "odc-stac",
-  "ipykernel",
-  "cwltool",
-  "loguru",
-  "zarr",
-  "matplotlib",
-  "graphviz",
-  "pillow"
-]
+classifiers = ["Development Status :: 4 - Beta", "Programming Language :: Python", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: Implementation :: CPython", "Programming Language :: Python :: Implementation :: PyPy"]
+dependencies = ["numpy==2.3.5", "eopf", "odc-stac", "ipykernel", "cwltool", "loguru", "zarr", "matplotlib", "graphviz", "pillow"]
+
+[[project.authors]]
+name = "Fabrice Brito"
+email = "info@terradue.com"
 
 [project.urls]
 Documentation = "https://eoap.github.io/zarr-cloud-native-format/"
@@ -49,9 +28,53 @@ path = "zarr_cloud_native_format/__about__.py"
 [tool.hatch.build.targets.wheel]
 packages = ["zarr_cloud_native_format"]
 
+[tool.hatch.build.targets.sdist]
+include = ["/zarr_cloud_native_format", "/tests", "/requirements", "/README.md", "/LICENSE", "/pyproject.toml", "/scripts", "/docs", "/notebooks", "/command-line-tools"]
+
 [tool.hatch.envs.types]
-extra-dependencies = [
-  "mypy>=1.0.0",
-]
+extra-dependencies = ["mypy>=1.0.0"]
 
+[tool.hatch.envs.dev]
+template = "dev"
+python = "3.12"
+skip-install = true
+installer = "uv"
+post-install-commands = ["uv pip install --require-hashes -r requirements/development.txt", "uv pip install --no-deps --no-build-isolation -e ."]
 
+[tool.hatch.envs.dev.scripts]
+bootstrap = ["uv pip install --require-hashes -r requirements/development.txt", "uv pip install --no-deps --no-build-isolation -e ."]
+check = ["bootstrap", "format-check", "lint-check", "typecheck", "security"]
+format-check = "ruff format --check zarr_cloud_native_format scripts tests"
+lint-check = "ruff check zarr_cloud_native_format scripts tests"
+typecheck = "mypy zarr_cloud_native_format scripts"
+security = "bandit -r zarr_cloud_native_format scripts -ll"
+
+[tool.hatch.envs.test]
+template = "dev"
+
+[tool.hatch.envs.test.scripts]
+test = ["bootstrap", "pytest -q {args}"]
+
+[tool.hatch.envs.default]
+template = "dev"
+skip-install = false
+pre-install-commands = ["uv pip install --require-hashes -r requirements/development.txt"]
+post-install-commands = ["uv pip install --no-deps --no-build-isolation -e ."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "C4", "SIM", "C90"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.mypy]
+ignore_missing_imports = true
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"

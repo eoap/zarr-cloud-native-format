@@ -1,19 +1,20 @@
 """Publication must not disturb a working viewer when inputs are invalid."""
 
 import importlib.util
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
 
 spec = importlib.util.spec_from_file_location(
     "publisher", Path(__file__).with_name("publish-titiler-store.py")
 )
+assert spec is not None and spec.loader is not None
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 
 class PublicationTests(unittest.TestCase):
-    def test_invalid_input_preserves_current_publication(self):
+    def test_invalid_input_preserves_current_publication(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             good = root / "good"
@@ -34,7 +35,7 @@ class PublicationTests(unittest.TestCase):
             module.publish(second, destination)
             self.assertEqual(destination.resolve(), second)
 
-    def test_existing_directory_is_preserved(self):
+    def test_existing_directory_is_preserved(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             store = root / "source" / "collection" / "item.zarr"

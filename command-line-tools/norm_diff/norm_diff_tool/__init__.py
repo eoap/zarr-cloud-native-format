@@ -1,2 +1,1 @@
 """norm-diff package."""
-

@@ -2,6 +2,7 @@ import os
 import shutil
 from pathlib import Path
 
+import pystac
 import rio_stac
 from loguru import logger
 from pystac import (
@@ -12,20 +13,29 @@ from pystac import (
     Item,
     SpatialExtent,
     TemporalExtent,
-    read_file,
 )
 from pystac.extensions.render import Render, RenderExtension
 from pystac.item_assets import ItemAssetDefinition
 from pystac.media_type import MediaType
 
-from stac_collection.contract import get_spatial_extent, get_temporal_extent, validate_parallel_inputs
+from stac_collection.contract import (
+    get_spatial_extent,
+    get_temporal_extent,
+    validate_parallel_inputs,
+)
 
 
 def _read_input_item(item_url: str) -> Item:
-    if os.path.isdir(item_url):
-        catalog: Catalog = read_file(os.path.join(item_url, "catalog.json"))
-        return next(catalog.get_items())
-    return read_file(item_url)
+    source = os.path.join(item_url, "catalog.json") if os.path.isdir(item_url) else item_url
+    document = pystac.read_file(source)
+    if isinstance(document, pystac.Catalog):
+        item = next(document.get_items(), None)
+        if item is None:
+            raise ValueError("Input catalog must contain an item")
+        return item
+    if not isinstance(document, Item):
+        raise ValueError("Input must be a STAC item or catalog")
+    return document
 
 
 def run_to_stac(

@@ -13,7 +13,7 @@ from nbclient import NotebookClient
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("notebooks", nargs="*", type=Path)
     args = parser.parse_args()
@@ -49,9 +49,7 @@ def main():
                 resources={"metadata": {"path": str(path.parent)}},
             ).execute()
             for cell in notebook.cells:
-                if any(
-                    output.output_type == "error" for output in cell.get("outputs", [])
-                ):
+                if any(output.output_type == "error" for output in cell.get("outputs", [])):
                     raise RuntimeError(f"Notebook display failed: {path}")
             nbformat.validate(notebook)
             nbformat.write(notebook, path)

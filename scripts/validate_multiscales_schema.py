@@ -3,23 +3,21 @@
 
 from __future__ import annotations
 
-import json
-import urllib.request
-
+from eoap_http import read_json_object
 from jsonschema import ValidationError, validate
-
 from stac_zarr.constants import MULTISCALES_CONVENTION
-from stac_zarr.models.generated.multiscales import ConventionMetadata as MultiscalesConventionMetadata
+from stac_zarr.models.generated.multiscales import (
+    ConventionMetadata as MultiscalesConventionMetadata,
+)
 from stac_zarr.multiscales import build_v1_layout
 from stac_zarr.reducers import to_resampling_method
 
 
-def fetch_schema(url: str) -> dict:
-    with urllib.request.urlopen(url, timeout=30) as response:
-        return json.loads(response.read().decode("utf-8"))
+def fetch_schema(url: str) -> dict[str, object]:
+    return read_json_object(url)
 
 
-def build_multiscales_payload() -> dict:
+def build_multiscales_payload() -> dict[str, object]:
     entries = [
         {
             "name": "water-bodies",
@@ -46,9 +44,7 @@ def build_multiscales_payload() -> dict:
         "node_type": "group",
         "attributes": {
             "zarr_conventions": [
-                MultiscalesConventionMetadata.model_validate(
-                    MULTISCALES_CONVENTION
-                ).model_dump()
+                MultiscalesConventionMetadata.model_validate(MULTISCALES_CONVENTION).model_dump()
             ],
             "multiscales": {
                 "resampling_method": to_resampling_method("mean"),

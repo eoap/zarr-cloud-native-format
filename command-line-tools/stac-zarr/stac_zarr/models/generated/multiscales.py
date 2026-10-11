@@ -3,110 +3,127 @@
 
 from __future__ import annotations
 
-from enum import Enum
-from typing import Any, Literal
+from enum import StrEnum
+from typing import Annotated, Any, Literal
 
-from pydantic import ConfigDict, Field, constr
+from pydantic import ConfigDict, Field
+
 from stac_zarr.models.base import GeoZarrBaseModel
 
 
-class NodeType(Enum):
-    group = 'group'
+class NodeType(StrEnum):
+    group = "group"
 
 
 class ConventionMetadata(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    schema_url: (
+    schema_url: Annotated[
         Literal[
-            'https://raw.githubusercontent.com/zarr-conventions/multiscales/refs/tags/v0.1/schema.json'
+            "https://raw.githubusercontent.com/zarr-conventions/multiscales/refs/tags/v0.1/schema.json"
         ]
-        | None
-    ) = Field(None, description='URL to the JSON Schema definition for this convention')
-    spec_url: (
-        Literal['https://github.com/zarr-conventions/multiscales/blob/v0.1/README.md']
-        | None
-    ) = Field(None, description='URL to the full specification document')
-    uuid: Literal['d35379db-88df-4056-af3a-620245f8e347'] = Field(
-        ..., description='UUID that permanently identifies this convention'
-    )
-    name: Literal['multiscales'] | None = Field(
-        None, description='Human-readable name of the convention'
-    )
-    description: Literal['Multiscale layout of zarr datasets'] | None = Field(
-        None, description="Brief description of the convention's purpose and usage"
-    )
+        | None,
+        Field(description="URL to the JSON Schema definition for this convention"),
+    ] = None
+    spec_url: Annotated[
+        Literal["https://github.com/zarr-conventions/multiscales/blob/v0.1/README.md"] | None,
+        Field(description="URL to the full specification document"),
+    ] = None
+    uuid: Annotated[
+        Literal["d35379db-88df-4056-af3a-620245f8e347"],
+        Field(description="UUID that permanently identifies this convention"),
+    ]
+    name: Annotated[
+        Literal["multiscales"] | None, Field(description="Human-readable name of the convention")
+    ] = None
+    description: Annotated[
+        Literal["Multiscale layout of zarr datasets"] | None,
+        Field(description="Brief description of the convention's purpose and usage"),
+    ] = None
 
 
 class Transform(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    scale: list[float] | None = Field(
-        None,
-        description='Array of scale factors per axis describing the coordinate transformation from the source level (derived_from) to this level',
-    )
-    translation: list[float] | None = Field(
-        None,
-        description='Array of translation offsets per axis in the coordinate space',
-    )
+    scale: Annotated[
+        list[float] | None,
+        Field(
+            description="Array of scale factors per axis describing the coordinate transformation from the source level (derived_from) to this level"
+        ),
+    ] = None
+    translation: Annotated[
+        list[float] | None,
+        Field(description="Array of translation offsets per axis in the coordinate space"),
+    ] = None
 
 
 class LayoutObject(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
         regex_engine="python-re",
     )
-    asset: constr(pattern=r'^(?!/)(?!.*(\.\.))([^/]+(/[^/]+)*)$') = Field(
-        ...,
-        description="Path to the Zarr group or array for this resolution level. Can be a simple name (e.g., '0') for a child group, or a path with '/' separator for nested groups or arrays (e.g., '0/data' for an array within a group)",
-    )
-    derived_from: constr(pattern=r'^(?!/)(?!.*(\.\.))([^/]+(/[^/]+)*)$') | None = Field(
-        None,
-        description="Path to the source Zarr group or array used to generate this level. Uses the same path syntax as 'asset' with '/' separator for nested resources",
-    )
-    transform: Transform | None = Field(
-        None,
-        description='Transformation parameters describing the coordinate transformation for this level. Contains relative transformation parameters (scale, translation). Absolute positioning parameters should be placed at the layout entry level, outside this object.',
-    )
-    resampling_method: str | None = Field(
-        None, description='Default resampling method used for resampling data'
-    )
+    asset: Annotated[
+        str,
+        Field(
+            description="Path to the Zarr group or array for this resolution level. Can be a simple name (e.g., '0') for a child group, or a path with '/' separator for nested groups or arrays (e.g., '0/data' for an array within a group)",
+            pattern="^(?!/)(?!.*(\\.\\.))([^/]+(/[^/]+)*)$",
+        ),
+    ]
+    derived_from: Annotated[
+        str | None,
+        Field(
+            description="Path to the source Zarr group or array used to generate this level. Uses the same path syntax as 'asset' with '/' separator for nested resources",
+            pattern="^(?!/)(?!.*(\\.\\.))([^/]+(/[^/]+)*)$",
+        ),
+    ] = None
+    transform: Annotated[
+        Transform | None,
+        Field(
+            description="Transformation parameters describing the coordinate transformation for this level. Contains relative transformation parameters (scale, translation). Absolute positioning parameters should be placed at the layout entry level, outside this object."
+        ),
+    ] = None
+    resampling_method: Annotated[
+        str | None, Field(description="Default resampling method used for resampling data")
+    ] = None
 
 
 class MultiscalesProperties(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    layout: list[LayoutObject] = Field(
-        ...,
-        description='Array of objects representing the pyramid layout and transformation relationships',
-        min_length=1,
-    )
-    resampling_method: str | None = Field(
-        None, description='Default resampling method used for downsampling'
-    )
+    layout: Annotated[
+        list[LayoutObject],
+        Field(
+            description="Array of objects representing the pyramid layout and transformation relationships",
+            min_length=1,
+        ),
+    ]
+    resampling_method: Annotated[
+        str | None, Field(description="Default resampling method used for downsampling")
+    ] = None
 
 
 class Attributes(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    zarr_conventions: list[Any] = Field(
-        ..., description='Array of convention metadata objects'
-    )
+    zarr_conventions: Annotated[
+        list[Any], Field(description="Array of convention metadata objects")
+    ]
     multiscales: MultiscalesProperties
 
 
 class MultiscalesConvention(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    zarr_format: int = Field(..., description='Zarr format version')
-    node_type: NodeType = Field(
-        ..., description='Type of Zarr node (multiscales only applies to groups)'
-    )
-    attributes: Attributes = Field(
-        ..., description='Zarr attributes containing convention metadata and properties'
-    )
+    zarr_format: Annotated[int, Field(description="Zarr format version")]
+    node_type: Annotated[
+        NodeType, Field(description="Type of Zarr node (multiscales only applies to groups)")
+    ]
+    attributes: Annotated[
+        Attributes,
+        Field(description="Zarr attributes containing convention metadata and properties"),
+    ]

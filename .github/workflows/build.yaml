@@ -80,6 +80,7 @@ jobs:
     env:
       IMAGE: ${{ needs.version.outputs.registry }}/${{ matrix.step }}
       VERSION: ${{ needs.version.outputs.version }}
+      CANDIDATE: ${{ needs.version.outputs.candidate }}
     steps:
       - uses: actions/checkout@v4
       - uses: oras-project/setup-oras@v1
@@ -103,6 +104,11 @@ jobs:
           fi
       - name: Build image
         run: docker build -t "$IMAGE:$VERSION" "command-line-tools/${{ matrix.step }}"
+      - name: Apply approved exceptions only for candidate testing
+        run: |
+          if [[ "$CANDIDATE" != true ]]; then
+            : > .trivyignore
+          fi
       - name: Scan image (block fixable HIGH and CRITICAL vulnerabilities)
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -113,6 +119,7 @@ jobs:
           output: scan-${{ matrix.step }}.json
           severity: HIGH,CRITICAL
           ignore-unfixed: true
+          trivyignores: .trivyignore
           exit-code: '1'
       - uses: actions/upload-artifact@v4
         if: always()

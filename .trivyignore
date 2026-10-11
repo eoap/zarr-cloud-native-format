@@ -1,0 +1,14 @@
+# User-approved candidate-testing exceptions from CI run 38133512898.
+# IDs apply globally within candidate scans; stable CI clears this file.
+
+# Embedded SBOM findings; installed runtime versions are patched.
+GHSA-6v7p-g79w-8964
+CVE-2025-47273
+CVE-2026-97687
+CVE-2026-97689
+
+# EOPF 2.8.1 pins vulnerable fsspec==2024.5.0 and starlette==1.0.1.
+# Temporary exceptions for candidate notebook acceptance; runtime risk remains.
+CVE-2026-104851
+CVE-2026-48818
+CVE-2026-54283

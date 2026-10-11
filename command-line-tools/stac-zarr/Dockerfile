@@ -18,7 +18,7 @@ RUN hatch build -t wheel
 FROM python:3.12-slim AS runtime
 
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends ca-certificates libgomp1 && \
+    apt-get install -y --no-install-recommends ca-certificates libgomp1 libexpat1 && \
     rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/home/neo

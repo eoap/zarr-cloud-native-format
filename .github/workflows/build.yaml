@@ -20,6 +20,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - uses: arduino/setup-task@v2
       - run: task test:unit:scoped
+      - run: uv run --no-project --python 3.12 --with pytest --with PyYAML pytest -q tests/test_release_lab_preparation.py
       - run: task compliance:check:all
       - run: uv run --no-project --python 3.12 --with cwltool --with PyYAML python scripts/check_release_cwl.py
 
@@ -165,9 +166,10 @@ jobs:
         shell: bash
         run: |
           : > downloads/oci-artifacts.txt
-          for name in app-water-bodies app-water-bodies-s3; do
+          for name in app-water-bodies app-water-bodies-s3 app-water-bodies-occurrence; do
             entry=water-bodies
             [[ "$name" != app-water-bodies-s3 ]] || entry=main
+            [[ "$name" != app-water-bodies-occurrence ]] || entry=water-bodies-occurrence
             file="$name.$VERSION.cwl"
             annotations="$name.$VERSION.annotations.json"
             transpiler-mate cwl2oci \

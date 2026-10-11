@@ -1,10 +1,10 @@
-# Water bodies detection workflow v1.1.0
+# Water bodies detection workflow v2.0.0
 
 Water bodies detection based on NDWI and Otsu threshold applied to Sentinel-2 COG STAC items
 
 > This software is licensed under the terms of the [MIT License](https://opensource.org/license/mit/) license - SPDX short identifier: [MIT](https://spdx.org/licenses/MIT)
 >
-> 2026-03-19 - 2026-10-11T10:44:48.182 Copyright [EOAP](mailto:) -
+> 2026-03-19 - 2026-10-11T12:41:02.684 Copyright [EOAP](mailto:) -
 
 ## Project Team
 
@@ -80,14 +80,14 @@ Zarr Cloud-Native Format documentation can be found on [https://eoap.github.io/z
 
 | Id | Runs | Label | Doc |
 |----|------|-------|-----|
-| [build_search_request](#build_search_request) | `#build_search_request` | Build STAC search request | Build STACSearchSettings from AOI and query inputs |
 | [build_api_endpoint](#build_api_endpoint) | `#build_api_endpoint` | Build STAC API endpoint | Normalize endpoint to APIEndpoint schema expected by discovery step |
+| [build_search_request](#build_search_request) | `#build_search_request` | Build STAC search request | Build STACSearchSettings from AOI and query inputs |
 | [discovery](#stac-client) | `#stac-client` | STAC API discovery | Discover STAC items from a STAC API endpoint based on a search request |
 | [convert_search](#convert-search) | `#convert-search` | Convert Search | Convert Search results to get the item self hrefs and the area of interest |
 | [water_bodies](#detect_water_body) | `#detect_water_body` | Water bodies detection | Water bodies detection based on NDWI and otsu threshold applied to each STAC item (sub-workflow) |
 | [stac-collection](#stac-collection) | `#stac-collection` | Create a STAC catalog with COG outputs | Create a STAC catalog with the detected water bodies COG outputs |
-| [stac_eopf_product](#stac-eopf-product) | `#stac-eopf-product` | Create a EOPF Zarr store from a STAC catalog | Create a EOPF Zarr store from a STAC catalog with COG products |
 | [stac_zarr](#stac-zarr) | `#stac-zarr` | Create a STAC Catalog for the Zarr store | Create a STAC Catalog for the Zarr store from the STAC catalog with COG outputs |
+| [stac_eopf_product](#stac-eopf-product) | `#stac-eopf-product` | Create a EOPF Zarr store from a STAC catalog | Create a EOPF Zarr store from a STAC catalog with COG products |
 
 
 ### Outputs
@@ -150,6 +150,26 @@ Learn more about the [State diagram](https://en.wikipedia.org/wiki/State_diagram
 
 ### Run in step
 
+`build_api_endpoint`
+
+
+
+## build_api_endpoint
+
+### CWL Class
+
+[ExpressionTool](https://www.commonwl.org/v1.2/Workflow.html#ExpressionTool)
+
+### Inputs
+
+| Id | Option | Type |
+|----|------|-------|
+| `api_endpoint` | `--api_endpoint` | [Any](https://www.commonwl.org/v1.2/Workflow.html#Any) |
+
+
+
+### Run in step
+
 `build_search_request`
 
 
@@ -172,26 +192,6 @@ Learn more about the [State diagram](https://en.wikipedia.org/wiki/State_diagram
 | `max-items` | `--max-items` | [int](https://www.commonwl.org/v1.2/Workflow.html#CWLType) |
 | `filter-lang` | `--filter-lang` | One of:<ul><li>[null](https://www.commonwl.org/v1.2/Workflow.html#CWLType)</li><li>[enum](https://www.commonwl.org/v1.2/Workflow.html#InputEnumSchema):<ul><li>`cql2-json`</li></ul></li></ul> |
 | `filter` | `--filter` | One of:<ul><li>[null](https://www.commonwl.org/v1.2/Workflow.html#CWLType)</li><li>[Any](https://www.commonwl.org/v1.2/Workflow.html#Any)</li></ul> |
-
-
-
-### Run in step
-
-`build_api_endpoint`
-
-
-
-## build_api_endpoint
-
-### CWL Class
-
-[ExpressionTool](https://www.commonwl.org/v1.2/Workflow.html#ExpressionTool)
-
-### Inputs
-
-| Id | Option | Type |
-|----|------|-------|
-| `api_endpoint` | `--api_endpoint` | [Any](https://www.commonwl.org/v1.2/Workflow.html#Any) |
 
 
 
@@ -457,40 +457,6 @@ stac-collection \
 
 ### Run in step
 
-`stac_eopf_product`
-
-
-
-## stac-eopf-product
-
-### CWL Class
-
-[CommandLineTool](https://www.commonwl.org/v1.2/CommandLineTool.html#CommandLineTool)
-
-### Inputs
-
-| Id | Option | Type |
-|----|------|-------|
-| `stac_catalog` | `--stac-catalog` | [Directory](https://www.commonwl.org/v1.2/Workflow.html#Directory) |
-| `resolution` | `--resolution` | One of:<ul><li>[null](https://www.commonwl.org/v1.2/Workflow.html#CWLType)</li><li>[float](https://www.commonwl.org/v1.2/Workflow.html#CWLType)</li></ul> |
-| `chunks` | `--chunks` | [enum](https://www.commonwl.org/v1.2/Workflow.html#CommandInputEnumSchema):<ul><li>`manual`</li><li>`auto`</li></ul> |
-| `chunk_x` | `--chunk-x` | [int](https://www.commonwl.org/v1.2/Workflow.html#CWLType) |
-| `chunk_y` | `--chunk-y` | [int](https://www.commonwl.org/v1.2/Workflow.html#CWLType) |
-| `chunk_time` | `--chunk-time` | [int](https://www.commonwl.org/v1.2/Workflow.html#CWLType) |
-
-### Execution usage example:
-
-```
-stac-eopf-product \
---stac-catalog <STAC_CATALOG> \
---chunks <CHUNKS> \
---chunk-x <CHUNK_X> \
---chunk-y <CHUNK_Y> \
---chunk-time <CHUNK_TIME>
-```
-
-### Run in step
-
 `stac_zarr`
 
 
@@ -532,6 +498,40 @@ stac-zarr \
 --chunk-time <CHUNK_TIME> \
 --consolidate \
 --stac-object-type <STAC_OBJECT_TYPE>
+```
+
+### Run in step
+
+`stac_eopf_product`
+
+
+
+## stac-eopf-product
+
+### CWL Class
+
+[CommandLineTool](https://www.commonwl.org/v1.2/CommandLineTool.html#CommandLineTool)
+
+### Inputs
+
+| Id | Option | Type |
+|----|------|-------|
+| `stac_catalog` | `--stac-catalog` | [Directory](https://www.commonwl.org/v1.2/Workflow.html#Directory) |
+| `resolution` | `--resolution` | One of:<ul><li>[null](https://www.commonwl.org/v1.2/Workflow.html#CWLType)</li><li>[float](https://www.commonwl.org/v1.2/Workflow.html#CWLType)</li></ul> |
+| `chunks` | `--chunks` | [enum](https://www.commonwl.org/v1.2/Workflow.html#CommandInputEnumSchema):<ul><li>`manual`</li><li>`auto`</li></ul> |
+| `chunk_x` | `--chunk-x` | [int](https://www.commonwl.org/v1.2/Workflow.html#CWLType) |
+| `chunk_y` | `--chunk-y` | [int](https://www.commonwl.org/v1.2/Workflow.html#CWLType) |
+| `chunk_time` | `--chunk-time` | [int](https://www.commonwl.org/v1.2/Workflow.html#CWLType) |
+
+### Execution usage example:
+
+```
+stac-eopf-product \
+--stac-catalog <STAC_CATALOG> \
+--chunks <CHUNKS> \
+--chunk-x <CHUNK_X> \
+--chunk-y <CHUNK_Y> \
+--chunk-time <CHUNK_TIME>
 ```
 
 

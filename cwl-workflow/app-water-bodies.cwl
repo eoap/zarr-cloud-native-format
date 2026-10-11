@@ -44,10 +44,11 @@ $graph:
       stac_api_endpoint:
         label: STAC API endpoint
         doc: STAC API endpoint
-        type: Any
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
         default:
           headers: []
-          url: https://planetarycomputer.microsoft.com/api/stac/v1
+          url:
+            value: https://planetarycomputer.microsoft.com/api/stac/v1
       collection:
         label: STAC collection
         doc: STAC collection identifier
@@ -268,7 +269,7 @@ $graph:
       api_endpoint:
         label: STAC API endpoint
         doc: STAC API endpoint
-        type: Any
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
     outputs:
       normalized_api_endpoint:
         label: Normalized API endpoint
@@ -433,7 +434,7 @@ $graph:
       items:
         label: Item self hrefs
         doc: Array of STAC Item self links extracted from search results
-        type: Any
+        type: string[]
         outputBinding:
           glob: items.json
           loadContents: true

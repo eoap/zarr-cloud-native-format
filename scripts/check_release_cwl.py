@@ -3,7 +3,7 @@ from pathlib import Path
 import subprocess
 import yaml
 
-ENTRIES = {"app-water-bodies": "water-bodies", "app-water-bodies-s3": "main"}
+ENTRIES = {"app-water-bodies": "water-bodies", "app-water-bodies-s3": "main", "app-water-bodies-occurrence": "water-bodies-occurrence"}
 
 
 def validate(path, entry):

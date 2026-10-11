@@ -104,7 +104,7 @@ def occurrence(stac_catalog):
 
     measurements: Asset = collection.get_assets()["measurements"]
 
-    water_bodies = xr.open_zarr(measurements.get_absolute_href(), consolidated=False)[
+    water_bodies = xr.open_zarr(measurements.get_absolute_href(), group="measurements", consolidated=False)[
         "water-bodies"
     ]
 

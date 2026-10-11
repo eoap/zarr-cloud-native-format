@@ -467,3 +467,11 @@ tasks:
       vars: [JOB]
     cmds:
       - uv run --frozen --with cwltool cwltool cwl-workflow/app-water-bodies-s3.cwl#main {{.JOB | shellQuote}} > cwl-tests/results-s3.json
+
+  labs:prepare:
+    desc: Download and validate matching published application packages and lab inputs
+    cmds:
+      - uv run --no-project --python 3.12 --with cwltool --with PyYAML python scripts/prepare-practice-labs.py --version {{.APPLICATION_PACKAGE_VERSION | shellQuote}} --destination {{.PACKAGE_DIRECTORY | shellQuote}}
+    vars:
+      APPLICATION_PACKAGE_VERSION: '{{default "2.0.0" .APPLICATION_PACKAGE_VERSION}}'
+      PACKAGE_DIRECTORY: '{{default (printf "runs/%s/packages" .APPLICATION_PACKAGE_VERSION) .PACKAGE_DIRECTORY}}'

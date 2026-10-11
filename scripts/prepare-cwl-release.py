@@ -45,3 +45,6 @@ for name, entry in ENTRIES.items():
     output = args.output / f"{name}.{args.version}.cwl"
     output.write_text(yaml.safe_dump(document, sort_keys=False))
     validate(output, entry)
+
+from shutil import copyfile
+copyfile("cwl-tests/jobs/producer-job.yml", args.output / "producer-job.yaml")

@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 $namespaces:
   s: https://schema.org/
 s:softwareVersion: 1.1.0
@@ -187,7 +187,7 @@ $graph:
         in:
           api_endpoint: build_api_endpoint/normalized_api_endpoint
           search_request: build_search_request/search_request
-        run: https://github.com/eoap/schemas/releases/download/0.2.0/stac-api-client.0.2.0.cwl
+        run: "#stac-client"
         out:
         - search_output
       
@@ -396,10 +396,9 @@ $graph:
     doc: Gets the item self hrefs from a STAC search result
     baseCommand: ["/bin/sh", "run.sh"]
     arguments: []
-    hints:
-      DockerRequirement:
-        dockerPull: ghcr.io/eoap/zarr-cloud-native-format/yq@sha256:401655f3f4041bf3d03b05f3b24ad4b9d18cfcf908c3b44f5901383621d0688a
     requirements:
+    - class: DockerRequirement
+      dockerPull: ghcr.io/eoap/zarr-cloud-native-format/yq@sha256:401655f3f4041bf3d03b05f3b24ad4b9d18cfcf908c3b44f5901383621d0688a
     - class: InlineJavascriptRequirement
     - class: SchemaDefRequirement
       types:
@@ -488,6 +487,8 @@ $graph:
         type: File
     steps:
       crop:
+        label: Crop spectral bands
+        doc: Crop and reproject each requested band to the area of interest.
         run: "#crop"
         in:
           item: item
@@ -499,6 +500,8 @@ $graph:
         scatter: band
         scatterMethod: dotproduct
       normalized_difference:
+        label: Compute NDWI
+        doc: Compute the normalized difference water index from the cropped bands.
         run: "#norm_diff"
         in:
           rasters:
@@ -506,6 +509,8 @@ $graph:
         out:
           - ndwi
       otsu:
+        label: Detect water bodies
+        doc: Apply Otsu thresholding to the NDWI raster to produce a binary water mask.
         run: "#otsu"
         in:
           raster:
@@ -523,7 +528,6 @@ $graph:
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
-    hints:
       DockerRequirement:
         dockerPull: crop:latest
     baseCommand: ["crop"]
@@ -583,7 +587,6 @@ $graph:
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
-    hints:
       DockerRequirement:
         dockerPull: norm-diff:latest
     baseCommand: ["norm-diff"]
@@ -613,7 +616,6 @@ $graph:
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
-    hints:
       DockerRequirement:
         dockerPull: otsu:latest
     baseCommand: ["otsu"]
@@ -639,7 +641,6 @@ $graph:
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
-    hints:
       DockerRequirement:
         dockerPull: stac-collection:latest
     baseCommand: ["stac-collection"]
@@ -683,7 +684,6 @@ $graph:
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
-    hints:
       DockerRequirement:
         dockerPull: stac-zarr:latest 
     baseCommand: ["stac-zarr"]
@@ -778,7 +778,7 @@ $graph:
           prefix: --consolidate
       titiler_eopf_compatible:
         label: TiTiler-EOPF compatibility
-        doc: Deprecated compatibility flag; GeoZarr v1 root metadata is always emitted
+        doc: Deprecated compatibility flag; GeoZarr convention v0.1 root metadata is always emitted
         type: boolean
         default: false
         inputBinding:
@@ -811,7 +811,6 @@ $graph:
       ResourceRequirement:
         coresMax: 1
         ramMax: 512
-    hints:
       DockerRequirement:
         dockerPull: stac-eopf-product:latest
     baseCommand: ["stac-eopf-product"]
@@ -871,3 +870,65 @@ $graph:
         outputBinding:
           glob: .
         type: Directory
+
+  # Adapted from eoap/schemas stac-api-client 0.2.0:
+  # https://github.com/eoap/schemas/releases/download/0.2.0/stac-api-client.0.2.0.cwl
+  # Requires the container, documents its output, and uses CWL-compatible ES5.
+  - class: CommandLineTool
+    id: stac-client
+    label: STAC Client Tool
+    doc: |
+      This tool uses the STAC Client to search for STAC items
+    requirements:
+      - class: DockerRequirement
+        dockerPull: ghcr.io/eoap/schemas/stac-api-client@sha256:a7e346f704836d07f5dabc6b29ee3359e7253f4a294d74f3899973b8920da6f7
+      - class: InlineJavascriptRequirement
+      - class: NetworkAccess
+        networkAccess: true
+      - class: SchemaDefRequirement
+        types:
+          - $import: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml
+          - $import: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml
+          - $import: |-
+              https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml
+          - $import: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml
+    inputs:
+      api_endpoint:
+        label: STAC API endpoint
+        doc: STAC API endpoint used to discover input items
+        type: |-
+          https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
+      search_request:
+        label: STAC API settings
+        doc: STAC search settings including spatial, temporal, and collection filters
+        type: |-
+          https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
+    outputs:
+      search_output:
+        label: STAC search results
+        doc: GeoJSON feature collection containing the discovered STAC items.
+        type: File
+        outputBinding:
+          glob: discovery-output.json
+    baseCommand: ["stac-client"]
+    arguments:
+      - "search"
+      - $(inputs.api_endpoint.url.value)
+      - |-
+        ${ var collections = inputs.search_request.collections; return ['--collections', collections.join(",")]; }
+      - |-
+        ${ var bbox = inputs.search_request.bbox; return Array.isArray(bbox) && bbox.length >= 4 ? ['--bbox'].concat(bbox.map(String)) : []; }
+      - |-
+        ${ var limit = inputs.search_request.limit; return ['--limit', String(limit == null ? 10 : limit)]; }
+      - |-
+        ${ var maxItems = inputs.search_request['max-items']; return ['--max-items', String(maxItems == null ? 20 : maxItems)]; }
+      - |-
+        ${ var args = []; var filter = inputs.search_request.filter; var filterLang = inputs.search_request['filter-lang']; if (filterLang) { args.push('--filter-lang', filterLang); } if (filter) { args.push('--filter', JSON.stringify(filter)); } return args; }
+      - |-
+        ${ var datetime = inputs.search_request.datetime; var interval = inputs.search_request.datetime_interval; if (datetime) { return ['--datetime', datetime]; } if (interval) { var start = interval.start && interval.start.value || '..'; var end = interval.end && interval.end.value || '..'; return ['--datetime', start + '/' + end]; } return []; }
+      - |-
+        ${ var ids = inputs.search_request.ids; return Array.isArray(ids) && ids.length > 0 ? ['--ids'].concat(ids.map(String)) : []; }
+      - |-
+        ${ var intersects = inputs.search_request.intersects; return intersects ? ['--intersects', JSON.stringify(intersects)] : []; }
+      - --save
+      - discovery-output.json

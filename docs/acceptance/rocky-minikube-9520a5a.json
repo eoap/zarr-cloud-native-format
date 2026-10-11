@@ -1,0 +1,98 @@
+{
+  "source_commit": "9520a5a7aa1ebfafe1beb383e33653babd740a24",
+  "validation": "local-build real-data writer on Minikube",
+  "input_provenance": "retained four Sentinel-2 Lake Almanor processing acquisitions; original remote stage-in was not rerun",
+  "input_catalog": "/calrissian/zarr-rocky-9520a5a-real/input/catalog.json",
+  "output_catalog": "/calrissian/zarr-rocky-9520a5a-real/output/catalog.json",
+  "shape": [
+    4,
+    7205,
+    5460
+  ],
+  "projection": "EPSG:32610",
+  "bbox": [
+    -121.39905410179915,
+    39.82336095080462,
+    -120.73995321724426,
+    40.482798837728375
+  ],
+  "times": [
+    "2021-06-03T18:49:19.024000000Z",
+    "2021-06-08T18:49:21.024000000Z",
+    "2021-06-13T18:49:19.024000000Z",
+    "2021-06-18T18:49:21.024000000Z"
+  ],
+  "sample_pixels_equal_source": true,
+  "binary_mask_has_land_and_water": true,
+  "raster_resolution_m": 10.0,
+  "full_notebook_acceptance": false,
+  "published_candidate_acceptance": false,
+  "clean_checkout_verified": true,
+  "package_tests": {
+    "packages": 8,
+    "unit_tests_passed": 80,
+    "formatting": "passed",
+    "lint": "passed",
+    "strict_typing": "passed",
+    "security": "passed",
+    "fresh_hatch": "passed"
+  },
+  "runtime_images": [
+    {
+      "name": "eoap-zarr-crop:rocky-model",
+      "id": "sha256:45a2567a683550a7d51b071af5f210c4dca531ddd55e0e71cbdfc3ec49d465c5",
+      "configured_user": "neo",
+      "runtime_uid_gid": "2000:2000",
+      "cli_check": "passed on Minikube",
+      "venv_pip_removed": true
+    },
+    {
+      "name": "eoap-zarr-norm_diff:rocky-model",
+      "id": "sha256:445f4cee2599f5a2d99776c17fd474ad79619cb5bdf9c4d4e8bbed7fc14f7aba",
+      "configured_user": "neo",
+      "runtime_uid_gid": "2000:2000",
+      "cli_check": "passed on Minikube",
+      "venv_pip_removed": true
+    },
+    {
+      "name": "eoap-zarr-occurrence:rocky-model",
+      "id": "sha256:2dcabd0037d4aee1d1f3964d2bb50a6995a4a6cb0fc62658fadd163b9609e31d",
+      "configured_user": "neo",
+      "runtime_uid_gid": "2000:2000",
+      "cli_check": "passed on Minikube",
+      "venv_pip_removed": true
+    },
+    {
+      "name": "eoap-zarr-otsu:rocky-model",
+      "id": "sha256:ccb9f2db0562209dac0f65a16a269b785c7b08eb2fda7ee8eaa3f4e3d62640a0",
+      "configured_user": "neo",
+      "runtime_uid_gid": "2000:2000",
+      "cli_check": "passed on Minikube",
+      "venv_pip_removed": true
+    },
+    {
+      "name": "eoap-zarr-stac-collection:rocky-model",
+      "id": "sha256:610a3bc7b7490ec22980dd2964ef0ed18f7be9ba3823ebe8b6089de303b9f8ae",
+      "configured_user": "neo",
+      "runtime_uid_gid": "2000:2000",
+      "cli_check": "passed on Minikube",
+      "venv_pip_removed": true
+    },
+    {
+      "name": "eoap-zarr-stac-eopf-product:rocky-model",
+      "id": "sha256:7c82e57eb8a92d04f4e2bbde6dd7740fc8a68a8eff6eee54f72897fec0662f62",
+      "configured_user": "neo",
+      "runtime_uid_gid": "2000:2000",
+      "cli_check": "passed on Minikube",
+      "venv_pip_removed": true
+    },
+    {
+      "name": "eoap-zarr-stac-zarr:rocky-model",
+      "id": "sha256:0dc1b22872841da9ac263e587e547e0e6bb54155257ef3cadc4ef878cefeea6c",
+      "configured_user": "neo",
+      "runtime_uid_gid": "2000:2000",
+      "cli_check": "passed on Minikube",
+      "venv_pip_removed": true
+    }
+  ]
+}

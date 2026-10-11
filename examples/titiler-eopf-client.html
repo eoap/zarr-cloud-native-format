@@ -219,11 +219,11 @@
       }
 
       function buildCollectionUrl() {
-        return `${apiBase()}/collections/${collectionId()}`;
+        return `${viewerConfig.stacBaseUrl || apiBase()}/collections/${collectionId()}`;
       }
 
       function buildItemUrl() {
-        return `${apiBase()}/collections/${collectionId()}/items/${itemId()}`;
+        return `${viewerConfig.stacBaseUrl || apiBase()}/collections/${collectionId()}/items/${itemId()}`;
       }
 
       async function buildCollectionJsonFallbackUrl() {
@@ -291,13 +291,18 @@
         return null;
       }
 
+      function datasetRoute() {
+        const root = `${apiBase()}/collections/${collectionId()}/items/${itemId()}`;
+        return viewerConfig.assetId ? `${root}/assets/${encodeURIComponent(viewerConfig.assetId)}` : root;
+      }
+
       function buildKeysUrl() {
-        return `${apiBase()}/collections/${collectionId()}/items/${itemId()}/dataset/keys`;
+        return `${datasetRoute()}/dataset/keys`;
       }
 
       function parseMeasurementFromExpression(expression) {
         if (typeof expression !== "string") return null;
-        const match = expression.match(/^\/[^:]*:([^\s]+)$/);
+        const match = expression.match(/^(?:\/[^:]*:)?([^\s:]+)$/);
         return match && match[1] ? match[1] : null;
       }
 
@@ -544,7 +549,7 @@
           params.set("bidx", "1");
         }
 
-        return `${apiBase()}/collections/${collectionId()}/items/${itemId()}/WebMercatorQuad/tilejson.json?${params.toString()}`;
+        return `${datasetRoute()}/WebMercatorQuad/tilejson.json?${params.toString()}`;
       }
 
       async function fetchTileJsonWithFallback(def) {

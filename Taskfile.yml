@@ -442,3 +442,25 @@ tasks:
       - python scripts/publish-titiler-store.py --results {{.RESULTS | shellQuote}}
     vars:
       RESULTS: '{{default "cwl-tests/results.json" .RESULTS}}'
+
+  containers:build:stage-out:
+    desc: Build the Zarr-aware mastering stage-out image from its sibling feature checkout
+    cmds:
+      - docker build -t {{.STAGE_OUT_IMAGE | shellQuote}} ../mastering-app-package/water-bodies/command-line-tools/stage-out
+    vars:
+      STAGE_OUT_IMAGE: '{{default "eoap-zarr-stage-out:local" .STAGE_OUT_IMAGE}}'
+
+  cwl:wrap:producer:
+    desc: Compose the final producer output with S3 stage-out using eoap-cwlwrap
+    cmds:
+      - uv run --frozen --with eoap-cwlwrap==0.32.0 --with cwl-loader==0.27.0 --with PyYAML python scripts/wrap-producer.py --image {{.STAGE_OUT_IMAGE | shellQuote}}
+      - uv run --frozen --with cwltool cwltool --validate cwl-workflow/app-water-bodies-s3.cwl
+    vars:
+      STAGE_OUT_IMAGE: '{{default "eoap-zarr-stage-out:local" .STAGE_OUT_IMAGE}}'
+
+  cwl:run:producer:s3:
+    desc: Run the wrapped producer with an explicit S3-enabled JOB file
+    requires:
+      vars: [JOB]
+    cmds:
+      - uv run --frozen --with cwltool cwltool cwl-workflow/app-water-bodies-s3.cwl#main {{.JOB | shellQuote}} > cwl-tests/results-s3.json

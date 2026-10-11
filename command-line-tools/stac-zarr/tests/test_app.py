@@ -50,7 +50,9 @@ def _make_item(item_id: str, asset_names):
         id=item_id,
         geometry={
             "type": "Polygon",
-            "coordinates": [[[-1.0, -1.0], [-1.0, 1.0], [1.0, 1.0], [1.0, -1.0], [-1.0, -1.0]]],
+            "coordinates": [
+                [[-1.0, -1.0], [-1.0, 1.0], [1.0, 1.0], [1.0, -1.0], [-1.0, -1.0]]
+            ],
         },
         bbox=[-1.0, -1.0, 1.0, 1.0],
         datetime=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -148,14 +150,14 @@ def test_build_v1_layout():
     layout = build_v1_layout(entries)
 
     assert [entry["asset"] for entry in layout] == [
-        "measurements/ndwi",
-        "measurements_overviews/ndwi/1/ndwi",
-        "measurements_overviews/ndwi/2/ndwi",
+        "measurements",
+        "measurements_overviews/ndwi/1",
+        "measurements_overviews/ndwi/2",
     ]
     assert "derived_from" not in layout[0]
-    assert layout[1]["derived_from"] == "measurements/ndwi"
+    assert layout[1]["derived_from"] == "measurements"
     assert layout[1]["transform"]["scale"] == [2.0, 2.0]
-    assert layout[2]["derived_from"] == "measurements_overviews/ndwi/1/ndwi"
+    assert layout[2]["derived_from"] == "measurements_overviews/ndwi/1"
     assert layout[2]["transform"]["scale"] == [2.0, 2.0]
 
 
@@ -196,7 +198,9 @@ def test_write_cf_dataset_members(tmp_path):
         np.arange(24, dtype=np.float32).reshape(2, 3, 4),
         dims=["time", "y", "x"],
         coords={
-            "time": np.array(["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"),
+            "time": np.array(
+                ["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"
+            ),
             "y": np.array([1000.0, 990.0, 980.0], dtype=np.float64),
             "x": np.array([200.0, 210.0, 220.0, 230.0], dtype=np.float64),
         },
@@ -239,13 +243,17 @@ def test_check_valid_coordinates_and_grid_mapping_ok(tmp_path):
         np.arange(24, dtype=np.float32).reshape(2, 3, 4),
         dims=["time", "y", "x"],
         coords={
-            "time": np.array(["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"),
+            "time": np.array(
+                ["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"
+            ),
             "y": np.array([1000.0, 990.0, 980.0], dtype=np.float64),
             "x": np.array([200.0, 210.0, 220.0, 230.0], dtype=np.float64),
         },
     )
     group = zarr.open_group(tmp_path / "cf-validate-ok.zarr", mode="w")
-    _write_cf_dataset_members(group, da, [10.0, 0.0, 195.0, 0.0, -10.0, 1005.0], "EPSG:32610-WKT")
+    _write_cf_dataset_members(
+        group, da, [10.0, 0.0, 195.0, 0.0, -10.0, 1005.0], "EPSG:32610-WKT"
+    )
     _make_data_array(group, "water")
 
     check_valid_coordinates(group)
@@ -264,13 +272,17 @@ def test_check_grid_mapping_fails_on_missing_member(tmp_path):
         np.arange(24, dtype=np.float32).reshape(2, 3, 4),
         dims=["time", "y", "x"],
         coords={
-            "time": np.array(["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"),
+            "time": np.array(
+                ["2021-06-01T00:00:00", "2021-06-02T00:00:00"], dtype="datetime64[s]"
+            ),
             "y": np.array([1000.0, 990.0, 980.0], dtype=np.float64),
             "x": np.array([200.0, 210.0, 220.0, 230.0], dtype=np.float64),
         },
     )
     group = zarr.open_group(tmp_path / "cf-validate-missing-gm.zarr", mode="w")
-    _write_cf_dataset_members(group, da, [10.0, 0.0, 195.0, 0.0, -10.0, 1005.0], "EPSG:32610-WKT")
+    _write_cf_dataset_members(
+        group, da, [10.0, 0.0, 195.0, 0.0, -10.0, 1005.0], "EPSG:32610-WKT"
+    )
     _make_data_array(group, "water", grid_mapping="missing_spatial_ref")
     with pytest.raises(ValueError, match="missing_spatial_ref"):
         check_grid_mapping(group)
@@ -313,35 +325,45 @@ def test_get_variable_type():
 
 
 def test_downsample_2x_nearest():
-    da = DataArray(np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"])
+    da = DataArray(
+        np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"]
+    )
     out = downsample_2x(da, "nearest")
     assert out.shape == (1, 2, 2)
     assert out.values.tolist() == [[[0.0, 2.0], [8.0, 10.0]]]
 
 
 def test_downsample_2x_mean():
-    da = DataArray(np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"])
+    da = DataArray(
+        np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"]
+    )
     out = downsample_2x(da, "mean")
     assert out.shape == (1, 2, 2)
     assert out.values.tolist() == [[[2.5, 4.5], [10.5, 12.5]]]
 
 
 def test_downsample_2x_max():
-    da = DataArray(np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"])
+    da = DataArray(
+        np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"]
+    )
     out = downsample_2x(da, "max")
     assert out.shape == (1, 2, 2)
     assert out.values.tolist() == [[[5.0, 7.0], [13.0, 15.0]]]
 
 
 def test_downsample_2x_median():
-    da = DataArray(np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"])
+    da = DataArray(
+        np.arange(16, dtype=np.float32).reshape(1, 4, 4), dims=["time", "y", "x"]
+    )
     out = downsample_2x(da, "median")
     assert out.shape == (1, 2, 2)
     assert out.values.tolist() == [[[2.5, 4.5], [10.5, 12.5]]]
 
 
 def test_downsample_2x_rejects_unknown_reducer():
-    da = DataArray(np.arange(4, dtype=np.float32).reshape(1, 2, 2), dims=["time", "y", "x"])
+    da = DataArray(
+        np.arange(4, dtype=np.float32).reshape(1, 2, 2), dims=["time", "y", "x"]
+    )
     with pytest.raises(ValueError, match="Unsupported overview reducer"):
         downsample_2x(da, "p90")
 
@@ -514,3 +536,27 @@ def test_to_pystac_renders_returns_render_objects():
     assert renders is not None
     assert "ndwi_default" in renders
     assert renders["ndwi_default"].to_dict()["expression"] == "/measurements:ndwi"
+
+
+def test_multiscale_group_layout_deduplicates_shared_base():
+    entries = [
+        {
+            "name": name,
+            "datasets": [
+                {"path": f"measurements/{name}", "level": 0},
+                {
+                    "path": f"measurements_overviews/{name}/1/{name}",
+                    "level": 1,
+                    "downsampling_factor": 2,
+                },
+            ],
+        }
+        for name in ("ndwi", "water-bodies")
+    ]
+    layout = build_v1_layout(entries)
+    assert [entry["asset"] for entry in layout] == [
+        "measurements",
+        "measurements_overviews/ndwi/1",
+        "measurements_overviews/water-bodies/1",
+    ]
+    assert all(entry["derived_from"] == "measurements" for entry in layout[1:])

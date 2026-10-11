@@ -492,13 +492,13 @@ def run_to_zarr(
 
     validate_geozarr_store(root)
 
-    logger.info(f"Creating STAC asset {zarr_uri}/measurements...")
+    logger.info(f"Creating STAC asset {zarr_uri}...")
     zarr_asset: Asset = Asset(
-        href=f"{zarr_uri}/measurements",
+        href=zarr_uri,
         media_type=ZARR_V3_MULTISCALES_MEDIA_TYPE,
         roles=["data"],
         title="Measurements",
-        description="Zarr measurements group",
+        description="Complete GeoZarr store with measurements and multiscale overviews",
     )
     output_collection.add_asset(key="measurements", asset=zarr_asset)
 

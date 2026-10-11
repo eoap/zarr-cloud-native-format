@@ -112,12 +112,26 @@ def validate_geozarr_store(store: zarr.Group | str | Path) -> None:
                         errors.append(
                             f"{location}: derived_from absent from layout: {target}"
                         )
-                    if field == "asset" and isinstance(child, zarr.Array):
-                        for key in ("spatial:shape", "spatial:transform"):
-                            if key in entry and entry[key] != child.attrs.get(key):
-                                errors.append(
-                                    f"{location}: {target}: layout {key} disagrees with array"
-                                )
+                    if field == "asset":
+                        arrays = (
+                            [child]
+                            if isinstance(child, zarr.Array)
+                            else [
+                                array
+                                for _, array in child.arrays()
+                                if "spatial:shape" in array.attrs
+                            ]
+                        )
+                        if not arrays:
+                            errors.append(
+                                f"{location}: {target}: layout asset contains no spatial arrays"
+                            )
+                        for array in arrays:
+                            for key in ("spatial:shape", "spatial:transform"):
+                                if key in entry and entry[key] != array.attrs.get(key):
+                                    errors.append(
+                                        f"{location}: {target}: layout {key} disagrees with array"
+                                    )
             for name, child in node.members():
                 check(child, f"{path}/{name}" if path else name)
 

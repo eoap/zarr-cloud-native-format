@@ -40,7 +40,9 @@ def build_tile_matrix_set(
     }
 
 
-def build_tile_matrix_limits(tile_matrix_set: Dict[str, Any]) -> List[Dict[str, int | str]]:
+def build_tile_matrix_limits(
+    tile_matrix_set: Dict[str, Any],
+) -> List[Dict[str, int | str]]:
     """Build OGC-style tile matrix limits from a TileMatrixSet."""
     limits: List[Dict[str, int | str]] = []
     for matrix in tile_matrix_set["tileMatrices"]:
@@ -61,7 +63,9 @@ def build_v1_layout(multiscales_entries: List[Dict[str, Any]]) -> List[Dict[str,
     layout: List[Dict[str, Any]] = []
 
     for entry in multiscales_entries:
-        datasets = sorted(entry.get("datasets", []), key=lambda ds: int(ds.get("level", 0)))
+        datasets = sorted(
+            entry.get("datasets", []), key=lambda ds: int(ds.get("level", 0))
+        )
         previous_asset: str | None = None
         previous_factor: int = 1
 
@@ -70,6 +74,9 @@ def build_v1_layout(multiscales_entries: List[Dict[str, Any]]) -> List[Dict[str,
             if not isinstance(asset, str) or not asset:
                 continue
 
+            # TiTiler 0.12 reads each layout asset as an Xarray Dataset group.
+            # The variable remains an array inside that group.
+            asset = asset.rsplit("/", 1)[0]
             current_factor = int(ds.get("downsampling_factor", 1))
             relative_scale = max(1, current_factor // max(1, previous_factor))
             layout_entry: Dict[str, Any] = {
@@ -87,7 +94,8 @@ def build_v1_layout(multiscales_entries: List[Dict[str, Any]]) -> List[Dict[str,
             if "overview:reducer" in ds:
                 layout_entry["resampling_method"] = ds["overview:reducer"]
 
-            layout.append(layout_entry)
+            if not any(existing["asset"] == asset for existing in layout):
+                layout.append(layout_entry)
             previous_asset = asset
             previous_factor = current_factor
 

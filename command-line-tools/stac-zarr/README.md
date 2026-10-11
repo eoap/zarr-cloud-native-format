@@ -36,3 +36,5 @@ stac-zarr-validate output.zarr
 ```
 
 It exits with status 1 on failure and status 0 on success.
+
+TiTiler-EOPF 0.12.2 integration uses complete-store STAC asset URLs and group-based `multiscales.layout` entries. Use item-mode output for STAC API publication; see the Kubernetes publication guide.

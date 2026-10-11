@@ -107,7 +107,7 @@ tasks:
         python ../../scripts/validate_multiscales_schema.py
 
   compliance:check:multiscales-layout:
-    desc: Validate GeoZarr v1 multiscales layout profile used by this repository
+    desc: Validate GeoZarr convention v0.1 multiscales layout profile used by this repository
     cmds:
       - |
         cd command-line-tools/stac-zarr && \
@@ -139,13 +139,30 @@ tasks:
         python ../../scripts/validate_eopf_explorer_profile.py
 
   compliance:check:all:
-    desc: Run strict local profile checks and upstream compatibility report
+    desc: Validate published conventions and generated stores
     deps:
       - task: compliance:check:multiscales-layout
       - task: compliance:check:geo-proj
       - task: compliance:check:spatial
       - task: compliance:check:eopf-explorer
       - task: compliance:check:multiscales
+      - task: compliance:check:geozarr-toolkit
+
+  compliance:check:geozarr-toolkit:
+    desc: Exercise real generated stores with GeoZarr Toolkit, including rejection checks
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with pytest --with-editable . pytest -q tests/test_geozarr.py
+
+  compliance:check:store:
+    desc: Validate an existing Zarr store recursively (pass STORE=/path/to/store.zarr)
+    requires:
+      vars: [STORE]
+    cmds:
+      - |
+        cd command-line-tools/stac-zarr && \
+        uv run --with-editable . python ../../scripts/validate_geozarr_store.py "{{.STORE}}"
 
   models:generate:spatial:
     desc: Regenerate Pydantic model from zarr-conventions spatial JSON Schema
@@ -158,9 +175,10 @@ tasks:
           --output-model-type pydantic_v2.BaseModel \
           --base-class stac_zarr.models.base.GeoZarrBaseModel \
           --snake-case-field \
+          --disable-timestamp \
           --output stac_zarr/models/generated/spatial.py
     vars:
-      SPATIAL_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/spatial/main/schema.json" .SPATIAL_SCHEMA_URL}}'
+      SPATIAL_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v0.1/schema.json" .SPATIAL_SCHEMA_URL}}'
 
   models:generate:geo-proj:
     desc: Regenerate Pydantic model from zarr-conventions geo-proj JSON Schema
@@ -173,9 +191,10 @@ tasks:
           --output-model-type pydantic_v2.BaseModel \
           --base-class stac_zarr.models.base.GeoZarrBaseModel \
           --snake-case-field \
+          --disable-timestamp \
           --output stac_zarr/models/generated/geo_proj/
     vars:
-      GEO_PROJ_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/geo-proj/main/schema.json" .GEO_PROJ_SCHEMA_URL}}'
+      GEO_PROJ_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json" .GEO_PROJ_SCHEMA_URL}}'
 
   models:generate:multiscales:
     desc: Regenerate Pydantic model from zarr-conventions multiscales JSON Schema
@@ -188,9 +207,10 @@ tasks:
           --output-model-type pydantic_v2.BaseModel \
           --base-class stac_zarr.models.base.GeoZarrBaseModel \
           --snake-case-field \
+          --disable-timestamp \
           --output stac_zarr/models/generated/multiscales.py
     vars:
-      MULTISCALES_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/multiscales/main/schema.json" .MULTISCALES_SCHEMA_URL}}'
+      MULTISCALES_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/multiscales/refs/tags/v0.1/schema.json" .MULTISCALES_SCHEMA_URL}}'
 
   models:generate:all:
     desc: Regenerate all schema-derived Pydantic models used by stac-zarr

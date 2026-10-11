@@ -8,9 +8,11 @@ import urllib.request
 
 from jsonschema import ValidationError, validate
 
+from stac_zarr.constants import GEO_PROJ_CONVENTION
+
 from stac_zarr.models.generated.geo_proj import ConventionMetadata as GeoProjConventionMetadata
 
-GEO_PROJ_SCHEMA_URL = "https://raw.githubusercontent.com/zarr-experimental/geo-proj/main/schema.json"
+GEO_PROJ_SCHEMA_URL = GEO_PROJ_CONVENTION["schema_url"]
 
 
 def fetch_schema(url: str) -> dict:
@@ -25,13 +27,7 @@ def build_geo_proj_payload() -> dict:
         "attributes": {
             "zarr_conventions": [
                 GeoProjConventionMetadata.model_validate(
-                    {
-                        "schema_url": "https://raw.githubusercontent.com/zarr-experimental/geo-proj/refs/tags/v1/schema.json",
-                        "spec_url": "https://github.com/zarr-experimental/geo-proj/blob/v1/README.md",
-                        "uuid": "f17cb550-5864-4468-aeb7-f3180cfb622f",
-                        "name": "proj:",
-                        "description": "Coordinate reference system information for geospatial data",
-                    }
+                    GEO_PROJ_CONVENTION
                 ).model_dump()
             ],
             # Strict geo-proj oneOf: emit exactly one projection representation

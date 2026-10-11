@@ -30,6 +30,7 @@ dependencies = [
   "loguru",
   "zarr>=3.0.0",
   "pydantic>=2,<3",
+  "geozarr-toolkit>=0.1.2,<0.2",
 ]
 
 [project.urls]
@@ -53,6 +54,7 @@ extra-dependencies = [
 
 [project.scripts]
 stac-zarr = "stac_zarr.app:to_zarr"
+stac-zarr-validate = "stac_zarr.cli:validate_store"
 
 [tool.hatch.envs.dev]
 description = "Development environment"

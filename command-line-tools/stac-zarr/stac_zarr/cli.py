@@ -3,7 +3,18 @@ from pathlib import Path
 import click
 
 from stac_zarr.constants import OVERVIEW_REDUCERS
+from stac_zarr.validation import validate_geozarr_store
 from stac_zarr.writer import run_to_zarr
+
+
+@click.command(help="Validate a Zarr store recursively using the GeoZarr Toolkit Python API.")
+@click.argument("store")
+def validate_store(store: str) -> None:
+    try:
+        validate_geozarr_store(store)
+    except (ValueError, KeyError, OSError) as exc:
+        raise click.ClickException(f"GeoZarr Toolkit store validation: FAIL\n{exc}") from exc
+    click.echo(f"GeoZarr Toolkit store validation: PASS ({store})")
 
 
 @click.command(
@@ -90,7 +101,7 @@ from stac_zarr.writer import run_to_zarr
     default=False,
     show_default=True,
     help=(
-        "Deprecated compatibility flag. GeoZarr v1 root metadata is always emitted."
+        "Deprecated compatibility flag. GeoZarr convention v0.1 root metadata is always emitted."
     ),
 )
 @click.option(

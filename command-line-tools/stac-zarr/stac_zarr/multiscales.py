@@ -57,7 +57,7 @@ def build_tile_matrix_limits(tile_matrix_set: Dict[str, Any]) -> List[Dict[str, 
 
 
 def build_v1_layout(multiscales_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Build GeoZarr v1 multiscales.layout entries from per-measurement datasets."""
+    """Build GeoZarr convention v0.1 multiscales.layout entries from per-measurement datasets."""
     layout: List[Dict[str, Any]] = []
 
     for entry in multiscales_entries:

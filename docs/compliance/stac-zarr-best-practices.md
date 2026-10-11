@@ -107,7 +107,7 @@ For base and overview datasets, data arrays include:
 
 Dataset groups include coordinate members:
 
-* `time` (CF-style numeric time, seconds since epoch)
+* `time` (CF-style numeric time, nanoseconds since epoch)
 * `x`
 * `y`
 * `spatial_ref`
@@ -125,10 +125,12 @@ Reference:
 Implemented:
 
 * `zarr_conventions` includes `proj`, `spatial`, `multiscales`, pinned to Pilot `v0.1`
-* `spatial:*` root attributes (`dimensions`, `bbox`, `shape`, `transform`)
+* `spatial:*` root attributes (`dimensions`, `bbox`, `shape`, `transform`); the bbox uses outer pixel edges
+* measurement and overview arrays each declare `proj` and `spatial` and carry their own CRS, spatial dimensions, shape, transform, and pixel registration
 * GeoZarr convention v0.1 `multiscales` object (`resampling_method`, `layout`)
 * multiscale data levels with explicit dataset paths
 * CF-style dataset members and `grid_mapping` linkage checks
+* automatic recursive GeoZarr Toolkit validation before STAC output and metadata consolidation
 
 Forward work items:
 
@@ -139,7 +141,9 @@ Forward work items:
 When running `task compliance:check:all`:
 
 * `compliance:check:multiscales-layout` is the authoritative strict check for the emitted GeoZarr convention v0.1 layout profile and is expected to pass.
-* `compliance:check:multiscales` validates against upstream `zarr-conventions/multiscales` schema and is expected to pass.
+* `compliance:check:multiscales` validates against the published `v0.1` upstream schema.
+* `compliance:check:geozarr-toolkit` exercises real generated stores and verifies that invalid declarations, array metadata, and pyramid references fail.
+* `task compliance:check:store STORE=/absolute/path/to/output.zarr` validates an existing store read-only; the installed equivalent is `stac-zarr-validate /absolute/path/to/output.zarr`.
 
 ### Measurement contract
 

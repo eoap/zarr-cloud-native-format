@@ -214,12 +214,12 @@ This approach treats the STAC Collection as the data model and Items as data car
 
 ## GeoZarr Conventions Implemented in Zarr v3 Output
 
-The `stac-zarr` tool writes native Zarr v3 and annotates the root group with conventions metadata aligned with the GeoZarr conventions registry.
+The `stac-zarr` tool writes native Zarr v3 using the published Pilot `v0.1` proj, spatial, and multiscales conventions. Schema and specification URLs are pinned to those tags. The names are `proj` and `spatial`; their attribute prefixes remain `proj:` and `spatial:`.
 
 Implemented conventions in `root.attrs["zarr_conventions"]`:
 
-* `proj:` (geo-proj convention)
-* `spatial:` (spatial convention)
+* `proj` (projection convention)
+* `spatial` (spatial convention)
 * `multiscales` (multiscales convention)
 
 ### Root-level convention attributes
@@ -301,11 +301,23 @@ Reference:
 
 Implemented in this writer:
 
-* convention metadata (`zarr_conventions`) for `proj:`, `spatial:`, `multiscales`
+* convention metadata (`zarr_conventions`) for `proj`, `spatial`, `multiscales`
 * `spatial:*` root metadata and GeoZarr convention v0.1 `multiscales.layout`
 * CF-style dataset members (`time`, `x`, `y`, `spatial_ref`)
+* measurement and overview arrays each declare `proj` and `spatial`, with their own CRS, spatial dimensions, shape, transform, and pixel registration
 * data-array attributes: `grid_mapping`, `coordinates`
 * dataset-level validation of coordinate and grid-mapping references
+* automatic recursive GeoZarr Toolkit validation before writing STAC output and consolidating metadata; invalid metadata raises an error
+* root `spatial:bbox` uses the outer pixel edges from the geobox extent
+
+To validate an existing store independently:
+
+```bash
+stac-zarr-validate /absolute/path/to/output.zarr
+```
+
+A failed conversion can leave a partial store on disk. Passing validation covers
+the implemented Pilot conventions and does not claim stable GeoZarr V1 conformance.
 
 Current limitations:
 

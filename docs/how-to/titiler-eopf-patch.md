@@ -36,5 +36,5 @@ curl -o ndwi-time.png \
 
 For separate Kubernetes server/client deployments and reproducible validation,
 see [Display producer outputs on Kubernetes](titiler-eopf-kubernetes.md).
-The [historical issue draft](../../UPSTREAM_ISSUE_titiler-eopf_sel-time.md)
+The [historical issue draft](https://github.com/eoap/zarr-cloud-native-format/blob/main/UPSTREAM_ISSUE_titiler-eopf_sel-time.md)
 describes earlier moving-image failures rather than the currently pinned API.

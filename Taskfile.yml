@@ -254,7 +254,7 @@ tasks:
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       DATA_ROOT: '{{default "." .DATA_ROOT}}'
-      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+      TITILER_IMAGE: '{{default "titiler-eopf:patched" .TITILER_IMAGE}}'
 
   titiler:eopf:build:patched:
     desc: Build a patched TiTiler-EOPF image with sel-time fixes
@@ -310,7 +310,7 @@ tasks:
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       RESULTS_FILE: '{{default "cwl-tests/results.json" .RESULTS_FILE}}'
-      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+      TITILER_IMAGE: '{{default "titiler-eopf:patched" .TITILER_IMAGE}}'
 
   titiler:eopf:run:results:patched:
     desc: Run patched TiTiler-EOPF using zarr_stac_catalog path from CWL results.json
@@ -329,7 +329,7 @@ tasks:
     vars:
       TITILER_PORT: '{{default "8080" .TITILER_PORT}}'
       RESULTS_FILE: '{{default "cwl-tests/results-item.json" .RESULTS_FILE}}'
-      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+      TITILER_IMAGE: '{{default "titiler-eopf:patched" .TITILER_IMAGE}}'
 
   titiler:eopf:run:results:item:patched:
     desc: Run patched TiTiler-EOPF using item-mode CWL output results-item.json
@@ -382,7 +382,7 @@ tasks:
       DATA_ROOT: '{{default "command-line-tools/stac-zarr" .DATA_ROOT}}'
       COLLECTION_ID: '{{default "water-bodies" .COLLECTION_ID}}'
       ITEM_ID: '{{default "water-bodies" .ITEM_ID}}'
-      TITILER_IMAGE: '{{default "ghcr.io/eopf-explorer/titiler-eopf:main" .TITILER_IMAGE}}'
+      TITILER_IMAGE: '{{default "titiler-eopf:patched" .TITILER_IMAGE}}'
 
   test:stac-collection:
     desc: Run scoped unit tests for stac-collection
@@ -435,3 +435,10 @@ tasks:
       - task: test:crop
       - task: test:norm-diff
       - task: test:otsu
+
+  titiler:eopf:publish:
+    desc: Publish completed CWL catalog output at titiler-data for the Kubernetes viewer
+    cmds:
+      - python scripts/publish-titiler-store.py --results {{.RESULTS | shellQuote}}
+    vars:
+      RESULTS: '{{default "cwl-tests/results.json" .RESULTS}}'

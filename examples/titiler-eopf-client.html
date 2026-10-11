@@ -153,7 +153,18 @@
       <main id="map"></main>
     </div>
 
+    <script src="titiler-eopf-config.js"></script>
     <script>
+      const viewerConfig = window.EOAP_TITILER_CONFIG || {};
+      if (viewerConfig.apiBaseUrl) {
+        document.getElementById("baseUrl").value = new URL(viewerConfig.apiBaseUrl, window.location.href).href.replace(/\/+$/, "");
+      }
+      for (const key of ["collectionId", "itemId"]) {
+        if (viewerConfig[key]) document.getElementById(key).value = viewerConfig[key];
+      }
+      const publishedDataBase = viewerConfig.dataBaseUrl
+        ? new URL(viewerConfig.dataBaseUrl.replace(/\/?$/, "/"), window.location.href).href
+        : null;
       const map = L.map("map").setView([40.15, -121.07], 9);
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
@@ -219,6 +230,7 @@
         const explicit = el("collectionJsonUrl").value.trim();
         if (explicit) return explicit;
         const id = decodeURIComponent(collectionId());
+        if (publishedDataBase) return `${publishedDataBase}${encodeURIComponent(id)}/collection.json`;
         const origin = window.location.origin;
         const legacy = `${origin}/command-line-tools/stac-zarr/${id}/collection.json`;
 
@@ -251,6 +263,7 @@
       async function buildItemJsonFallbackUrl() {
         const id = decodeURIComponent(collectionId());
         const iid = decodeURIComponent(itemId());
+        if (publishedDataBase) return `${publishedDataBase}${encodeURIComponent(id)}/${encodeURIComponent(iid)}.json`;
         const origin = window.location.origin;
         const candidates = [`${origin}/cwl-tests/results-item.json`, `${origin}/cwl-tests/results.json`];
         try {
@@ -284,7 +297,7 @@
 
       function parseMeasurementFromExpression(expression) {
         if (typeof expression !== "string") return null;
-        const match = expression.match(/^\/[^:]+:([^\s]+)$/);
+        const match = expression.match(/^\/[^:]*:([^\s]+)$/);
         return match && match[1] ? match[1] : null;
       }
 
@@ -331,7 +344,10 @@
             defs.push({
               id: renderId,
               measurement,
-              expression,
+              expression: measurementKeys.includes(expression) ? expression : (() => {
+                const matches = measurementKeys.filter((key) => parseMeasurementFromExpression(key) === measurement);
+                return matches.length === 1 ? matches[0] : expression;
+              })(),
               rescale:
                 Array.isArray(renderObj.rescale) &&
                 renderObj.rescale.length > 0 &&

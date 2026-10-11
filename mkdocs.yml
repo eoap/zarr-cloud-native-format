@@ -69,6 +69,7 @@ nav:
     - TiTiler-EOPF + Collection: 'how-to/titiler-eopf-collection.md'
     - TiTiler-EOPF + Item: 'how-to/titiler-eopf-item.md'
     - TiTiler-EOPF HTML Client: 'how-to/titiler-eopf-html-client.md'
+    - TiTiler-EOPF Kubernetes: 'how-to/titiler-eopf-kubernetes.md'
     - TiTiler-EOPF Patch: 'how-to/titiler-eopf-patch.md'
   - Compliance:
     - GeoZarr Minispec Compliance: 'compliance/geozarr-minispec-compliance.md'

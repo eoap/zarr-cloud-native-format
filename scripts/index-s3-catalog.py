@@ -59,11 +59,6 @@ for item in items:
     for variable, rescale, colormap in (("ndwi", "-1,1", "viridis"), ("water-bodies", "0,1", "blues")):
         query = urlencode({"variables": variable, "rescale": rescale, "colormap_name": colormap, "bidx": 1})
         item.add_link(pystac.Link(
-            "tiles", f"{route}/tiles/WebMercatorQuad/{{z}}/{{x}}/{{y}}?{query}",
-            media_type="image/png", title=f"{variable} XYZ tiles (Web Mercator)",
-            extra_fields={"templated": True, "eoap:viewer": True},
-        ))
-        item.add_link(pystac.Link(
             "tilejson", f"{route}/WebMercatorQuad/tilejson.json?{query}",
             media_type="application/json", title=f"{variable} TileJSON",
             extra_fields={"eoap:viewer": True},

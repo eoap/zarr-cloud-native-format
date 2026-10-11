@@ -104,9 +104,9 @@ jobs:
           fi
       - name: Build image
         run: docker build -t "$IMAGE:$VERSION" "command-line-tools/${{ matrix.step }}"
-      - name: Apply approved exceptions only for candidate testing
+      - name: Apply approved candidate and 2.0.0 release exceptions
         run: |
-          if [[ "$CANDIDATE" != true ]]; then
+          if [[ "$CANDIDATE" != true && "$VERSION" != 2.0.0 ]]; then
             : > .trivyignore
           fi
       - name: Scan image (block fixable HIGH and CRITICAL vulnerabilities)

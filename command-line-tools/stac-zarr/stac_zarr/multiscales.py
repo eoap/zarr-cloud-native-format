@@ -38,3 +38,65 @@ def build_tile_matrix_set(
         "orderedAxes": ["E", "N"],
         "tileMatrices": tile_matrices,
     }
+
+
+def build_tile_matrix_limits(
+    tile_matrix_set: Dict[str, Any],
+) -> List[Dict[str, int | str]]:
+    """Build OGC-style tile matrix limits from a TileMatrixSet."""
+    limits: List[Dict[str, int | str]] = []
+    for matrix in tile_matrix_set["tileMatrices"]:
+        limits.append(
+            {
+                "tileMatrix": matrix["id"],
+                "minTileRow": 0,
+                "maxTileRow": int(matrix["matrixHeight"]) - 1,
+                "minTileCol": 0,
+                "maxTileCol": int(matrix["matrixWidth"]) - 1,
+            }
+        )
+    return limits
+
+
+def build_v1_layout(multiscales_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Build GeoZarr convention v0.1 multiscales.layout entries from per-measurement datasets."""
+    layout: List[Dict[str, Any]] = []
+
+    for entry in multiscales_entries:
+        datasets = sorted(
+            entry.get("datasets", []), key=lambda ds: int(ds.get("level", 0))
+        )
+        previous_asset: str | None = None
+        previous_factor: int = 1
+
+        for ds in datasets:
+            asset = ds.get("path")
+            if not isinstance(asset, str) or not asset:
+                continue
+
+            # TiTiler 0.12 reads each layout asset as an Xarray Dataset group.
+            # The variable remains an array inside that group.
+            asset = asset.rsplit("/", 1)[0]
+            current_factor = int(ds.get("downsampling_factor", 1))
+            relative_scale = max(1, current_factor // max(1, previous_factor))
+            layout_entry: Dict[str, Any] = {
+                "asset": asset,
+                "spatial:shape": ds.get("spatial:shape"),
+                "spatial:transform": ds.get("spatial:transform"),
+            }
+
+            if previous_asset is not None:
+                layout_entry["derived_from"] = previous_asset
+                layout_entry["transform"] = {
+                    "scale": [float(relative_scale), float(relative_scale)],
+                    "translation": [0.0, 0.0],
+                }
+            if "overview:reducer" in ds:
+                layout_entry["resampling_method"] = ds["overview:reducer"]
+
+            if not any(existing["asset"] == asset for existing in layout):
+                layout.append(layout_entry)
+            previous_asset = asset
+            previous_factor = current_factor
+
+    return layout

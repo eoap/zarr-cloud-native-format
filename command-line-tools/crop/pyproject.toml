@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "crop"
+dynamic = ["version"]
+description = "Crop STAC item assets by AOI and band"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "MIT"
+authors = [
+  { name = "Fabrice Brito", email = "info@terradue.com" },
+]
+dependencies = [
+  "click==8.2.1",
+  "loguru==0.7.3",
+  "planetary-computer==1.0.0",
+  "pyproj==3.7.2",
+  "pystac==1.13.0",
+  "rasterio==1.4.3",
+  "shapely==2.1.1",
+]
+
+[project.urls]
+Documentation = "https://eoap.github.io/zarr-cloud-native-format/"
+Issues = "https://github.com/eoap/zarr-cloud-native-format/issues"
+Source = "https://github.com/eoap/zarr-cloud-native-format"
+
+[tool.hatch.version]
+path = "crop_tool/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["crop_tool"]
+
+[project.scripts]
+crop = "crop_tool.cli:to_crop"

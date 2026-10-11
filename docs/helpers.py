@@ -9,8 +9,10 @@ from eoap_cwlwrap.types import type_to_string
 from cwl_loader import load_cwl_from_location
 from cwl_loader.utils import search_process
 from PIL import Image
-from plantuml import deflate_and_encode
-from urllib.request import urlopen
+from pathlib import Path
+import os
+import subprocess
+import tempfile
 
 
 class WorkflowViewer:
@@ -66,19 +68,25 @@ class WorkflowViewer:
 
         out = StringIO()
         to_puml(
-            cwl_document=wf,
+            cwl_document=self.workflow,
             diagram_type=diagram_type,
             output_stream=out,
             workflow_id=workflow_id,
         )
 
         clear_output = out.getvalue()
-        encoded = deflate_and_encode(clear_output)
-
-        diagram_url = f"https://img.plantuml.biz/plantuml/png/{encoded}"
-
-        with urlopen(diagram_url) as url:
-            img = Image.open(BytesIO(url.read()))
+        jar = Path(os.environ.get(
+            "PLANTUML_JAR", str(Path(tempfile.gettempdir()) / "eoap-plantuml.jar")
+        ))
+        if not jar.is_file():
+            raise FileNotFoundError("Run task docs:generate:uml or set PLANTUML_JAR to a local PlantUML jar")
+        source = clear_output.replace("@startuml", "@startuml\n!pragma layout smetana", 1)
+        rendered = subprocess.run(
+            ["java", "-Djava.awt.headless=true", "-DPLANTUML_LIMIT_SIZE=16384",
+             "-jar", str(jar), "-pipe", "-tpng"],
+            input=source.encode(), capture_output=True, check=True,
+        )
+        img = Image.open(BytesIO(rendered.stdout))
         display(img)
 
     def display_components_diagram(self, entrypoint=None):

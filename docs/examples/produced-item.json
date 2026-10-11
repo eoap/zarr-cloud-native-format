@@ -1,0 +1,246 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/projection/v2.0.0/schema.json",
+    "https://stac-extensions.github.io/raster/v2.0.0/schema.json",
+    "https://stac-extensions.github.io/datacube/v2.2.0/schema.json",
+    "https://stac-extensions.github.io/render/v2.0.0/schema.json"
+  ],
+  "id": "water-bodies",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -121.39905410179915,
+          39.833916743259095
+        ],
+        [
+          -120.76135965075635,
+          39.82336095080462
+        ],
+        [
+          -120.73995321724426,
+          40.471999341669175
+        ],
+        [
+          -121.38373773482932,
+          40.482798837728375
+        ],
+        [
+          -121.39905410179915,
+          39.833916743259095
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    -121.39905410179915,
+    39.82336095080462,
+    -120.73995321724426,
+    40.482798837728375
+  ],
+  "properties": {
+    "renders": {
+      "ndwi": {
+        "assets": [
+          "measurements"
+        ],
+        "title": "NDWI",
+        "rescale": [
+          [
+            -1,
+            1
+          ]
+        ],
+        "colormap_name": "viridis",
+        "expression": "/measurements:ndwi"
+      },
+      "water-bodies": {
+        "assets": [
+          "measurements"
+        ],
+        "title": "Water Bodies",
+        "colormap": {
+          "0": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "1": [
+            0,
+            0,
+            255,
+            255
+          ],
+          "255": [
+            0,
+            0,
+            255,
+            255
+          ]
+        },
+        "expression": "/measurements:water-bodies"
+      }
+    },
+    "datetime": "2021-06-03T18:49:19.024000Z"
+  },
+  "links": [
+    {
+      "rel": "store",
+      "href": "water-bodies.zarr",
+      "type": "application/vnd.zarr; version=3; profile=multiscales",
+      "title": "Zarr store for Water bodies"
+    },
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json",
+      "title": "Water bodies"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json",
+      "title": "Water bodies"
+    }
+  ],
+  "assets": {
+    "measurements": {
+      "href": "water-bodies.zarr/measurements",
+      "type": "application/vnd.zarr; version=3; profile=multiscales",
+      "title": "Measurements",
+      "description": "Zarr measurements group",
+      "bands": [
+        {
+          "name": "water-bodies",
+          "description": "Water bodies detected"
+        },
+        {
+          "name": "ndwi",
+          "description": "Normalized Difference Water Index"
+        }
+      ],
+      "cube:variables": {
+        "water-bodies": {
+          "type": "data",
+          "dimensions": [
+            "time",
+            "y",
+            "x"
+          ]
+        },
+        "ndwi": {
+          "type": "data",
+          "dimensions": [
+            "time",
+            "y",
+            "x"
+          ]
+        }
+      },
+      "cube:dimensions": {
+        "time": {
+          "type": "temporal",
+          "extent": [
+            "2021-06-03T18:49:19.024000Z",
+            "2021-06-18T18:49:21.024000Z"
+          ],
+          "values": [
+            "2021-06-03T18:49:19.024000000Z",
+            "2021-06-08T18:49:21.024000000Z",
+            "2021-06-13T18:49:19.024000000Z",
+            "2021-06-18T18:49:21.024000000Z"
+          ]
+        },
+        "x": {
+          "type": "spatial",
+          "axis": "x",
+          "extent": [
+            636995.0,
+            691585.0
+          ]
+        },
+        "y": {
+          "type": "spatial",
+          "axis": "y",
+          "extent": [
+            4410555.0,
+            4482595.0
+          ]
+        }
+      },
+      "proj:code": "EPSG:32610",
+      "proj:wkt2": "PROJCRS[\"WGS 84 / UTM zone 10N\",\n    BASEGEOGCRS[\"WGS 84\",\n        ENSEMBLE[\"World Geodetic System 1984 ensemble\",\n            MEMBER[\"World Geodetic System 1984 (Transit)\"],\n            MEMBER[\"World Geodetic System 1984 (G730)\"],\n            MEMBER[\"World Geodetic System 1984 (G873)\"],\n            MEMBER[\"World Geodetic System 1984 (G1150)\"],\n            MEMBER[\"World Geodetic System 1984 (G1674)\"],\n            MEMBER[\"World Geodetic System 1984 (G1762)\"],\n            MEMBER[\"World Geodetic System 1984 (G2139)\"],\n            MEMBER[\"World Geodetic System 1984 (G2296)\"],\n            ELLIPSOID[\"WGS 84\",6378137,298.257223563,\n                LENGTHUNIT[\"metre\",1]],\n            ENSEMBLEACCURACY[2.0]],\n        PRIMEM[\"Greenwich\",0,\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n        ID[\"EPSG\",4326]],\n    CONVERSION[\"UTM zone 10N\",\n        METHOD[\"Transverse Mercator\",\n            ID[\"EPSG\",9807]],\n        PARAMETER[\"Latitude of natural origin\",0,\n            ANGLEUNIT[\"degree\",0.0174532925199433],\n            ID[\"EPSG\",8801]],\n        PARAMETER[\"Longitude of natural origin\",-123,\n            ANGLEUNIT[\"degree\",0.0174532925199433],\n            ID[\"EPSG\",8802]],\n        PARAMETER[\"Scale factor at natural origin\",0.9996,\n            SCALEUNIT[\"unity\",1],\n            ID[\"EPSG\",8805]],\n        PARAMETER[\"False easting\",500000,\n            LENGTHUNIT[\"metre\",1],\n            ID[\"EPSG\",8806]],\n        PARAMETER[\"False northing\",0,\n            LENGTHUNIT[\"metre\",1],\n            ID[\"EPSG\",8807]]],\n    CS[Cartesian,2],\n        AXIS[\"(E)\",east,\n            ORDER[1],\n            LENGTHUNIT[\"metre\",1]],\n        AXIS[\"(N)\",north,\n            ORDER[2],\n            LENGTHUNIT[\"metre\",1]],\n    USAGE[\n        SCOPE[\"Navigation and medium accuracy spatial referencing.\"],\n        AREA[\"Between 126\u00b0W and 120\u00b0W, northern hemisphere between equator and 84\u00b0N, onshore and offshore. Canada - British Columbia (BC); Northwest Territories (NWT); Nunavut; Yukon. United States (USA) - Alaska (AK).\"],\n        BBOX[0,-126,84,-120]],\n    ID[\"EPSG\",32610]]",
+      "proj:shape": [
+        7205,
+        5460
+      ],
+      "proj:transform": [
+        10.0,
+        0.0,
+        636990.0,
+        0.0,
+        -10.0,
+        4482600.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "proj:bbox": [
+        636995.0,
+        4410555.0,
+        691585.0,
+        4482595.0
+      ],
+      "proj:geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              636990.0,
+              4482600.0
+            ],
+            [
+              636990.0,
+              4410550.0
+            ],
+            [
+              691590.0,
+              4410550.0
+            ],
+            [
+              691590.0,
+              4482600.0
+            ],
+            [
+              636990.0,
+              4482600.0
+            ]
+          ]
+        ]
+      },
+      "raster:bands": [
+        {
+          "data_type": "uint8",
+          "spatial_resolution": [
+            10.0,
+            10.0
+          ]
+        },
+        {
+          "data_type": "float32",
+          "spatial_resolution": [
+            10.0,
+            10.0
+          ]
+        }
+      ],
+      "roles": [
+        "data"
+      ]
+    }
+  }
+}

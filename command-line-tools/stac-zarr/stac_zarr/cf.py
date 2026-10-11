@@ -7,10 +7,10 @@ from xarray import DataArray
 def _coerce_time_values(values: np.ndarray) -> Tuple[np.ndarray, Dict[str, str]]:
     """Convert time coordinates to CF-style numeric values when possible."""
     if np.issubdtype(values.dtype, np.datetime64):
-        epoch_seconds = values.astype("datetime64[s]").astype(np.int64)
-        return epoch_seconds, {
+        epoch_ns = values.astype("datetime64[ns]").astype(np.int64)
+        return epoch_ns, {
             "standard_name": "time",
-            "units": "seconds since 1970-01-01T00:00:00Z",
+            "units": "nanoseconds since 1970-01-01T00:00:00Z",
             "calendar": "proleptic_gregorian",
         }
     try:

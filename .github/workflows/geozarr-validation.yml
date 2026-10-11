@@ -1,0 +1,35 @@
+name: GeoZarr validation
+
+on:
+  push:
+    paths:
+      - 'command-line-tools/stac-zarr/**'
+      - 'scripts/validate_*.py'
+      - '.github/workflows/geozarr-validation.yml'
+  pull_request:
+    paths:
+      - 'command-line-tools/stac-zarr/**'
+      - 'scripts/validate_*.py'
+      - '.github/workflows/geozarr-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: command-line-tools/stac-zarr
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv python install 3.12
+      - run: uv run --locked --with pytest pytest -q
+      - name: Validate published convention schemas
+        run: |
+          uv run --locked --with jsonschema python ../../scripts/validate_geo_proj_schema.py
+          uv run --locked --with jsonschema python ../../scripts/validate_spatial_schema.py
+          uv run --locked --with jsonschema python ../../scripts/validate_multiscales_schema.py
+          uv run --locked python ../../scripts/validate_multiscales_layout_profile.py
+          uv run --locked python ../../scripts/validate_eopf_explorer_profile.py

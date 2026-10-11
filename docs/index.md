@@ -2,11 +2,14 @@
 
 ## Start Here
 
-* New contributor or team member: go to [Onboarding](onboarding.md)
+* New contributor or team member: go to [Developer Onboarding](on-boarding/developers.md)
+* Running workflows as a user: go to [EOAP Users Onboarding](on-boarding/eoap-users.md)
+* Releasing/operating docs and workflows: go to [Maintainers Onboarding](on-boarding/maintainers.md)
 * Need STAC input contract details: go to [Input STAC Requirements](input-stac.md)
 * Need producer output semantics: go to [Producer Outputs Contract](producer-outputs.md)
-* Need conventions and implementation details: go to [STAC Zarr Best Practices](stac-zarr-best-practices.md)
-* Need current compliance status: go to [GeoZarr Minispec Compliance](geozarr-minispec-compliance.md)
+* Need hands-on commands for `stac-zarr` and TiTiler: go to [How-to: stac-zarr Usage](how-to/stac-zarr-usage.md)
+* Need conventions and implementation details: go to [STAC Zarr Best Practices](compliance/stac-zarr-best-practices.md)
+* Need current compliance status: go to [GeoZarr Minispec Compliance](compliance/geozarr-minispec-compliance.md)
 * Want an end-to-end runnable walkthrough: go to [TL;DR](exploitation.ipynb)
 
 ## Overview
@@ -73,7 +76,7 @@ Output:
 
 5. Generate STAC Metadata
 
-Produce STAC items for each step, describing the results with the appropriate metadata.
+Produce a STAC catalog/collection for NDWI and water-bodies outputs, then convert to Zarr STAC metadata.
 
 Input: 
 
@@ -82,4 +85,4 @@ Input:
 Output: 
 
 * Zarr encoded result
-* STAC item (including Datacube metadata)
+* STAC catalog and collection metadata

@@ -1,7 +1,7 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 $namespaces:
   s: https://schema.org/
-s:softwareVersion: 1.1.0
+s:softwareVersion: 2.0.0
 s:name: Water bodies detection workflow
 s:description: Water bodies detection based on NDWI and Otsu threshold applied to Sentinel-2 COG STAC items
 s:dateCreated: "2026-03-19"
@@ -44,29 +44,31 @@ $graph:
       stac_api_endpoint:
         label: STAC API endpoint
         doc: STAC API endpoint
-        type: Any
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
+        default:
+          headers: []
+          url:
+            value: https://planetarycomputer.microsoft.com/api/stac/v1
       collection:
         label: STAC collection
         doc: STAC collection identifier
         type: string
         default: sentinel-2-l2a
-      bbox:
-        label: Bounding box
-        doc: Bounding box as [minx, miny, maxx, maxy]
-        type: double[]
+      aoi:
+        label: Area of interest
+        doc: Area of interest polygon with bbox [minx, miny, maxx, maxy]
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
       start-datetime:
         label: Start time
         doc: Start time
         type:
           - "null"
-          - string
           - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
       end-datetime:
         label: End time
         doc: End time
         type:
           - "null"
-          - string
           - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
       limit:
         label: limit
@@ -126,16 +128,31 @@ $graph:
             - median
             - nearest
         default: "nearest"
+      stac_object_type:
+        label: STAC object type
+        doc: Output STAC object type emitted by stac-zarr (collection or item)
+        type:
+          type: enum
+          symbols:
+            - collection
+            - item
+        default: collection
     outputs:
       - id: zarr_stac_catalog
+        label: Zarr STAC catalog
+        doc: STAC catalog produced by the stac-zarr step
         outputSource:
           - stac_zarr/zarr_stac_catalog
         type: Directory
       - id: stac_catalog
+        label: Intermediate STAC catalog
+        doc: STAC catalog produced by the stac-collection step
         outputSource:
           - stac-collection/temp_stac_catalog
         type: Directory
       - id: eopf_product_stac_catalog
+        label: EOPF product STAC catalog
+        doc: STAC catalog produced by the stac-eopf-product step
         outputSource:
           - stac_eopf_product/eopf_product_stac_catalog
         type: Directory
@@ -151,11 +168,11 @@ $graph:
 
       build_search_request:
         label: Build STAC search request
-        doc: Build STACSearchSettings from bbox and query inputs
+        doc: Build STACSearchSettings from AOI and query inputs
         run: "#build_search_request"
         in:
           collection: collection
-          bbox: bbox
+          aoi: aoi
           start-datetime: start-datetime
           end-datetime: end-datetime
           limit: limit
@@ -171,7 +188,7 @@ $graph:
         in:
           api_endpoint: build_api_endpoint/normalized_api_endpoint
           search_request: build_search_request/search_request
-        run: https://github.com/eoap/schemas/releases/download/0.2.0/stac-api-client.0.2.0.cwl
+        run: "#stac-client"
         out:
         - search_output
       
@@ -226,6 +243,7 @@ $graph:
           overview_levels: overview_levels
           continuous_overview_reducer: continuous_overview_reducer
           categorical_overview_reducer: categorical_overview_reducer
+          stac_object_type: stac_object_type
         out:
           - zarr_stac_catalog
 
@@ -251,9 +269,11 @@ $graph:
       api_endpoint:
         label: STAC API endpoint
         doc: STAC API endpoint
-        type: Any
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
     outputs:
       normalized_api_endpoint:
+        label: Normalized API endpoint
+        doc: Normalized API endpoint object for discovery step
         type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
     expression: |
       ${
@@ -287,23 +307,21 @@ $graph:
         label: STAC collection
         doc: STAC collection identifier
         type: string
-      bbox:
-        label: Bounding box
-        doc: Bounding box as [minx, miny, maxx, maxy]
-        type: double[]
+      aoi:
+        label: Area of interest
+        doc: Area of interest polygon with bbox [minx, miny, maxx, maxy]
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
       start-datetime:
         label: Start time
         doc: Start time
         type:
           - "null"
-          - string
           - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
       end-datetime:
         label: End time
         doc: End time
         type:
           - "null"
-          - string
           - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
       limit:
         label: limit
@@ -329,12 +347,15 @@ $graph:
           - Any
     outputs:
       search_request:
+        label: STAC search request
+        doc: Normalized STACSearchSettings request object
         type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
     expression: |
       ${
-        var b = inputs.bbox;
+        var aoi = inputs.aoi;
+        var b = aoi && aoi.bbox;
         if (!Array.isArray(b) || b.length !== 4) {
-          throw new Error("bbox must be [minx,miny,maxx,maxy]");
+          throw new Error("aoi.bbox must be [minx,miny,maxx,maxy]");
         }
 
         var searchRequest = {
@@ -350,12 +371,12 @@ $graph:
           searchRequest.datetime_interval = {};
           if (startDatetime !== null) {
             searchRequest.datetime_interval.start = {
-              value: typeof startDatetime === "string" ? startDatetime : startDatetime.value
+              value: startDatetime.value
             };
           }
           if (endDatetime !== null) {
             searchRequest.datetime_interval.end = {
-              value: typeof endDatetime === "string" ? endDatetime : endDatetime.value
+              value: endDatetime.value
             };
           }
         }
@@ -376,10 +397,9 @@ $graph:
     doc: Gets the item self hrefs from a STAC search result
     baseCommand: ["/bin/sh", "run.sh"]
     arguments: []
-    hints:
-      DockerRequirement:
-        dockerPull: ghcr.io/eoap/zarr-cloud-native-format/yq@sha256:401655f3f4041bf3d03b05f3b24ad4b9d18cfcf908c3b44f5901383621d0688a
     requirements:
+    - class: DockerRequirement
+      dockerPull: ghcr.io/eoap/zarr-cloud-native-format/yq@sha256:401655f3f4041bf3d03b05f3b24ad4b9d18cfcf908c3b44f5901383621d0688a
     - class: InlineJavascriptRequirement
     - class: SchemaDefRequirement
       types:
@@ -412,13 +432,17 @@ $graph:
 
     outputs:
       items:
-        type: Any
+        label: Item self hrefs
+        doc: Array of STAC Item self links extracted from search results
+        type: string[]
         outputBinding:
           glob: items.json
           loadContents: true
           outputEval: ${ return JSON.parse(self[0].contents); }
   
       aoi: 
+        label: AOI bbox CSV
+        doc: Area of interest bbox serialized as CSV for downstream crop step
         type: string
         outputBinding:
           glob: aoi.txt
@@ -433,29 +457,39 @@ $graph:
       ScatterFeatureRequirement: {}
     inputs:
       aoi:
+        label: Area of interest
         doc: area of interest as a bounding box
         type: string
       epsg:
+        label: EPSG code
         doc: EPSG code
         type: string
         default: "EPSG:4326"
       bands:
+        label: Input bands
         doc: bands used for the NDWI
         type: string[]
       item:
+        label: STAC item href
         doc: STAC item
         type: string
     outputs:
       - id: detected_water_body
+        label: Water body mask
+        doc: Binary water mask generated by the Otsu step
         outputSource:
           - otsu/binary_mask_item
         type: File
       - id: ndwi
+        label: NDWI raster
+        doc: NDWI raster generated by normalized difference step
         outputSource:
           - normalized_difference/ndwi
         type: File
     steps:
       crop:
+        label: Crop spectral bands
+        doc: Crop and reproject each requested band to the area of interest.
         run: "#crop"
         in:
           item: item
@@ -467,6 +501,8 @@ $graph:
         scatter: band
         scatterMethod: dotproduct
       normalized_difference:
+        label: Compute NDWI
+        doc: Compute the normalized difference water index from the cropped bands.
         run: "#norm_diff"
         in:
           rasters:
@@ -474,6 +510,8 @@ $graph:
         out:
           - ndwi
       otsu:
+        label: Detect water bodies
+        doc: Apply Otsu thresholding to the NDWI raster to produce a binary water mask.
         run: "#otsu"
         in:
           raster:
@@ -486,35 +524,57 @@ $graph:
       InlineJavascriptRequirement: {}
       EnvVarRequirement:
         envDef:
-          PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          PATH: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
-    hints:
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
-        dockerPull: ghcr.io/eoap/mastering-app-package/crop@sha256:324a0735cc4998f3f790c0e9b7a7df28e8ce8987d5f0798bd2d63c0e72d17dca
-    baseCommand: ["python", "-m", "app"]
+        dockerPull: crop:latest
+    baseCommand: ["crop"]
     arguments: []
     inputs:
       item:
+        label: Input STAC item href
+        doc: STAC item href to crop
         type: string
         inputBinding:
           prefix: --input-item
       aoi:
+        label: Area of interest
+        doc: Area of interest bbox as CSV
         type: string
         inputBinding:
           prefix: --aoi
       epsg:
+        label: Target EPSG
+        doc: Target EPSG code used for crop reprojection
         type: string
         inputBinding:
           prefix: --epsg
       band:
+        label: Band name
+        doc: Band identifier to crop
         type: string
         inputBinding:
           prefix: --band
+      asset_signing:
+        label: Asset signing mode
+        doc: Internal cloud asset signing mode (auto, none, mspc)
+        type:
+          type: enum
+          symbols:
+            - auto
+            - none
+            - mspc
+        default: auto
+        inputBinding:
+          prefix: --asset-signing
     outputs:
       cropped:
+        label: Cropped raster
+        doc: Cropped raster output for one band
         outputBinding:
           glob: '*.tif'
         type: File
@@ -524,23 +584,27 @@ $graph:
       InlineJavascriptRequirement: {}
       EnvVarRequirement:
         envDef:
-          PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          PATH: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
-    hints:
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
-        dockerPull: ghcr.io/eoap/mastering-app-package/norm_diff@sha256:632991ef2c15e98c46cfa1ac7dd35a638bbe4e5c434d7503a76cf3570b17383f
-    baseCommand: ["python", "-m", "app"]
+        dockerPull: norm-diff:latest
+    baseCommand: ["norm-diff"]
     arguments: []
     inputs:
       rasters:
+        label: Raster inputs
+        doc: Two raster inputs used to compute NDWI
         type: File[]
         inputBinding:
           position: 1
     outputs:
       ndwi:
+        label: NDWI output
+        doc: NDWI raster output
         outputBinding:
           glob: '*.tif'
         type: File
@@ -550,23 +614,27 @@ $graph:
       InlineJavascriptRequirement: {}
       EnvVarRequirement:
         envDef:
-          PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          PATH: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
-    hints:
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
-        dockerPull: ghcr.io/eoap/mastering-app-package/otsu@sha256:0541948f46a7a1a9f30f17973b7833482660f085700ccc98bb743a35a37dabae
-    baseCommand: ["python", "-m", "app"]
+        dockerPull: otsu:latest
+    baseCommand: ["otsu"]
     arguments: []
     inputs:
       raster:
+        label: NDWI raster
+        doc: NDWI raster input for Otsu thresholding
         type: File
         inputBinding:
           position: 1
     outputs:
       binary_mask_item:
+        label: Binary mask output
+        doc: Binary water mask raster generated by Otsu
         outputBinding:
           glob: '*.tif'
         type: File
@@ -576,26 +644,32 @@ $graph:
       InlineJavascriptRequirement: {}
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
-    hints:
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
         dockerPull: stac-collection:latest
     baseCommand: ["stac-collection"]
     arguments: []
     inputs:
       item:
+        label: Input STAC items
+        doc: Input STAC item href list
         type:
           type: array
           items: string
           inputBinding:
             prefix: --input-item
       rasters:
+        label: Water body rasters
+        doc: Otsu water-body raster outputs
         type:
           type: array
           items: File
           inputBinding:
             prefix: --otsu 
       ndwis:
+        label: NDWI rasters
+        doc: NDWI raster outputs
         type:
           type: array
           items: File
@@ -604,6 +678,7 @@ $graph:
     outputs:
       temp_stac_catalog:
         label: temporary STAC catalog with COG outputs
+        doc: Temporary STAC catalog with COG assets for zarr conversion
         outputBinding:
           glob: .
         type: Directory
@@ -613,23 +688,29 @@ $graph:
       InlineJavascriptRequirement: {}
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
-    hints:
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
         dockerPull: stac-zarr:latest 
     baseCommand: ["stac-zarr"]
     arguments: []
     inputs:
       stac_catalog:
+        label: Input STAC catalog
+        doc: STAC catalog containing COG products to convert
         type: Directory
         inputBinding:
           prefix: --stac-catalog
       overview_levels:
+        label: Overview levels
+        doc: Number of overview levels to generate
         type: int
         default: 2
         inputBinding:
           prefix: --overview-levels
       continuous_overview_reducer:
+        label: Continuous reducer
+        doc: Reducer for continuous variables when building overviews
         type:
           type: enum
           symbols:
@@ -641,6 +722,8 @@ $graph:
         inputBinding:
           prefix: --continuous-overview-reducer
       categorical_overview_reducer:
+        label: Categorical reducer
+        doc: Reducer for categorical variables when building overviews
         type:
           type: enum
           symbols:
@@ -652,6 +735,8 @@ $graph:
         inputBinding:
           prefix: --categorical-overview-reducer
       resolution:
+        label: Target resolution
+        doc: Optional target output spatial resolution
         type:
           - "null"
           - float
@@ -659,6 +744,8 @@ $graph:
         inputBinding:
           prefix: --resolution
       chunks:
+        label: Chunking mode
+        doc: Chunking strategy for stac-load (manual or auto)
         type:
           type: enum
           symbols:
@@ -668,22 +755,55 @@ $graph:
         inputBinding:
           prefix: --chunks
       chunk_x:
+        label: Chunk size X
+        doc: X chunk size when chunking mode is manual
         type: int
         default: 512
         inputBinding:
           prefix: --chunk-x
       chunk_y:
+        label: Chunk size Y
+        doc: Y chunk size when chunking mode is manual
         type: int
         default: 512
         inputBinding:
           prefix: --chunk-y
       chunk_time:
+        label: Chunk size time
+        doc: Time chunk size when chunking mode is manual
         type: int
         default: 1
         inputBinding:
           prefix: --chunk-time
+      consolidate:
+        label: Consolidate metadata
+        doc: Write consolidated Zarr metadata after generation
+        type: boolean
+        default: true
+        inputBinding:
+          prefix: --consolidate
+      titiler_eopf_compatible:
+        label: TiTiler-EOPF compatibility
+        doc: Deprecated compatibility flag; GeoZarr convention v0.1 root metadata is always emitted
+        type: boolean
+        default: false
+        inputBinding:
+          prefix: --titiler-eopf-compatible
+      stac_object_type:
+        label: STAC object type
+        doc: Output STAC object type to emit (collection or item)
+        type:
+          type: enum
+          symbols:
+            - collection
+            - item
+        default: collection
+        inputBinding:
+          prefix: --stac-object-type
     outputs:
       zarr_stac_catalog:
+        label: Zarr STAC catalog
+        doc: STAC catalog output containing Zarr store metadata
         outputBinding:
           glob: .
         type: Directory
@@ -696,18 +816,22 @@ $graph:
       InlineJavascriptRequirement: {}
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
-    hints:
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
         dockerPull: stac-eopf-product:latest
     baseCommand: ["stac-eopf-product"]
     arguments: []
     inputs:
       stac_catalog:
+        label: Input STAC catalog
+        doc: STAC catalog containing COG products to convert
         type: Directory
         inputBinding:
           prefix: --stac-catalog
       resolution:
+        label: Target resolution
+        doc: Optional target output spatial resolution
         type:
           - "null"
           - float
@@ -715,6 +839,8 @@ $graph:
         inputBinding:
           prefix: --resolution
       chunks:
+        label: Chunking mode
+        doc: Chunking strategy for stac-load (manual or auto)
         type:
           type: enum
           symbols:
@@ -724,22 +850,92 @@ $graph:
         inputBinding:
           prefix: --chunks
       chunk_x:
+        label: Chunk size X
+        doc: X chunk size when chunking mode is manual
         type: int
         default: 512
         inputBinding:
           prefix: --chunk-x
       chunk_y:
+        label: Chunk size Y
+        doc: Y chunk size when chunking mode is manual
         type: int
         default: 512
         inputBinding:
           prefix: --chunk-y
       chunk_time:
+        label: Chunk size time
+        doc: Time chunk size when chunking mode is manual
         type: int
         default: 1
         inputBinding:
           prefix: --chunk-time
     outputs:
       eopf_product_stac_catalog:
+        label: EOPF product STAC catalog
+        doc: STAC catalog output containing EOPF product Zarr store metadata
         outputBinding:
           glob: .
         type: Directory
+
+  # Adapted from eoap/schemas stac-api-client 0.2.0:
+  # https://github.com/eoap/schemas/releases/download/0.2.0/stac-api-client.0.2.0.cwl
+  # Requires the container, documents its output, and uses CWL-compatible ES5.
+  - class: CommandLineTool
+    id: stac-client
+    label: STAC Client Tool
+    doc: |
+      This tool uses the STAC Client to search for STAC items
+    requirements:
+      - class: DockerRequirement
+        dockerPull: ghcr.io/eoap/schemas/stac-api-client@sha256:a7e346f704836d07f5dabc6b29ee3359e7253f4a294d74f3899973b8920da6f7
+      - class: InlineJavascriptRequirement
+      - class: NetworkAccess
+        networkAccess: true
+      - class: SchemaDefRequirement
+        types:
+          - $import: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml
+          - $import: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml
+          - $import: |-
+              https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml
+          - $import: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml
+    inputs:
+      api_endpoint:
+        label: STAC API endpoint
+        doc: STAC API endpoint used to discover input items
+        type: |-
+          https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
+      search_request:
+        label: STAC API settings
+        doc: STAC search settings including spatial, temporal, and collection filters
+        type: |-
+          https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
+    outputs:
+      search_output:
+        label: STAC search results
+        doc: GeoJSON feature collection containing the discovered STAC items.
+        type: File
+        outputBinding:
+          glob: discovery-output.json
+    baseCommand: ["stac-client"]
+    arguments:
+      - "search"
+      - $(inputs.api_endpoint.url.value)
+      - |-
+        ${ var collections = inputs.search_request.collections; return ['--collections', collections.join(",")]; }
+      - |-
+        ${ var bbox = inputs.search_request.bbox; return Array.isArray(bbox) && bbox.length >= 4 ? ['--bbox'].concat(bbox.map(String)) : []; }
+      - |-
+        ${ var limit = inputs.search_request.limit; return ['--limit', String(limit == null ? 10 : limit)]; }
+      - |-
+        ${ var maxItems = inputs.search_request['max-items']; return ['--max-items', String(maxItems == null ? 20 : maxItems)]; }
+      - |-
+        ${ var args = []; var filter = inputs.search_request.filter; var filterLang = inputs.search_request['filter-lang']; if (filterLang) { args.push('--filter-lang', filterLang); } if (filter) { args.push('--filter', JSON.stringify(filter)); } return args; }
+      - |-
+        ${ var datetime = inputs.search_request.datetime; var interval = inputs.search_request.datetime_interval; if (datetime) { return ['--datetime', datetime]; } if (interval) { var start = interval.start && interval.start.value || '..'; var end = interval.end && interval.end.value || '..'; return ['--datetime', start + '/' + end]; } return []; }
+      - |-
+        ${ var ids = inputs.search_request.ids; return Array.isArray(ids) && ids.length > 0 ? ['--ids'].concat(ids.map(String)) : []; }
+      - |-
+        ${ var intersects = inputs.search_request.intersects; return intersects ? ['--intersects', JSON.stringify(intersects)] : []; }
+      - --save
+      - discovery-output.json

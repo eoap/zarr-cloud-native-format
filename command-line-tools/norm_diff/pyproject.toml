@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "norm-diff"
+dynamic = ["version"]
+description = "Normalized difference raster command line tool"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "MIT"
+authors = [
+  { name = "Fabrice Brito", email = "info@terradue.com" },
+]
+dependencies = [
+  "click==8.2.1",
+  "loguru==0.7.3",
+  "numpy==2.2.6",
+  "rasterio==1.4.3",
+]
+
+[tool.hatch.version]
+path = "norm_diff_tool/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["norm_diff_tool"]
+
+[project.scripts]
+norm-diff = "norm_diff_tool.cli:to_norm_diff"

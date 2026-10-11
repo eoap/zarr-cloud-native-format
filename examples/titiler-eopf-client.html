@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TiTiler-EOPF Client</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <style>
+      :root {
+        --bg: #f5f7f9;
+        --panel: #ffffff;
+        --text: #1c232b;
+        --border: #d7dde3;
+        --accent: #2c7fb8;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        height: 100%;
+      }
+      .panel {
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        padding: 14px;
+        overflow: auto;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 1.1rem;
+      }
+      .row {
+        margin-bottom: 10px;
+      }
+      label {
+        display: block;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+      }
+      input,
+      select,
+      button {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px;
+        font-size: 0.9rem;
+      }
+      button {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+        cursor: pointer;
+      }
+      button.secondary {
+        background: #fff;
+        color: var(--text);
+      }
+      .status {
+        margin-top: 8px;
+        font-size: 0.85rem;
+        white-space: pre-wrap;
+      }
+      #map {
+        height: 100%;
+      }
+      .hint {
+        font-size: 0.8rem;
+        color: #4d5c6a;
+      }
+      .hidden {
+        display: none;
+      }
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto 1fr;
+        }
+        .panel {
+          border-right: 0;
+          border-bottom: 1px solid var(--border);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel">
+        <h1>TiTiler-EOPF Viewer</h1>
+        <div class="row">
+          <label for="baseUrl">Base URL</label>
+          <input id="baseUrl" value="http://127.0.0.1:8080" />
+        </div>
+        <div class="row">
+          <label for="collectionId">Collection ID</label>
+          <input id="collectionId" value="water-bodies" />
+        </div>
+        <div class="row">
+          <label for="itemId">Item ID</label>
+          <input id="itemId" value="water-bodies" />
+        </div>
+        <div class="row">
+          <label for="collectionJsonUrl">Collection JSON URL (fallback)</label>
+          <input id="collectionJsonUrl" />
+          <div class="hint">
+            Optional. Used when TiTiler collection endpoint does not expose
+            <code>summaries.datetime</code>.
+          </div>
+        </div>
+        <div class="row">
+          <button id="loadMetaBtn" type="button">Load measurements and dates</button>
+        </div>
+        <div class="row">
+          <label for="date">Date/time (from Collection summaries.datetime)</label>
+          <select id="date">
+            <option value="">(none)</option>
+          </select>
+          <div class="hint">If empty, viewer falls back to <code>bidx=1</code>.</div>
+        </div>
+        <div class="row">
+          <button id="buildLayersBtn" type="button">Build layers from renders</button>
+        </div>
+        <div class="row">
+          <button id="toggleLinksBtn" class="secondary" type="button">Show web map links</button>
+          <div id="xyzLinksWrap" class="hidden">
+            <label>XYZ web-map links</label>
+            <div id="xyzLinks" class="hint"></div>
+          </div>
+        </div>
+        <div class="row">
+          <button id="clearBtn" class="secondary" type="button">Clear layer</button>
+        </div>
+        <div id="status" class="status"></div>
+      </aside>
+      <main id="map"></main>
+    </div>
+
+    <script src="titiler-eopf-config.js"></script>
+    <script>
+      const viewerConfig = window.EOAP_TITILER_CONFIG || {};
+      if (viewerConfig.apiBaseUrl) {
+        document.getElementById("baseUrl").value = new URL(viewerConfig.apiBaseUrl, window.location.href).href.replace(/\/+$/, "");
+      }
+      for (const key of ["collectionId", "itemId"]) {
+        if (viewerConfig[key]) document.getElementById(key).value = viewerConfig[key];
+      }
+      const publishedDataBase = viewerConfig.dataBaseUrl
+        ? new URL(viewerConfig.dataBaseUrl.replace(/\/?$/, "/"), window.location.href).href
+        : null;
+      const map = L.map("map").setView([40.15, -121.07], 9);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors",
+      }).addTo(map);
+
+      let dataLayer = null;
+      let layerControl = null;
+      let overlayLayers = {};
+      let currentRenders = {};
+      let measurementKeys = [];
+      let renderDefs = [];
+      let linksVisible = false;
+
+      const el = (id) => document.getElementById(id);
+      const setStatus = (msg) => {
+        el("status").textContent = msg;
+      };
+
+      async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          const res = await fetch(url, { ...options, signal: controller.signal });
+          return res;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      async function fetchWithRetry(url, options = {}, timeoutMs = 10000, retries = 1) {
+        let lastError = null;
+        for (let i = 0; i <= retries; i++) {
+          try {
+            return await fetchWithTimeout(url, options, timeoutMs);
+          } catch (err) {
+            lastError = err;
+          }
+        }
+        throw lastError;
+      }
+      const updateLinksVisibility = () => {
+        const wrap = el("xyzLinksWrap");
+        const btn = el("toggleLinksBtn");
+        if (linksVisible) {
+          wrap.classList.remove("hidden");
+          btn.textContent = "Hide web map links";
+        } else {
+          wrap.classList.add("hidden");
+          btn.textContent = "Show web map links";
+        }
+      };
+
+      function apiBase() {
+        return el("baseUrl").value.replace(/\/+$/, "");
+      }
+
+      function collectionId() {
+        return encodeURIComponent(el("collectionId").value.trim());
+      }
+
+      function itemId() {
+        return encodeURIComponent(el("itemId").value.trim());
+      }
+
+      function buildCollectionUrl() {
+        return `${viewerConfig.stacBaseUrl || apiBase()}/collections/${collectionId()}`;
+      }
+
+      function buildItemUrl() {
+        return `${viewerConfig.stacBaseUrl || apiBase()}/collections/${collectionId()}/items/${itemId()}`;
+      }
+
+      async function buildCollectionJsonFallbackUrl() {
+        const explicit = el("collectionJsonUrl").value.trim();
+        if (explicit) return explicit;
+        const id = decodeURIComponent(collectionId());
+        if (publishedDataBase) return `${publishedDataBase}${encodeURIComponent(id)}/collection.json`;
+        const origin = window.location.origin;
+        const legacy = `${origin}/command-line-tools/stac-zarr/${id}/collection.json`;
+
+        try {
+          const candidates = [`${origin}/cwl-tests/results.json`, `${origin}/cwl-tests/results-item.json`];
+          for (const candidate of candidates) {
+            const res = await fetch(candidate);
+            if (!res.ok) continue;
+            const payload = await res.json();
+            const zarrCatalog = payload?.zarr_stac_catalog || {};
+            const runDir = zarrCatalog?.basename;
+            if (!runDir) continue;
+
+            const listing = Array.isArray(zarrCatalog?.listing) ? zarrCatalog.listing : [];
+            const directoryEntries = listing.filter((entry) => entry?.class === "Directory");
+            const preferred =
+              directoryEntries.find((entry) => entry?.basename === id)?.basename ||
+              directoryEntries[0]?.basename ||
+              id;
+            const url = `${origin}/${runDir}/${preferred}/collection.json`;
+            const check = await fetchWithTimeout(url, {}, 8000);
+            if (check.ok) return url;
+          }
+          return legacy;
+        } catch (err) {
+          return legacy;
+        }
+      }
+
+      async function buildItemJsonFallbackUrl() {
+        const id = decodeURIComponent(collectionId());
+        const iid = decodeURIComponent(itemId());
+        if (publishedDataBase) return `${publishedDataBase}${encodeURIComponent(id)}/${encodeURIComponent(iid)}.json`;
+        const origin = window.location.origin;
+        const candidates = [`${origin}/cwl-tests/results-item.json`, `${origin}/cwl-tests/results.json`];
+        try {
+          for (const candidate of candidates) {
+            const res = await fetch(candidate);
+            if (!res.ok) continue;
+            const payload = await res.json();
+            const zarrCatalog = payload?.zarr_stac_catalog || {};
+            const runDir = zarrCatalog?.basename;
+            if (!runDir) continue;
+
+            const listing = Array.isArray(zarrCatalog?.listing) ? zarrCatalog.listing : [];
+            const directoryEntries = listing.filter((entry) => entry?.class === "Directory");
+            const preferred =
+              directoryEntries.find((entry) => entry?.basename === id)?.basename ||
+              directoryEntries[0]?.basename ||
+              id;
+            const url = `${origin}/${runDir}/${preferred}/${iid}.json`;
+            const check = await fetchWithTimeout(url, {}, 8000);
+            if (check.ok) return url;
+          }
+        } catch (_err) {
+          // ignore and return null
+        }
+        return null;
+      }
+
+      function datasetRoute() {
+        const root = `${apiBase()}/collections/${collectionId()}/items/${itemId()}`;
+        return viewerConfig.assetId ? `${root}/assets/${encodeURIComponent(viewerConfig.assetId)}` : root;
+      }
+
+      function buildKeysUrl() {
+        return `${datasetRoute()}/dataset/keys`;
+      }
+
+      function parseMeasurementFromExpression(expression) {
+        if (typeof expression !== "string") return null;
+        const match = expression.match(/^(?:\/[^:]*:)?([^\s:]+)$/);
+        return match && match[1] ? match[1] : null;
+      }
+
+      function getRenders(payload) {
+        if (!payload || typeof payload !== "object") return {};
+        if (payload.renders && typeof payload.renders === "object") return payload.renders;
+        if (payload.properties?.renders && typeof payload.properties.renders === "object") {
+          return payload.properties.renders;
+        }
+        return {};
+      }
+
+      function pickRenders(primaryPayload, fallbackPayload) {
+        const primary = getRenders(primaryPayload);
+        if (Object.keys(primary).length > 0) return primary;
+        return getRenders(fallbackPayload);
+      }
+
+      function addDateOptions(selectNode, dates) {
+        const existing = new Set(
+          Array.from(selectNode.options)
+            .map((opt) => opt.value)
+            .filter((v) => v)
+        );
+        dates.forEach((d) => {
+          if (!d || existing.has(d)) return;
+          const option = document.createElement("option");
+          option.value = d;
+          option.textContent = d;
+          selectNode.appendChild(option);
+          existing.add(d);
+        });
+      }
+
+      function normalizeRenderDefinitions(renders) {
+        const defs = [];
+        if (renders && typeof renders === "object" && Object.keys(renders).length > 0) {
+          Object.entries(renders).forEach(([renderId, renderObj]) => {
+            if (!renderObj || typeof renderObj !== "object") return;
+            const expression =
+              typeof renderObj.expression === "string" ? renderObj.expression.trim() : "";
+            const measurement = parseMeasurementFromExpression(expression);
+            if (!expression || !measurement) return;
+            defs.push({
+              id: renderId,
+              measurement,
+              expression: measurementKeys.includes(expression) ? expression : (() => {
+                const matches = measurementKeys.filter((key) => parseMeasurementFromExpression(key) === measurement);
+                return matches.length === 1 ? matches[0] : expression;
+              })(),
+              rescale:
+                Array.isArray(renderObj.rescale) &&
+                renderObj.rescale.length > 0 &&
+                Array.isArray(renderObj.rescale[0])
+                  ? `${renderObj.rescale[0][0]},${renderObj.rescale[0][1]}`
+                  : null,
+              colormap_name:
+                typeof renderObj.colormap_name === "string" ? renderObj.colormap_name : null,
+              colormap:
+                renderObj.colormap && typeof renderObj.colormap === "object"
+                  ? JSON.stringify(renderObj.colormap)
+                  : null,
+            });
+          });
+        }
+
+        return defs;
+      }
+
+      async function loadMetadata() {
+        setStatus("Loading metadata...");
+        try {
+          const keysUrl = buildKeysUrl();
+          const collectionUrl = buildCollectionUrl();
+          const itemUrl = buildItemUrl();
+          setStatus(
+            `Loading metadata...\n- keys: ${keysUrl}\n- collection: ${collectionUrl}\n- item: ${itemUrl}`
+          );
+
+          const [keysRes, collRes, itemRes] = await Promise.allSettled([
+            fetchWithRetry(keysUrl, {}, 20000, 1),
+            fetchWithTimeout(collectionUrl, {}, 12000),
+            fetchWithTimeout(itemUrl, {}, 12000),
+          ]);
+
+          let measurements = [];
+          let keysWarning = "";
+          if (keysRes.status === "fulfilled" && keysRes.value.ok) {
+            const keys = await keysRes.value.json();
+            measurementKeys = Array.isArray(keys) ? keys : [];
+          } else if (keysRes.status === "fulfilled") {
+            let body = "";
+            try {
+              body = await keysRes.value.text();
+            } catch (_err) {
+              body = "";
+            }
+            keysWarning = `dataset/keys failed: ${keysRes.value.status}${body ? ` ${body}` : ""}`;
+          } else {
+            keysWarning = `dataset/keys unavailable (non-blocking): ${keysRes.reason?.message || keysRes.reason}`;
+          }
+
+          const dateSel = el("date");
+          dateSel.innerHTML = '<option value="">(none)</option>';
+          let collectionPayload = null;
+          let itemPayload = null;
+          if (collRes.status === "fulfilled" && collRes.value.ok) {
+            collectionPayload = await collRes.value.json();
+            const dates = collectionPayload?.summaries?.datetime || [];
+            addDateOptions(dateSel, dates);
+          }
+          if (itemRes.status === "fulfilled" && itemRes.value.ok) {
+            itemPayload = await itemRes.value.json();
+            const itemTimeValues =
+              itemPayload?.assets?.measurements?.["cube:dimensions"]?.time?.values ||
+              itemPayload?.properties?.["cube:dimensions"]?.time?.values ||
+              [];
+            if (Array.isArray(itemTimeValues) && itemTimeValues.length > 0) {
+              addDateOptions(dateSel, itemTimeValues);
+            } else if (itemPayload?.properties?.datetime) {
+              addDateOptions(dateSel, [itemPayload.properties.datetime]);
+            }
+          }
+
+          const initialRenders = pickRenders(itemPayload, collectionPayload);
+          const missingDates = dateSel.options.length <= 1;
+          const missingRenders = Object.keys(initialRenders).length === 0;
+          if (missingDates || missingRenders) {
+            try {
+              const fallbackUrl = await buildCollectionJsonFallbackUrl();
+              const fallbackRes = await fetchWithTimeout(fallbackUrl, {}, 12000);
+              if (fallbackRes.ok) {
+                const fallbackColl = await fallbackRes.json();
+                if (!collectionPayload) {
+                  collectionPayload = fallbackColl;
+                } else {
+                  if (
+                    Object.keys(getRenders(collectionPayload)).length === 0 &&
+                    Object.keys(getRenders(fallbackColl)).length > 0
+                  ) {
+                    collectionPayload.renders =
+                      fallbackColl.renders || fallbackColl?.properties?.renders;
+                  }
+                  if (
+                    (!collectionPayload.summaries ||
+                      !Array.isArray(collectionPayload.summaries.datetime) ||
+                      collectionPayload.summaries.datetime.length === 0) &&
+                    Array.isArray(fallbackColl?.summaries?.datetime)
+                  ) {
+                    collectionPayload.summaries = collectionPayload.summaries || {};
+                    collectionPayload.summaries.datetime = fallbackColl.summaries.datetime;
+                  }
+                }
+                const dates = fallbackColl?.summaries?.datetime || [];
+                addDateOptions(dateSel, dates);
+                if (dates.length > 0) {
+                  setStatus(
+                    `Loaded ${measurements.length} measurement(s) and ${dates.length} date value(s) from fallback collection.json.`
+                  );
+                }
+              } else {
+                setStatus(
+                  `Loaded ${measurements.length} measurement key(s). Fallback collection request failed: ${fallbackRes.status}`
+                );
+              }
+            } catch (err) {
+              // Ignore fallback errors and keep basic metadata loaded.
+              setStatus(
+                `Loaded ${measurements.length} measurement key(s), but fallback collection load failed: ${err.message}`
+              );
+            }
+          }
+
+          if (dateSel.options.length <= 1) {
+            try {
+              const itemFallbackUrl = await buildItemJsonFallbackUrl();
+              if (itemFallbackUrl) {
+                const itemFallbackRes = await fetchWithTimeout(itemFallbackUrl, {}, 12000);
+                if (itemFallbackRes.ok) {
+                  const itemFallback = await itemFallbackRes.json();
+                  const fallbackTimeValues =
+                    itemFallback?.assets?.measurements?.["cube:dimensions"]?.time?.values ||
+                    itemFallback?.properties?.["cube:dimensions"]?.time?.values ||
+                    [];
+                  if (Array.isArray(fallbackTimeValues) && fallbackTimeValues.length > 0) {
+                    addDateOptions(dateSel, fallbackTimeValues);
+                  } else {
+                    const dt = itemFallback?.properties?.datetime;
+                    if (dt) addDateOptions(dateSel, [dt]);
+                  }
+                }
+              }
+            } catch (_err) {
+              // ignore item fallback errors
+            }
+          }
+
+          currentRenders = pickRenders(itemPayload, collectionPayload);
+          renderDefs = normalizeRenderDefinitions(currentRenders);
+          measurements = renderDefs.map((d) => d.measurement);
+
+          const summaryMsg = `Loaded ${measurements.length} measurement key(s), ${Math.max(
+              0,
+              dateSel.options.length - 1
+            )} date value(s), ${renderDefs.length} layer definition(s) from render expressions.`;
+          setStatus(keysWarning ? `${summaryMsg}\nWarning: ${keysWarning}` : summaryMsg);
+        } catch (err) {
+          setStatus(`Metadata load failed: ${err.message}`);
+        }
+      }
+
+      function buildTileJsonUrl(def, timeMode = "auto") {
+        const params = new URLSearchParams();
+        params.set("variables", def.expression);
+        if (def.rescale) params.set("rescale", def.rescale);
+        if (def.colormap) {
+          params.set("colormap", def.colormap);
+        } else if (def.colormap_name) {
+          params.set("colormap_name", def.colormap_name);
+        }
+
+        const selectedDate = el("date").value.trim();
+        const selectedDateIndex = (() => {
+          if (!selectedDate) return -1;
+          const values = Array.from(el("date").options)
+            .map((opt) => opt.value)
+            .filter((v) => v);
+          return values.indexOf(selectedDate);
+        })();
+        if (selectedDate) {
+          if (timeMode === "sel-nearest-inline" || timeMode === "auto") {
+            params.set("sel", `time=nearest::${selectedDate}`);
+          } else if (timeMode === "sel-method-param") {
+            params.set("sel", `time=${selectedDate}`);
+            params.set("sel_method", "nearest");
+          } else if (timeMode === "sel-exact") {
+            params.set("sel", `time=${selectedDate}`);
+          } else if (timeMode === "datetime-only") {
+            params.set("datetime", selectedDate);
+          } else if (timeMode === "no-time") {
+            params.set("bidx", String(selectedDateIndex >= 0 ? selectedDateIndex + 1 : 1));
+          }
+        } else {
+          params.set("bidx", "1");
+        }
+
+        return `${datasetRoute()}/WebMercatorQuad/tilejson.json?${params.toString()}`;
+      }
+
+      async function fetchTileJsonWithFallback(def) {
+        const selectedDate = el("date").value.trim();
+        const modes = selectedDate
+          ? ["sel-nearest-inline", "sel-method-param", "sel-exact", "datetime-only", "no-time"]
+          : ["no-time"];
+
+        const errors = [];
+        for (const mode of modes) {
+          const url = buildTileJsonUrl(def, mode);
+          let res;
+          try {
+            res = await fetchWithTimeout(url, {}, 15000);
+          } catch (err) {
+            errors.push(`${def.expression} | ${mode}: request timeout/error: ${err.message}`);
+            continue;
+          }
+          if (res.ok) {
+            return { tilejson: await res.json(), url, mode };
+          }
+          let detail = "";
+          try {
+            detail = await res.text();
+          } catch (_err) {
+            detail = "";
+          }
+          errors.push(`${def.expression} | ${mode}: ${res.status}${detail ? ` ${detail}` : ""}`);
+        }
+
+        throw new Error(errors.join("\n"));
+      }
+
+      async function buildLayersFromRenders() {
+        if (!renderDefs.length) {
+          setStatus("No render definitions loaded. Click 'Load measurements and dates' first.");
+          return;
+        }
+        setStatus("Building layer set from render definitions...");
+        try {
+          clearLayer();
+          const xyzLinks = [];
+          const modeCounts = {};
+          let firstBounds = null;
+          let firstCenter = null;
+
+          for (const def of renderDefs) {
+            const { tilejson: tj, url, mode } = await fetchTileJsonWithFallback(def);
+            if (!tj.tiles || !tj.tiles.length) {
+              continue;
+            }
+            const xyz = tj.tiles[0];
+            const queryString = url.includes("?") ? url.split("?")[1] : "";
+            const previewUrl = `${apiBase()}/collections/${collectionId()}/items/${itemId()}/preview.png?${queryString}`;
+            xyzLinks.push({ id: def.id, xyz, previewUrl, mode });
+            modeCounts[mode] = (modeCounts[mode] || 0) + 1;
+            const layer = L.tileLayer(xyz, {
+              maxZoom: tj.maxzoom || 22,
+              opacity: 0.85,
+            });
+            overlayLayers[def.id] = layer;
+            if (!dataLayer) {
+              dataLayer = layer.addTo(map);
+            }
+            if (!firstBounds && Array.isArray(tj.bounds) && tj.bounds.length === 4) {
+              firstBounds = tj.bounds;
+            }
+            if (!firstCenter && Array.isArray(tj.center) && tj.center.length >= 2) {
+              firstCenter = tj.center;
+            }
+
+            // In strict time mode we do not silently fallback to bidx when a date is selected.
+          }
+
+          if (layerControl) {
+            map.removeControl(layerControl);
+          }
+          layerControl = L.control.layers({}, overlayLayers, { collapsed: false }).addTo(map);
+
+          const linksNode = el("xyzLinks");
+          linksNode.innerHTML = "";
+          xyzLinks.forEach(({ id, xyz, previewUrl, mode }) => {
+            const wrapper = document.createElement("div");
+            wrapper.style.marginBottom = "6px";
+            const label = document.createElement("div");
+            label.textContent = `${id} (mode: ${mode})`;
+            const link = document.createElement("a");
+            link.href = xyz;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.style.wordBreak = "break-all";
+            link.textContent = xyz;
+            const preview = document.createElement("a");
+            preview.href = previewUrl;
+            preview.target = "_blank";
+            preview.rel = "noopener noreferrer";
+            preview.style.wordBreak = "break-all";
+            preview.textContent = `preview: ${previewUrl}`;
+            wrapper.appendChild(label);
+            wrapper.appendChild(link);
+            wrapper.appendChild(document.createElement("br"));
+            wrapper.appendChild(preview);
+            linksNode.appendChild(wrapper);
+          });
+
+          if (firstBounds) {
+            map.fitBounds([
+              [firstBounds[1], firstBounds[0]],
+              [firstBounds[3], firstBounds[2]],
+            ]);
+          } else if (firstCenter) {
+            map.setView([firstCenter[1], firstCenter[0]], firstCenter[2] || 8);
+          }
+
+          const modeSummary = Object.entries(modeCounts)
+            .map(([k, v]) => `${k}=${v}`)
+            .join(", ");
+          setStatus(
+            `Built ${xyzLinks.length} layer(s). Time mode usage: ${modeSummary || "n/a"}.`
+          );
+        } catch (err) {
+          setStatus(`Layer build failed: ${err.message}`);
+        }
+      }
+
+      function clearLayer() {
+        if (layerControl) {
+          map.removeControl(layerControl);
+          layerControl = null;
+        }
+        Object.values(overlayLayers).forEach((layer) => {
+          if (map.hasLayer(layer)) map.removeLayer(layer);
+        });
+        overlayLayers = {};
+        if (dataLayer) {
+          map.removeLayer(dataLayer);
+          dataLayer = null;
+        }
+        el("xyzLinks").innerHTML = "";
+        setStatus("Layer cleared.");
+      }
+
+      el("loadMetaBtn").addEventListener("click", loadMetadata);
+      el("buildLayersBtn").addEventListener("click", buildLayersFromRenders);
+      el("date").addEventListener("change", () => {
+        if (!renderDefs.length) return;
+        buildLayersFromRenders();
+      });
+      el("toggleLinksBtn").addEventListener("click", () => {
+        linksVisible = !linksVisible;
+        updateLinksVisibility();
+      });
+      el("clearBtn").addEventListener("click", clearLayer);
+
+      updateLinksVisibility();
+      loadMetadata();
+    </script>
+  </body>
+</html>

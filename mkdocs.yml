@@ -20,7 +20,7 @@ plugins:
   - mermaid2:
       version: 10.6.0
   - mkdocs-jupyter:
-      execute: true
+      execute: false
       show_input: True
       no_input: False
 
@@ -56,22 +56,36 @@ extra_javascript:
 
 nav:
   - Introduction: 'index.md'
-  - Onboarding: 'onboarding.md'
+  - Design:
+    - water-bodies: 'design/water-bodies.md'
+  - On-boarding:
+    - Developers: 'on-boarding/developers.md'
+    - EOAP Users: 'on-boarding/eoap-users.md'
+    - Maintainers: 'on-boarding/maintainers.md'
   - Producer Outputs Contract: 'producer-outputs.md'
-  - GeoZarr Minispec Compliance: 'geozarr-minispec-compliance.md'
-  - STAC Zarr Best Practices: 'stac-zarr-best-practices.md'
+  - How-to:
+    - stac-zarr Usage: 'how-to/stac-zarr-usage.md'
+    - Produced STAC Objects: 'how-to/stac-produced-objects.md'
+    - TiTiler-EOPF + Collection: 'how-to/titiler-eopf-collection.md'
+    - TiTiler-EOPF + Item: 'how-to/titiler-eopf-item.md'
+    - TiTiler-EOPF HTML Client: 'how-to/titiler-eopf-html-client.md'
+    - TiTiler-EOPF Kubernetes: 'how-to/titiler-eopf-kubernetes.md'
+    - TiTiler-EOPF Patch: 'how-to/titiler-eopf-patch.md'
+  - Compliance:
+    - GeoZarr Minispec Compliance: 'compliance/geozarr-minispec-compliance.md'
+    - STAC Zarr Best Practices: 'compliance/stac-zarr-best-practices.md'
   - Input STAC Requirements: 'input-stac.md'
   - TL;DR: exploitation.ipynb
   - CWL CommandLineTools:
     - discovery: 'cwl-cli/discovery.ipynb'
     - convert-search: 'cwl-cli/convert-search.ipynb'
-    - stac: 'cwl-cli/stac.ipynb'
+    - stac-collection: 'cwl-cli/stac-collection.ipynb'
     - stac-zarr: 'cwl-cli/stac-zarr.ipynb'
   - CWL Sub-workflows:
     - water-bodies-detection: 'sub-workflow/water-bodies-detection.ipynb'
   - CWL Workflows:
      - producer: 'cwl-workflows/producer.ipynb'
-     - consumer: 'cwl-workflows/consumer.ipynb'
+     - Consumer (release 0.3.0): 'cwl-workflows/consumer.ipynb'
   - Practice Labs: labs.md
 
 copyright: <a href="https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg">License CC BY-SA 4.0</a>, by <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons</a>

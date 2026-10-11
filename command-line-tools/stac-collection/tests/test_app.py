@@ -94,6 +94,15 @@ def test_run_to_stac_builds_catalog(monkeypatch, tmp_path):
     assert collection.id == "water-bodies"
     assert "water-bodies" in collection.item_assets
     assert "ndwi" in collection.item_assets
+    assert "renders" in collection.extra_fields
+    assert "ndwi" in collection.extra_fields["renders"]
+    assert "water-bodies" in collection.extra_fields["renders"]
+    ndwi_render = collection.extra_fields["renders"]["ndwi"]
+    assert ndwi_render["assets"] == ["ndwi"]
+    assert ndwi_render["rescale"] == [[-1, 1]]
+    water_render = collection.extra_fields["renders"]["water-bodies"]
+    assert water_render["assets"] == ["water-bodies"]
+    assert water_render["colormap"]["1"] == [0, 0, 255, 255]
     out_item = next(collection.get_items())
     assert "water-bodies" in out_item.assets
     assert "ndwi" in out_item.assets

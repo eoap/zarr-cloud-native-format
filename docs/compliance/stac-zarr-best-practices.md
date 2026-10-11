@@ -70,8 +70,8 @@ Root group attributes include:
 
 Registered conventions in `zarr_conventions`:
 
-* `proj:`
-* `spatial:`
+* `proj`
+* `spatial`
 * `multiscales`
 
 ### Multiscales implementation
@@ -80,7 +80,7 @@ For each measurement:
 
 * Base level written to `measurements/<measurement>`
 * Overview levels written to `measurements_overviews/<measurement>/<level>/<measurement>`
-* Root `multiscales` uses GeoZarr v1 layout metadata:
+* Root `multiscales` uses GeoZarr convention v0.1 layout metadata:
   - `resampling_method`
   - `layout`
 * Per-measurement dataset listing is exposed in `multiscales:datasets`
@@ -124,9 +124,9 @@ Reference:
 
 Implemented:
 
-* `zarr_conventions` includes `proj:`, `spatial:`, `multiscales`
+* `zarr_conventions` includes `proj`, `spatial`, `multiscales`, pinned to Pilot `v0.1`
 * `spatial:*` root attributes (`dimensions`, `bbox`, `shape`, `transform`)
-* GeoZarr v1 `multiscales` object (`resampling_method`, `layout`)
+* GeoZarr convention v0.1 `multiscales` object (`resampling_method`, `layout`)
 * multiscale data levels with explicit dataset paths
 * CF-style dataset members and `grid_mapping` linkage checks
 
@@ -138,7 +138,7 @@ Forward work items:
 
 When running `task compliance:check:all`:
 
-* `compliance:check:multiscales-layout` is the authoritative strict check for the emitted GeoZarr v1 layout profile and is expected to pass.
+* `compliance:check:multiscales-layout` is the authoritative strict check for the emitted GeoZarr convention v0.1 layout profile and is expected to pass.
 * `compliance:check:multiscales` validates against upstream `zarr-conventions/multiscales` schema and is expected to pass.
 
 ### Measurement contract

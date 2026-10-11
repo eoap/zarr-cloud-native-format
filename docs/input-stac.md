@@ -264,7 +264,7 @@ For each measurement declared in `collection.item_assets`, the writer produces:
         └── ...
 ```
 
-The root `multiscales` attribute uses GeoZarr v1 layout metadata (`resampling_method`, `layout`), and `multiscales:datasets` lists per-measurement dataset paths and axes.
+The root `multiscales` attribute uses GeoZarr convention v0.1 layout metadata (`resampling_method`, `layout`), and `multiscales:datasets` lists per-measurement dataset paths and axes.
 
 ## Overview Downsampling Configuration
 
@@ -302,7 +302,7 @@ Reference:
 Implemented in this writer:
 
 * convention metadata (`zarr_conventions`) for `proj:`, `spatial:`, `multiscales`
-* `spatial:*` root metadata and GeoZarr v1 `multiscales.layout`
+* `spatial:*` root metadata and GeoZarr convention v0.1 `multiscales.layout`
 * CF-style dataset members (`time`, `x`, `y`, `spatial_ref`)
 * data-array attributes: `grid_mapping`, `coordinates`
 * dataset-level validation of coordinate and grid-mapping references

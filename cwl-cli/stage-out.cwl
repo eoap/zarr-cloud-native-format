@@ -76,7 +76,7 @@ arguments:
 - $( inputs.sub_path )
 requirements:
   DockerRequirement:
-    dockerPull: eoap-zarr-stage-out:local
+    dockerPull: ghcr.io/eoap/mastering-app-package/stage-out:2.0.0@sha256:2974b42df1722ebf4d220c041e4345a94553b1bb81188b545fd58c70e93f490a
   InlineJavascriptRequirement: {}
   NetworkAccess:
     networkAccess: true

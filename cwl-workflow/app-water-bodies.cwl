@@ -1,7 +1,7 @@
 cwlVersion: v1.2
 $namespaces:
   s: https://schema.org/
-s:softwareVersion: 1.1.0
+s:softwareVersion: 2.0.0
 s:name: Water bodies detection workflow
 s:description: Water bodies detection based on NDWI and Otsu threshold applied to Sentinel-2 COG STAC items
 s:dateCreated: "2026-03-19"

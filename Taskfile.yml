@@ -232,15 +232,25 @@ tasks:
           mkdocs serve
 
   docs:generate:uml:
-    desc: Generate UML documentation
+    desc: Regenerate current workflow Markdown and diagrams locally (requires Java)
     cmds:
-    - defer: rm -f docs/ml4floods/*.puml
-    - |
-      uv run --no-cache --with "transpiler-mate>=0.31.0" transpiler-mate markdown --workflow-id water-bodies --output docs/design --code-repository $(git remote get-url origin) cwl-workflow/app-water-bodies.cwl
-      uv run --with cwl2puml cwl2puml --workflow-id water-bodies --output docs/design/water-bodies --convert-image --image-format svg cwl-workflow/app-water-bodies.cwl
-      uv run --with cwl2puml cwl2puml --workflow-id detect_water_body --output docs/design/detect_water_body --convert-image --image-format svg cwl-workflow/app-water-bodies.cwl
-      rm -f docs/design/water-bodies/*.puml
-      rm -f docs/design/detect_water_body/*.puml
+      - uv run --no-project --python 3.12 --with transpiler-mate --with cwl-loader --with "cwl2puml==0.47.0" python scripts/refresh-workflow-docs.py
+
+  docs:refresh:notebooks:
+    desc: Refresh producer documentation notebook outputs (requires local PlantUML jar)
+    cmds:
+      - |
+        uv run --no-project --python 3.12 \
+          --with cwl-loader --with "cwl2puml==0.47.0" --with eoap-cwlwrap \
+          --with nbclient --with ipykernel --with graphviz --with pillow \
+          --with-editable ./command-line-tools/stac-zarr \
+          python scripts/refresh-doc-notebooks.py
+
+  docs:refresh:
+    desc: Refresh generated workflow documentation and producer notebooks
+    cmds:
+      - task: docs:generate:uml
+      - task: docs:refresh:notebooks
 
   titiler:eopf:run:
     desc: Run titiler-eopf locally against a mounted data root
@@ -443,20 +453,13 @@ tasks:
     vars:
       RESULTS: '{{default "cwl-tests/results.json" .RESULTS}}'
 
-  containers:build:stage-out:
-    desc: Build the Zarr-aware mastering stage-out image from its sibling feature checkout
-    cmds:
-      - docker build -t {{.STAGE_OUT_IMAGE | shellQuote}} ../mastering-app-package/water-bodies/command-line-tools/stage-out
-    vars:
-      STAGE_OUT_IMAGE: '{{default "eoap-zarr-stage-out:local" .STAGE_OUT_IMAGE}}'
-
   cwl:wrap:producer:
     desc: Compose the final producer output with S3 stage-out using eoap-cwlwrap
     cmds:
       - uv run --frozen --with eoap-cwlwrap==0.32.0 --with cwl-loader==0.27.0 --with PyYAML python scripts/wrap-producer.py --image {{.STAGE_OUT_IMAGE | shellQuote}}
       - uv run --frozen --with cwltool cwltool --validate cwl-workflow/app-water-bodies-s3.cwl
     vars:
-      STAGE_OUT_IMAGE: '{{default "eoap-zarr-stage-out:local" .STAGE_OUT_IMAGE}}'
+      STAGE_OUT_IMAGE: '{{default "ghcr.io/eoap/mastering-app-package/stage-out:2.0.0@sha256:2974b42df1722ebf4d220c041e4345a94553b1bb81188b545fd58c70e93f490a" .STAGE_OUT_IMAGE}}'
 
   cwl:run:producer:s3:
     desc: Run the wrapped producer with an explicit S3-enabled JOB file

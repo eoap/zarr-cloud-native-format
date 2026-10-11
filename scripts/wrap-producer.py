@@ -31,7 +31,7 @@ settings = json.loads(settings_path.read_text()) if settings_path.exists() else 
 parser.add_argument(
     "--image",
     default=os.environ.get(
-        "STAGE_OUT_IMAGE", settings.get("stageOutImage", "eoap-zarr-stage-out:local")
+        "STAGE_OUT_IMAGE", settings.get("stageOutImage", "ghcr.io/eoap/mastering-app-package/stage-out:2.0.0@sha256:2974b42df1722ebf4d220c041e4345a94553b1bb81188b545fd58c70e93f490a")
     ),
 )
 parser.add_argument(

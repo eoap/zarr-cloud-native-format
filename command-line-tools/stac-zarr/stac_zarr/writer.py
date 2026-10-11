@@ -1,6 +1,7 @@
 import os
 import json
 import copy
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -176,6 +177,19 @@ def _bbox_to_polygon(bbox: List[float]) -> Dict[str, Any]:
                 [minx, miny],
             ]
         ],
+    }
+
+
+def build_item_temporal_metadata(temporal_extent: tuple[datetime, datetime]) -> tuple[datetime, Dict[str, str]]:
+    """Build STAC Item temporal metadata for multi-time cubes.
+
+    The Item datetime uses the end of the interval, while interval bounds are
+    preserved in start_datetime/end_datetime properties.
+    """
+    start, end = temporal_extent
+    return end, {
+        "start_datetime": start.isoformat().replace("+00:00", "Z"),
+        "end_datetime": end.isoformat().replace("+00:00", "Z"),
     }
 
 
@@ -547,12 +561,13 @@ def run_to_zarr(
         temporal_extent = get_temporal_extent(items)
         item_bbox = get_spatial_extent(items)
         item_geometry = items[0].geometry if items[0].geometry is not None else _bbox_to_polygon(item_bbox)
+        item_datetime, item_properties = build_item_temporal_metadata(temporal_extent)
         output_item = Item(
             id=collection.id,
             geometry=item_geometry,
             bbox=item_bbox,
-            datetime=temporal_extent[0],
-            properties={},
+            datetime=item_datetime,
+            properties=item_properties,
         )
         output_item.stac_extensions = list(STAC_EXTENSION_URIS)
         if pystac_renders is not None:

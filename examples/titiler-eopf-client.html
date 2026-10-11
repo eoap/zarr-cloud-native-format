@@ -194,6 +194,18 @@
           clearTimeout(timer);
         }
       }
+
+      async function fetchWithRetry(url, options = {}, timeoutMs = 10000, retries = 1) {
+        let lastError = null;
+        for (let i = 0; i <= retries; i++) {
+          try {
+            return await fetchWithTimeout(url, options, timeoutMs);
+          } catch (err) {
+            lastError = err;
+          }
+        }
+        throw lastError;
+      }
       const updateLinksVisibility = () => {
         const wrap = el("xyzLinksWrap");
         const btn = el("toggleLinksBtn");
@@ -383,7 +395,7 @@
           );
 
           const [keysRes, collRes, itemRes] = await Promise.allSettled([
-            fetchWithTimeout(keysUrl, {}, 12000),
+            fetchWithRetry(keysUrl, {}, 20000, 1),
             fetchWithTimeout(collectionUrl, {}, 12000),
             fetchWithTimeout(itemUrl, {}, 12000),
           ]);
@@ -402,7 +414,7 @@
             }
             keysWarning = `dataset/keys failed: ${keysRes.value.status}${body ? ` ${body}` : ""}`;
           } else {
-            keysWarning = `dataset/keys request error: ${keysRes.reason?.message || keysRes.reason}`;
+            keysWarning = `dataset/keys unavailable (non-blocking): ${keysRes.reason?.message || keysRes.reason}`;
           }
 
           const dateSel = el("date");
@@ -555,13 +567,19 @@
       async function fetchTileJsonWithFallback(def) {
         const selectedDate = el("date").value.trim();
         const modes = selectedDate
-          ? ["sel-nearest-inline", "sel-method-param", "sel-exact", "datetime-only"]
+          ? ["sel-nearest-inline", "sel-method-param", "sel-exact", "datetime-only", "no-time"]
           : ["no-time"];
 
         const errors = [];
         for (const mode of modes) {
           const url = buildTileJsonUrl(def, mode);
-          const res = await fetch(url);
+          let res;
+          try {
+            res = await fetchWithTimeout(url, {}, 15000);
+          } catch (err) {
+            errors.push(`${def.expression} | ${mode}: request timeout/error: ${err.message}`);
+            continue;
+          }
           if (res.ok) {
             return { tilejson: await res.json(), url, mode };
           }

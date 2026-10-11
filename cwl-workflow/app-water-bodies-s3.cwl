@@ -76,7 +76,7 @@ $graph:
     doc: Filter language - This parameter is derived from water-bodies/filter-lang
     type:
     - 'null'
-    - name: _:eb81f8ea-c144-4725-9fc9-8021d1d14605
+    - name: _:33502383-c572-4626-878a-e16524bbecd1
       symbols:
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/filter-lang/cql2-json
       type: enum
@@ -93,7 +93,7 @@ $graph:
     - green
     - nir
     type:
-      name: _:219897bf-6602-4bf1-bb45-ea37221ba578
+      name: _:e0ce6b12-01ca-460d-9412-9d85d57b5bfe
       items: string
       type: array
   - id: overview_levels
@@ -108,7 +108,7 @@ $graph:
       median, nearest) - This parameter is derived from water-bodies/continuous_overview_reducer
     default: mean
     type:
-      name: _:da6183ca-d827-4464-bb6c-47ac95be2c57
+      name: _:bef84230-9d8b-40c6-8152-5bbb1c6a8f73
       symbols:
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/continuous_overview_reducer/mean
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/continuous_overview_reducer/max
@@ -121,7 +121,7 @@ $graph:
       median, nearest) - This parameter is derived from water-bodies/categorical_overview_reducer
     default: nearest
     type:
-      name: _:abf512dc-c107-459b-b482-9c02d67a3c10
+      name: _:b0eead28-1480-4358-94f0-d5fd0b881b55
       symbols:
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/categorical_overview_reducer/mean
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/categorical_overview_reducer/max
@@ -134,7 +134,7 @@ $graph:
       parameter is derived from water-bodies/stac_object_type
     default: item
     type:
-      name: _:dad784f4-3e5a-474f-af32-610c48de6764
+      name: _:d10e2d84-74ca-40c3-8abf-75f02fec6302
       symbols:
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/stac_object_type/collection
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/stac_object_type/item
@@ -336,12 +336,12 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/coordinates
         type:
-          name: _:0c2b6fa2-a469-427a-bfa3-7f584b8840f1
+          name: _:ecf8f94a-c460-4fa2-9c28-65a4560031be
           items: double
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/bbox
         type:
-          name: _:159c1760-9fc3-434a-a83d-11314f62143f
+          name: _:5a3b2b12-7e4b-4569-8e1c-47f15cc69828
           items: double
           type: array
       type: record
@@ -355,12 +355,12 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/coordinates
         type:
-          name: _:35799887-4641-4f79-8e90-47792495b533
+          name: _:c4b69baf-15fb-477b-9b76-d437f7b8ed13
           items: double
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/bbox
         type:
-          name: _:9e4fa55a-5119-4efb-aef0-8d46e69a258e
+          name: _:15a2845b-8e6f-4c7d-b1de-6cab2267704c
           items: double
           type: array
       type: record
@@ -374,18 +374,18 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/coordinates
         type:
-          name: _:244fbe65-de6a-4e1b-8f45-14d2dda99d72
+          name: _:59cc1759-04d8-4b7e-9747-85e98bc7be9b
           items:
-            name: _:a95e67a3-d303-436f-959a-36e9d00952d2
+            name: _:4dc81371-c70b-44f0-948b-fe539585ecdb
             items:
-              name: _:cb8c1b02-21c9-4556-8159-52220d84cc22
+              name: _:13214f2f-4698-48a6-bb0a-00fc39f1932a
               items: double
               type: array
             type: array
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/bbox
         type:
-          name: _:9d41f1a7-387a-4ead-8803-745eee2a700e
+          name: _:e12bd2c8-e14a-4b22-ad23-6b376afa3a5f
           items: double
           type: array
       type: record
@@ -399,15 +399,15 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/coordinates
         type:
-          name: _:3ba2af01-7fa0-44e4-99a1-0ac92afa38f8
+          name: _:b7b8c451-5dd5-4faf-8bc4-806b4367770f
           items:
-            name: _:78e118bc-7ac7-47fb-9808-b2afd930bb11
+            name: _:8b732067-8d70-4359-a546-0af1eca0e1ca
             items: double
             type: array
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/bbox
         type:
-          name: _:5f373b95-0c17-4cce-9225-3f46eb4dec62
+          name: _:aa209f40-ea30-4225-a640-9194c56500c8
           items: double
           type: array
       type: record
@@ -421,18 +421,18 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/coordinates
         type:
-          name: _:957d262f-97f3-4cc4-8c07-6bfdd7617b51
+          name: _:39e2dee1-26e0-4815-ac25-2ea3b5292838
           items:
-            name: _:ea1916b4-85bb-4c70-9b53-9611ef18058e
+            name: _:7461fe41-c3c2-45fc-85f0-e5a3a32b99d4
             items:
-              name: _:d8e3e9e4-021e-4144-a68f-6a5be6337a83
+              name: _:e0559f6c-2185-48cb-bfc0-dd40b91ea69c
               items: double
               type: array
             type: array
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/bbox
         type:
-          name: _:9d8a35bc-958a-42de-af78-ab330a994596
+          name: _:9166641f-0b6e-427d-832b-47344a7fab31
           items: double
           type: array
       type: record
@@ -446,13 +446,13 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/coordinates
         type:
-          name: _:7d96304f-b969-490d-bb61-0a10af639521
+          name: _:111c5691-1e70-4638-9958-aa53efcc2c63
           items:
-            name: _:ff682ec5-032f-4524-87c7-c68740c5eea7
+            name: _:f1f0aa86-81d2-4dd1-b116-d26af33d0213
             items:
-              name: _:b016b34a-b42c-42e3-ac08-c9800752967f
+              name: _:67c41f7d-c43c-4656-abb9-29fae625140a
               items:
-                name: _:6d9fa83d-f3e2-49b8-b1a1-b4701cbad4e1
+                name: _:891a5afe-fa74-4020-bc32-60d50c732e17
                 items: double
                 type: array
               type: array
@@ -460,7 +460,7 @@ $graph:
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/bbox
         type:
-          name: _:a6a8ba30-a527-44a2-859d-1c58e3bf9b99
+          name: _:e913c530-2959-4ae4-b90d-d0448020f7cb
           items: double
           type: array
       type: record
@@ -485,7 +485,7 @@ $graph:
         - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/bbox
         type:
-          name: _:4f943f1e-4217-4890-b5ec-a5a0b4153835
+          name: _:cdaccbc9-b806-42d5-9796-e4fe50ea664c
           items: double
           type: array
       type: record
@@ -499,7 +499,7 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/geometries
         type:
-          name: _:3b9d7541-ea5a-46d7-8930-43531cea1fa3
+          name: _:e97d424e-5728-4bdb-a3c5-3537b4cf663c
           items:
           - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
           - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
@@ -510,7 +510,7 @@ $graph:
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/bbox
         type:
-          name: _:9edb8d79-4068-4e88-a780-00762b40a607
+          name: _:7f2be3a6-65dd-4ff7-8f98-623956f7747e
           items: double
           type: array
       type: record
@@ -544,12 +544,12 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/features
         type:
-          name: _:55813fbd-6107-41f8-880a-a3deb7d1f7e5
+          name: _:3199e45b-9b2a-4a51-ad03-2746f62c5400
           items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/links
         type:
-          name: _:8db7860e-5151-47e8-b295-328b96b41e3d
+          name: _:9e678b6d-cb90-4862-a6b2-4e9a9f03e693
           items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/timeStamp
@@ -573,7 +573,7 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/headers
         type:
         - 'null'
-        - name: _:09bdbc34-9834-4213-be87-4e492b1670fe
+        - name: _:01d51ed2-b196-4586-9beb-5df025a573c6
           items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
           type: array
       type: record
@@ -589,13 +589,13 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/include
         type:
         - 'null'
-        - name: _:50d22398-9050-4253-9fe1-d643e3f8220a
+        - name: _:e5e222fe-daae-4bb2-a9ad-1344369a6b09
           items: string
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/exclude
         type:
         - 'null'
-        - name: _:edecaf25-27bd-4aa1-ba66-c55ff60b2732
+        - name: _:402e0717-45fd-4240-95c4-2cefd8daf5a2
           items: string
           type: array
       type: record
@@ -621,7 +621,7 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/bbox
         type:
         - 'null'
-        - name: _:f17be808-6e80-48b4-bfc6-6ea468715b95
+        - name: _:e6ec3b87-bfd0-4310-b896-1a9e722c6d83
           items: double
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime
@@ -645,13 +645,13 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/collections
         type:
         - 'null'
-        - name: _:f1c9b8b6-7ff6-48f7-beba-2455d19c911d
+        - name: _:5e1dd1d1-24cc-49e2-9572-0b0cd6294597
           items: string
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/ids
         type:
         - 'null'
-        - name: _:923c73d5-3bb4-47f6-98e8-205e20d44c9a
+        - name: _:06d65adf-d5bb-4e62-85f1-98c27882ba8f
           items: string
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/limit
@@ -677,13 +677,13 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-crs
         type:
         - 'null'
-        - name: _:8133b7f7-99bc-4142-b064-96001f55ca21
+        - name: _:e04710f0-311a-4aa3-ba86-9bfc1fbdcd4e
           items: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/sortby
         type:
         - 'null'
-        - name: _:db6d4e4d-6060-4bb9-92f2-1882be924fec
+        - name: _:84a95218-2074-44ff-9922-4333e38f10fc
           items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
           type: array
       type: record
@@ -752,6 +752,1370 @@ $graph:
     out:
     - s3_catalog_output
     run: '#stage-out'
+- id: stac-client
+  class: CommandLineTool
+  label: STAC Client Tool
+  doc: 'This tool uses the STAC Client to search for STAC items
+
+    '
+  inputs:
+  - id: api_endpoint
+    label: STAC API endpoint
+    doc: STAC API endpoint used to discover input items
+    type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
+  - id: search_request
+    label: STAC API settings
+    doc: STAC search settings including spatial, temporal, and collection filters
+    type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
+  outputs:
+  - id: search_output
+    label: STAC search results
+    doc: GeoJSON feature collection containing the discovered STAC items.
+    type: File
+    outputBinding:
+      glob: discovery-output.json
+  requirements:
+  - class: DockerRequirement
+    dockerPull: ghcr.io/eoap/schemas/stac-api-client@sha256:a7e346f704836d07f5dabc6b29ee3359e7253f4a294d74f3899973b8920da6f7
+  - class: InlineJavascriptRequirement
+  - class: NetworkAccess
+    networkAccess: true
+  - class: SchemaDefRequirement
+    types:
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Date
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Date/value
+        doc: A date in the `YYYY-MM-DD` format.
+        type: string
+      type: record
+      doc: Represents a date in the `YYYY-MM-DD` format.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime/value
+        doc: A date-time in the `YYYY-MM-DDThh:mm:ss.sTZD` format.
+        type: string
+      type: record
+      doc: Represents a date-time in the `YYYY-MM-DDThh:mm:ss.sTZD` format.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Duration
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Duration/value
+        doc: A duration as specified by _ISO 8601_.
+        type: string
+      type: record
+      doc: Represents a duration as specified by _ISO 8601_.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Email
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Email/value
+        doc: A valid [e-mail address](https://www.rfc-editor.org/rfc/rfc5322.html#page-16)
+          address format.
+        type: string
+      type: record
+      doc: Represents a valid [e-mail address](https://www.rfc-editor.org/rfc/rfc5322.html#page-16)
+        format.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Hostname
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Hostname/value
+        doc: A valid [hostname](https://datatracker.ietf.org/doc/html/rfc1123).
+        type: string
+      type: record
+      doc: Represents a valid [hostname](https://datatracker.ietf.org/doc/html/rfc1123).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNEmail
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNEmail/value
+        doc: A valid idn e-mail address format.
+        type: string
+      type: record
+      doc: Represents a valid idn e-mail address format.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNHostname
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNHostname/value
+        doc: A valid IDN hostname.
+        type: string
+      type: record
+      doc: Represents a valid IDN hostname.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv4
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv4/value
+        doc: A valid [IPv4](https://www.rfc-editor.org/rfc/rfc791.html) address.
+        type: string
+      type: record
+      doc: Represents a valid [IPv4](https://www.rfc-editor.org/rfc/rfc791.html) address.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv6
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv6/value
+        doc: A valid [IPv6](https://www.rfc-editor.org/rfc/rfc4291.html) address.
+        type: string
+      type: record
+      doc: Represents a valid [IPv6](https://www.rfc-editor.org/rfc/rfc4291.html)
+        address.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRI
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRI/value
+        doc: A valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987).
+        type: string
+      type: record
+      doc: Represents a valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRIReference
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRIReference/value
+        doc: A valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987) reference.
+        type: string
+      type: record
+      doc: Represents a valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987)
+        reference.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Password
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Password/value
+        doc: A valid password.
+        type: string
+      type: record
+      doc: Represents a valid password.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#JsonPointer
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#JsonPointer/value
+        doc: A valid (absolute) [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
+        type: string
+      type: record
+      doc: Represents a valid (absolute) [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#RelativeJsonPointer
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#RelativeJsonPointer/value
+        doc: A valid relative [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
+        type: string
+      type: record
+      doc: Represents a valid relative [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#UUID
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#UUID/value
+        doc: A valid string representation of a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+        type: string
+      type: record
+      doc: A valid string representation of a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI/value
+        doc: A valid [URI](https://datatracker.ietf.org/doc/html/rfc3986).
+        type: string
+      type: record
+      doc: Represents a valid [URI](https://datatracker.ietf.org/doc/html/rfc3986).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URIReference
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URIReference/value
+        doc: A valid [URI](https://datatracker.ietf.org/doc/html/rfc3986) reference.
+        type: string
+      type: record
+      doc: Represents a valid [URI](https://datatracker.ietf.org/doc/html/rfc3986)
+        reference.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URITemplate
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URITemplate/value
+        doc: A valid [URI template](https://datatracker.ietf.org/doc/html/rfc6570).
+        type: string
+      type: record
+      doc: Represents a valid [URI template](https://datatracker.ietf.org/doc/html/rfc6570).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Time
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Time/value
+        doc: A time in the `hh:mm:ss.sTZD` format.
+        type: string
+      type: record
+      doc: Represents a time in the `hh:mm:ss.sTZD` format.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern/value
+        doc: A generic string value.
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern/pattern
+        doc: A regular expression syntax based on the ECMA 262 (JavaScript) dialect.
+        type: string
+      type: record
+      doc: Validate string value against a regular expression syntax based on the
+        ECMA 262 (JavaScript) dialect.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType/Point
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/coordinates
+        type:
+          name: _:ecf8f94a-c460-4fa2-9c28-65a4560031be
+          items: double
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/bbox
+        type:
+          name: _:5a3b2b12-7e4b-4569-8e1c-47f15cc69828
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType/LineString
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/coordinates
+        type:
+          name: _:c4b69baf-15fb-477b-9b76-d437f7b8ed13
+          items: double
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/bbox
+        type:
+          name: _:15a2845b-8e6f-4c7d-b1de-6cab2267704c
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType/Polygon
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/coordinates
+        type:
+          name: _:59cc1759-04d8-4b7e-9747-85e98bc7be9b
+          items:
+            name: _:4dc81371-c70b-44f0-948b-fe539585ecdb
+            items:
+              name: _:13214f2f-4698-48a6-bb0a-00fc39f1932a
+              items: double
+              type: array
+            type: array
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/bbox
+        type:
+          name: _:e12bd2c8-e14a-4b22-ad23-6b376afa3a5f
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType/MultiPoint
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/coordinates
+        type:
+          name: _:b7b8c451-5dd5-4faf-8bc4-806b4367770f
+          items:
+            name: _:8b732067-8d70-4359-a546-0af1eca0e1ca
+            items: double
+            type: array
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/bbox
+        type:
+          name: _:aa209f40-ea30-4225-a640-9194c56500c8
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType/MultiLineString
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/coordinates
+        type:
+          name: _:39e2dee1-26e0-4815-ac25-2ea3b5292838
+          items:
+            name: _:7461fe41-c3c2-45fc-85f0-e5a3a32b99d4
+            items:
+              name: _:e0559f6c-2185-48cb-bfc0-dd40b91ea69c
+              items: double
+              type: array
+            type: array
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/bbox
+        type:
+          name: _:9166641f-0b6e-427d-832b-47344a7fab31
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType/MultiPolygon
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/coordinates
+        type:
+          name: _:111c5691-1e70-4638-9958-aa53efcc2c63
+          items:
+            name: _:f1f0aa86-81d2-4dd1-b116-d26af33d0213
+            items:
+              name: _:67c41f7d-c43c-4656-abb9-29fae625140a
+              items:
+                name: _:891a5afe-fa74-4020-bc32-60d50c732e17
+                items: double
+                type: array
+              type: array
+            type: array
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/bbox
+        type:
+          name: _:e913c530-2959-4ae4-b90d-d0448020f7cb
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType/Feature
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/id
+        doc: Identifier
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/geometry
+        type:
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/bbox
+        type:
+          name: _:cdaccbc9-b806-42d5-9796-e4fe50ea664c
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType/GeometryCollection
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/geometries
+        type:
+          name: _:e97d424e-5728-4bdb-a3c5-3537b4cf663c
+          items:
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/bbox
+        type:
+          name: _:7f2be3a6-65dd-4ff7-8f98-623956f7747e
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/href
+        doc: i.e. http://data.example.com/buildings/123
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/rel
+        doc: i.e. alternate
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/type
+        doc: i.e. application/geo+json
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/hreflang
+        doc: i.e. en
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/title
+        doc: i.e. Trierer Strasse 70, 53115 Bonn
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/length
+        type: int
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType/FeatureCollection
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/features
+        type:
+          name: _:3199e45b-9b2a-4a51-ad03-2746f62c5400
+          items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/links
+        type:
+          name: _:9e678b6d-cb90-4862-a6b2-4e9a9f03e693
+          items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/timeStamp
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/numberMatched
+        type: int
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/numberReturned
+        type: int
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair/key
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair/value
+        type: string
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/url
+        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/headers
+        type:
+        - 'null'
+        - name: _:01d51ed2-b196-4586-9beb-5df025a573c6
+          items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval/start
+        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval/end
+        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/include
+        type:
+        - 'null'
+        - name: _:e5e222fe-daae-4bb2-a9ad-1344369a6b09
+          items: string
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/exclude
+        type:
+        - 'null'
+        - name: _:402e0717-45fd-4240-95c4-2cefd8daf5a2
+          items: string
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang/cql2-text
+      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang/cql2-json
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction/asc
+      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction/desc
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy/field
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy/direction
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/bbox
+        type:
+        - 'null'
+        - name: _:e6ec3b87-bfd0-4310-b896-1a9e722c6d83
+          items: double
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime
+        type:
+        - 'null'
+        - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime-interval
+        type:
+        - 'null'
+        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/intersects
+        type:
+        - 'null'
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/collections
+        type:
+        - 'null'
+        - name: _:5e1dd1d1-24cc-49e2-9572-0b0cd6294597
+          items: string
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/ids
+        type:
+        - 'null'
+        - name: _:06d65adf-d5bb-4e62-85f1-98c27882ba8f
+          items: string
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/limit
+        type:
+        - 'null'
+        - int
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/max-items
+        type:
+        - 'null'
+        - int
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/fields
+        type:
+        - 'null'
+        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter
+        type:
+        - 'null'
+        - Any
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-lang
+        type:
+        - 'null'
+        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-crs
+        type:
+        - 'null'
+        - name: _:e04710f0-311a-4aa3-ba86-9bfc1fbdcd4e
+          items: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/sortby
+        type:
+        - 'null'
+        - name: _:84a95218-2074-44ff-9922-4333e38f10fc
+          items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI/api_endpoint
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI/search_request
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
+      type: record
+  cwlVersion: v1.2
+  baseCommand:
+  - stac-client
+  arguments:
+  - search
+  - $(inputs.api_endpoint.url.value)
+  - ${ var collections = inputs.search_request.collections; return ['--collections',
+    collections.join(",")]; }
+  - '${ var bbox = inputs.search_request.bbox; return Array.isArray(bbox) && bbox.length
+    >= 4 ? [''--bbox''].concat(bbox.map(String)) : []; }'
+  - '${ var limit = inputs.search_request.limit; return [''--limit'', String(limit
+    == null ? 10 : limit)]; }'
+  - '${ var maxItems = inputs.search_request[''max-items'']; return [''--max-items'',
+    String(maxItems == null ? 20 : maxItems)]; }'
+  - ${ var args = []; var filter = inputs.search_request.filter; var filterLang =
+    inputs.search_request['filter-lang']; if (filterLang) { args.push('--filter-lang',
+    filterLang); } if (filter) { args.push('--filter', JSON.stringify(filter)); }
+    return args; }
+  - ${ var datetime = inputs.search_request.datetime; var interval = inputs.search_request.datetime_interval;
+    if (datetime) { return ['--datetime', datetime]; } if (interval) { var start =
+    interval.start && interval.start.value || '..'; var end = interval.end && interval.end.value
+    || '..'; return ['--datetime', start + '/' + end]; } return []; }
+  - '${ var ids = inputs.search_request.ids; return Array.isArray(ids) && ids.length
+    > 0 ? [''--ids''].concat(ids.map(String)) : []; }'
+  - '${ var intersects = inputs.search_request.intersects; return intersects ? [''--intersects'',
+    JSON.stringify(intersects)] : []; }'
+  - --save
+  - discovery-output.json
+- id: water-bodies
+  class: Workflow
+  label: Water bodies detection based on NDWI and otsu threshold
+  doc: Water bodies detection based on NDWI and otsu threshold applied to Sentinel-2
+    COG STAC items
+  inputs:
+  - id: stac_api_endpoint
+    label: STAC API endpoint
+    doc: STAC API endpoint
+    default:
+      headers: []
+      url: https://planetarycomputer.microsoft.com/api/stac/v1
+    type: Any
+  - id: collection
+    label: STAC collection
+    doc: STAC collection identifier
+    default: sentinel-2-l2a
+    type: string
+  - id: aoi
+    label: Area of interest
+    doc: Area of interest polygon with bbox [minx, miny, maxx, maxy]
+    type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+  - id: start-datetime
+    label: Start time
+    doc: Start time
+    type:
+    - 'null'
+    - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+  - id: end-datetime
+    label: End time
+    doc: End time
+    type:
+    - 'null'
+    - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+  - id: limit
+    label: limit
+    doc: limit
+    default: 20
+    type: int
+  - id: max-items
+    label: max-items
+    doc: max-items
+    default: 10
+    type: int
+  - id: filter-lang
+    label: Filter language
+    doc: Filter language
+    type:
+    - 'null'
+    - name: _:33502383-c572-4626-878a-e16524bbecd1
+      symbols:
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/filter-lang/cql2-json
+      type: enum
+  - id: filter
+    label: Filter
+    doc: Filter
+    type:
+    - 'null'
+    - Any
+  - id: bands
+    label: bands used for the NDWI
+    doc: bands used for the NDWI
+    default:
+    - green
+    - nir
+    type:
+      name: _:e0ce6b12-01ca-460d-9412-9d85d57b5bfe
+      items: string
+      type: array
+  - id: overview_levels
+    label: Number of Zarr overview levels
+    doc: Number of multiscale overview levels generated by stac-zarr
+    default: 2
+    type: int
+  - id: continuous_overview_reducer
+    label: Overview reducer for continuous variables
+    doc: Reducer used for continuous variables when generating overviews (mean, max,
+      median, nearest)
+    default: mean
+    type:
+      name: _:bef84230-9d8b-40c6-8152-5bbb1c6a8f73
+      symbols:
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/continuous_overview_reducer/mean
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/continuous_overview_reducer/max
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/continuous_overview_reducer/median
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/continuous_overview_reducer/nearest
+      type: enum
+  - id: categorical_overview_reducer
+    label: Overview reducer for categorical variables
+    doc: Reducer used for categorical variables when generating overviews (mean, max,
+      median, nearest)
+    default: nearest
+    type:
+      name: _:b0eead28-1480-4358-94f0-d5fd0b881b55
+      symbols:
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/categorical_overview_reducer/mean
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/categorical_overview_reducer/max
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/categorical_overview_reducer/median
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/categorical_overview_reducer/nearest
+      type: enum
+  - id: stac_object_type
+    label: STAC object type
+    doc: Output STAC object type emitted by stac-zarr (collection or item)
+    default: item
+    type:
+      name: _:d10e2d84-74ca-40c3-8abf-75f02fec6302
+      symbols:
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/stac_object_type/collection
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/stac_object_type/item
+      type: enum
+  outputs:
+  - id: zarr_stac_catalog
+    label: Zarr STAC catalog
+    doc: STAC catalog produced by the stac-zarr step
+    outputSource:
+    - stac_zarr/zarr_stac_catalog
+    type: Directory
+  requirements:
+  - class: ScatterFeatureRequirement
+  - class: SubworkflowFeatureRequirement
+  - class: SchemaDefRequirement
+    types:
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Date
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Date/value
+        doc: A date in the `YYYY-MM-DD` format.
+        type: string
+      type: record
+      doc: Represents a date in the `YYYY-MM-DD` format.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime/value
+        doc: A date-time in the `YYYY-MM-DDThh:mm:ss.sTZD` format.
+        type: string
+      type: record
+      doc: Represents a date-time in the `YYYY-MM-DDThh:mm:ss.sTZD` format.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Duration
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Duration/value
+        doc: A duration as specified by _ISO 8601_.
+        type: string
+      type: record
+      doc: Represents a duration as specified by _ISO 8601_.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Email
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Email/value
+        doc: A valid [e-mail address](https://www.rfc-editor.org/rfc/rfc5322.html#page-16)
+          address format.
+        type: string
+      type: record
+      doc: Represents a valid [e-mail address](https://www.rfc-editor.org/rfc/rfc5322.html#page-16)
+        format.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Hostname
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Hostname/value
+        doc: A valid [hostname](https://datatracker.ietf.org/doc/html/rfc1123).
+        type: string
+      type: record
+      doc: Represents a valid [hostname](https://datatracker.ietf.org/doc/html/rfc1123).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNEmail
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNEmail/value
+        doc: A valid idn e-mail address format.
+        type: string
+      type: record
+      doc: Represents a valid idn e-mail address format.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNHostname
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNHostname/value
+        doc: A valid IDN hostname.
+        type: string
+      type: record
+      doc: Represents a valid IDN hostname.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv4
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv4/value
+        doc: A valid [IPv4](https://www.rfc-editor.org/rfc/rfc791.html) address.
+        type: string
+      type: record
+      doc: Represents a valid [IPv4](https://www.rfc-editor.org/rfc/rfc791.html) address.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv6
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv6/value
+        doc: A valid [IPv6](https://www.rfc-editor.org/rfc/rfc4291.html) address.
+        type: string
+      type: record
+      doc: Represents a valid [IPv6](https://www.rfc-editor.org/rfc/rfc4291.html)
+        address.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRI
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRI/value
+        doc: A valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987).
+        type: string
+      type: record
+      doc: Represents a valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRIReference
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRIReference/value
+        doc: A valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987) reference.
+        type: string
+      type: record
+      doc: Represents a valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987)
+        reference.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Password
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Password/value
+        doc: A valid password.
+        type: string
+      type: record
+      doc: Represents a valid password.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#JsonPointer
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#JsonPointer/value
+        doc: A valid (absolute) [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
+        type: string
+      type: record
+      doc: Represents a valid (absolute) [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#RelativeJsonPointer
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#RelativeJsonPointer/value
+        doc: A valid relative [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
+        type: string
+      type: record
+      doc: Represents a valid relative [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#UUID
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#UUID/value
+        doc: A valid string representation of a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+        type: string
+      type: record
+      doc: A valid string representation of a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI/value
+        doc: A valid [URI](https://datatracker.ietf.org/doc/html/rfc3986).
+        type: string
+      type: record
+      doc: Represents a valid [URI](https://datatracker.ietf.org/doc/html/rfc3986).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URIReference
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URIReference/value
+        doc: A valid [URI](https://datatracker.ietf.org/doc/html/rfc3986) reference.
+        type: string
+      type: record
+      doc: Represents a valid [URI](https://datatracker.ietf.org/doc/html/rfc3986)
+        reference.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URITemplate
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URITemplate/value
+        doc: A valid [URI template](https://datatracker.ietf.org/doc/html/rfc6570).
+        type: string
+      type: record
+      doc: Represents a valid [URI template](https://datatracker.ietf.org/doc/html/rfc6570).
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Time
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Time/value
+        doc: A time in the `hh:mm:ss.sTZD` format.
+        type: string
+      type: record
+      doc: Represents a time in the `hh:mm:ss.sTZD` format.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern/value
+        doc: A generic string value.
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern/pattern
+        doc: A regular expression syntax based on the ECMA 262 (JavaScript) dialect.
+        type: string
+      type: record
+      doc: Validate string value against a regular expression syntax based on the
+        ECMA 262 (JavaScript) dialect.
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType/Point
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/coordinates
+        type:
+          name: _:ecf8f94a-c460-4fa2-9c28-65a4560031be
+          items: double
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/bbox
+        type:
+          name: _:5a3b2b12-7e4b-4569-8e1c-47f15cc69828
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType/LineString
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/coordinates
+        type:
+          name: _:c4b69baf-15fb-477b-9b76-d437f7b8ed13
+          items: double
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/bbox
+        type:
+          name: _:15a2845b-8e6f-4c7d-b1de-6cab2267704c
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType/Polygon
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/coordinates
+        type:
+          name: _:59cc1759-04d8-4b7e-9747-85e98bc7be9b
+          items:
+            name: _:4dc81371-c70b-44f0-948b-fe539585ecdb
+            items:
+              name: _:13214f2f-4698-48a6-bb0a-00fc39f1932a
+              items: double
+              type: array
+            type: array
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/bbox
+        type:
+          name: _:e12bd2c8-e14a-4b22-ad23-6b376afa3a5f
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType/MultiPoint
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/coordinates
+        type:
+          name: _:b7b8c451-5dd5-4faf-8bc4-806b4367770f
+          items:
+            name: _:8b732067-8d70-4359-a546-0af1eca0e1ca
+            items: double
+            type: array
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/bbox
+        type:
+          name: _:aa209f40-ea30-4225-a640-9194c56500c8
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType/MultiLineString
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/coordinates
+        type:
+          name: _:39e2dee1-26e0-4815-ac25-2ea3b5292838
+          items:
+            name: _:7461fe41-c3c2-45fc-85f0-e5a3a32b99d4
+            items:
+              name: _:e0559f6c-2185-48cb-bfc0-dd40b91ea69c
+              items: double
+              type: array
+            type: array
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/bbox
+        type:
+          name: _:9166641f-0b6e-427d-832b-47344a7fab31
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType/MultiPolygon
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/coordinates
+        type:
+          name: _:111c5691-1e70-4638-9958-aa53efcc2c63
+          items:
+            name: _:f1f0aa86-81d2-4dd1-b116-d26af33d0213
+            items:
+              name: _:67c41f7d-c43c-4656-abb9-29fae625140a
+              items:
+                name: _:891a5afe-fa74-4020-bc32-60d50c732e17
+                items: double
+                type: array
+              type: array
+            type: array
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/bbox
+        type:
+          name: _:e913c530-2959-4ae4-b90d-d0448020f7cb
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType/Feature
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/id
+        doc: Identifier
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/geometry
+        type:
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/bbox
+        type:
+          name: _:cdaccbc9-b806-42d5-9796-e4fe50ea664c
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType/GeometryCollection
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/geometries
+        type:
+          name: _:e97d424e-5728-4bdb-a3c5-3537b4cf663c
+          items:
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
+          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/bbox
+        type:
+          name: _:7f2be3a6-65dd-4ff7-8f98-623956f7747e
+          items: double
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/href
+        doc: i.e. http://data.example.com/buildings/123
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/rel
+        doc: i.e. alternate
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/type
+        doc: i.e. application/geo+json
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/hreflang
+        doc: i.e. en
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/title
+        doc: i.e. Trierer Strasse 70, 53115 Bonn
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/length
+        type: int
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType/FeatureCollection
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/type
+        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/features
+        type:
+          name: _:3199e45b-9b2a-4a51-ad03-2746f62c5400
+          items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/links
+        type:
+          name: _:9e678b6d-cb90-4862-a6b2-4e9a9f03e693
+          items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/timeStamp
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/numberMatched
+        type: int
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/numberReturned
+        type: int
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair/key
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair/value
+        type: string
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/url
+        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/headers
+        type:
+        - 'null'
+        - name: _:01d51ed2-b196-4586-9beb-5df025a573c6
+          items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval/start
+        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval/end
+        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/include
+        type:
+        - 'null'
+        - name: _:e5e222fe-daae-4bb2-a9ad-1344369a6b09
+          items: string
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/exclude
+        type:
+        - 'null'
+        - name: _:402e0717-45fd-4240-95c4-2cefd8daf5a2
+          items: string
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang/cql2-text
+      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang/cql2-json
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction
+      symbols:
+      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction/asc
+      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction/desc
+      type: enum
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy/field
+        type: string
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy/direction
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/bbox
+        type:
+        - 'null'
+        - name: _:e6ec3b87-bfd0-4310-b896-1a9e722c6d83
+          items: double
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime
+        type:
+        - 'null'
+        - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime-interval
+        type:
+        - 'null'
+        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/intersects
+        type:
+        - 'null'
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
+        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/collections
+        type:
+        - 'null'
+        - name: _:5e1dd1d1-24cc-49e2-9572-0b0cd6294597
+          items: string
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/ids
+        type:
+        - 'null'
+        - name: _:06d65adf-d5bb-4e62-85f1-98c27882ba8f
+          items: string
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/limit
+        type:
+        - 'null'
+        - int
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/max-items
+        type:
+        - 'null'
+        - int
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/fields
+        type:
+        - 'null'
+        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter
+        type:
+        - 'null'
+        - Any
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-lang
+        type:
+        - 'null'
+        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-crs
+        type:
+        - 'null'
+        - name: _:e04710f0-311a-4aa3-ba86-9bfc1fbdcd4e
+          items: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
+          type: array
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/sortby
+        type:
+        - 'null'
+        - name: _:84a95218-2074-44ff-9922-4333e38f10fc
+          items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
+          type: array
+      type: record
+    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI
+      fields:
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI/api_endpoint
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
+      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI/search_request
+        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
+      type: record
+  cwlVersion: v1.2
+  steps:
+  - id: build_api_endpoint
+    label: Build STAC API endpoint
+    doc: Normalize endpoint to APIEndpoint schema expected by discovery step
+    in:
+    - id: api_endpoint
+      source: stac_api_endpoint
+    out:
+    - normalized_api_endpoint
+    run: '#build_api_endpoint'
+  - id: build_search_request
+    label: Build STAC search request
+    doc: Build STACSearchSettings from AOI and query inputs
+    in:
+    - id: collection
+      source: collection
+    - id: aoi
+      source: aoi
+    - id: start-datetime
+      source: start-datetime
+    - id: end-datetime
+      source: end-datetime
+    - id: limit
+      source: limit
+    - id: max-items
+      source: max-items
+    - id: filter-lang
+      source: filter-lang
+    - id: filter
+      source: filter
+    out:
+    - search_request
+    run: '#build_search_request'
+  - id: discovery
+    label: STAC API discovery
+    doc: Discover STAC items from a STAC API endpoint based on a search request
+    in:
+    - id: api_endpoint
+      source: build_api_endpoint/normalized_api_endpoint
+    - id: search_request
+      source: build_search_request/search_request
+    out:
+    - search_output
+    run: '#stac-client'
+  - id: convert_search
+    label: Convert Search
+    doc: Convert Search results to get the item self hrefs and the area of interest
+    in:
+    - id: search_results
+      source: discovery/search_output
+    - id: search_request
+      source: build_search_request/search_request
+    out:
+    - items
+    - aoi
+    run: '#convert-search'
+  - id: water_bodies
+    label: Water bodies detection
+    doc: Water bodies detection based on NDWI and otsu threshold applied to each STAC
+      item (sub-workflow)
+    in:
+    - id: item
+      source: convert_search/items
+    - id: aoi
+      source: convert_search/aoi
+    - id: bands
+      source: bands
+    out:
+    - detected_water_body
+    - ndwi
+    run: '#detect_water_body'
+    scatter: water_bodies/item
+    scatterMethod: dotproduct
+  - id: stac-collection
+    label: Create a STAC catalog with COG outputs
+    doc: Create a STAC catalog with the detected water bodies COG outputs
+    in:
+    - id: item
+      source: convert_search/items
+    - id: rasters
+      source: water_bodies/detected_water_body
+    - id: ndwis
+      source: water_bodies/ndwi
+    out:
+    - temp_stac_catalog
+    run: '#stac-collection'
+  - id: stac_zarr
+    label: Create a STAC Catalog for the Zarr store
+    doc: Create a STAC Catalog for the Zarr store from the STAC catalog with COG outputs
+    in:
+    - id: stac_catalog
+      source: stac-collection/temp_stac_catalog
+    - id: overview_levels
+      source: overview_levels
+    - id: continuous_overview_reducer
+      source: continuous_overview_reducer
+    - id: categorical_overview_reducer
+      source: categorical_overview_reducer
+    - id: stac_object_type
+      source: stac_object_type
+    out:
+    - zarr_stac_catalog
+    run: '#stac-zarr'
+  - id: stac_eopf_product
+    label: Create a EOPF Zarr store from a STAC catalog
+    doc: Create a EOPF Zarr store from a STAC catalog with COG products
+    in:
+    - id: stac_catalog
+      source: stac-collection/temp_stac_catalog
+    out:
+    - eopf_product_stac_catalog
+    run: '#stac-eopf-product'
+- id: norm_diff
+  class: CommandLineTool
+  inputs:
+  - id: rasters
+    label: Raster inputs
+    doc: Two raster inputs used to compute NDWI
+    type:
+      name: _:83edd15b-00e2-48d9-9e8d-ca5b02e1d78f
+      items: File
+      type: array
+    inputBinding:
+      position: 1
+  outputs:
+  - id: ndwi
+    label: NDWI output
+    doc: NDWI raster output
+    type: File
+    outputBinding:
+      glob: '*.tif'
+  requirements:
+  - class: InlineJavascriptRequirement
+  - class: EnvVarRequirement
+    envDef:
+    - envName: PATH
+      envValue: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - envName: PYTHONPATH
+      envValue: /app
+  - class: ResourceRequirement
+    coresMax: 1
+    ramMin: 2048
+    ramMax: 2048
+  - class: DockerRequirement
+    dockerPull: norm-diff:latest
+  cwlVersion: v1.2
+  baseCommand:
+  - norm-diff
+  arguments: []
 - id: stac-zarr
   class: CommandLineTool
   inputs:
@@ -773,7 +2137,7 @@ $graph:
     doc: Reducer for continuous variables when building overviews
     default: mean
     type:
-      name: _:92448b15-377b-4650-b6e6-8b1dfadf2998
+      name: _:0fc92af4-3557-4361-ad4e-db8ab1e8a735
       symbols:
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#stac-zarr/continuous_overview_reducer/mean
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#stac-zarr/continuous_overview_reducer/max
@@ -787,7 +2151,7 @@ $graph:
     doc: Reducer for categorical variables when building overviews
     default: nearest
     type:
-      name: _:bdbaf44b-4b48-44f9-81a2-0af052bff2cc
+      name: _:8640281b-f64f-4d62-9a70-6a381cf6d9f4
       symbols:
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#stac-zarr/categorical_overview_reducer/mean
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#stac-zarr/categorical_overview_reducer/max
@@ -809,7 +2173,7 @@ $graph:
     doc: Chunking strategy for stac-load (manual or auto)
     default: manual
     type:
-      name: _:319a573b-83b1-4cbb-825d-3237f4d55e0f
+      name: _:8543b3ee-f785-4faa-9b9b-721cfec59bd3
       symbols:
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#stac-zarr/chunks/manual
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#stac-zarr/chunks/auto
@@ -857,7 +2221,7 @@ $graph:
     doc: Output STAC object type to emit (collection or item)
     default: collection
     type:
-      name: _:55cc3b00-d51d-40cf-8567-5d217d13bec0
+      name: _:6e282ea6-e242-4838-b611-8abf3561d180
       symbols:
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#stac-zarr/stac_object_type/collection
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#stac-zarr/stac_object_type/item
@@ -875,187 +2239,14 @@ $graph:
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     coresMax: 1
-    ramMax: 512
+    ramMin: 2048
+    ramMax: 2048
   - class: DockerRequirement
     dockerPull: stac-zarr:latest
   cwlVersion: v1.2
   baseCommand:
   - stac-zarr
   arguments: []
-- id: otsu
-  class: CommandLineTool
-  inputs:
-  - id: raster
-    label: NDWI raster
-    doc: NDWI raster input for Otsu thresholding
-    type: File
-    inputBinding:
-      position: 1
-  outputs:
-  - id: binary_mask_item
-    label: Binary mask output
-    doc: Binary water mask raster generated by Otsu
-    type: File
-    outputBinding:
-      glob: '*.tif'
-  requirements:
-  - class: InlineJavascriptRequirement
-  - class: EnvVarRequirement
-    envDef:
-    - envName: PATH
-      envValue: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-    - envName: PYTHONPATH
-      envValue: /app
-  - class: ResourceRequirement
-    coresMax: 1
-    ramMax: 512
-  - class: DockerRequirement
-    dockerPull: otsu:latest
-  cwlVersion: v1.2
-  baseCommand:
-  - otsu
-  arguments: []
-- id: crop
-  class: CommandLineTool
-  inputs:
-  - id: item
-    label: Input STAC item href
-    doc: STAC item href to crop
-    type: string
-    inputBinding:
-      prefix: --input-item
-  - id: aoi
-    label: Area of interest
-    doc: Area of interest bbox as CSV
-    type: string
-    inputBinding:
-      prefix: --aoi
-  - id: epsg
-    label: Target EPSG
-    doc: Target EPSG code used for crop reprojection
-    type: string
-    inputBinding:
-      prefix: --epsg
-  - id: band
-    label: Band name
-    doc: Band identifier to crop
-    type: string
-    inputBinding:
-      prefix: --band
-  - id: asset_signing
-    label: Asset signing mode
-    doc: Internal cloud asset signing mode (auto, none, mspc)
-    default: auto
-    type:
-      name: _:269616b6-d91f-4123-a1c4-c7f5ff5d5967
-      symbols:
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#crop/asset_signing/auto
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#crop/asset_signing/none
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#crop/asset_signing/mspc
-      type: enum
-    inputBinding:
-      prefix: --asset-signing
-  outputs:
-  - id: cropped
-    label: Cropped raster
-    doc: Cropped raster output for one band
-    type: File
-    outputBinding:
-      glob: '*.tif'
-  requirements:
-  - class: InlineJavascriptRequirement
-  - class: EnvVarRequirement
-    envDef:
-    - envName: PATH
-      envValue: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-    - envName: PYTHONPATH
-      envValue: /app
-  - class: ResourceRequirement
-    coresMax: 1
-    ramMax: 512
-  - class: DockerRequirement
-    dockerPull: crop:latest
-  cwlVersion: v1.2
-  baseCommand:
-  - crop
-  arguments: []
-- id: detect_water_body
-  class: Workflow
-  label: Water body detection based on NDWI and otsu threshold
-  doc: Water body detection based on NDWI and otsu threshold
-  inputs:
-  - id: aoi
-    label: Area of interest
-    doc: area of interest as a bounding box
-    type: string
-  - id: epsg
-    label: EPSG code
-    doc: EPSG code
-    default: EPSG:4326
-    type: string
-  - id: bands
-    label: Input bands
-    doc: bands used for the NDWI
-    type:
-      name: _:ea3373c0-ab3e-45b4-b599-b6e4cf0305b6
-      items: string
-      type: array
-  - id: item
-    label: STAC item href
-    doc: STAC item
-    type: string
-  outputs:
-  - id: detected_water_body
-    label: Water body mask
-    doc: Binary water mask generated by the Otsu step
-    outputSource:
-    - otsu/binary_mask_item
-    type: File
-  - id: ndwi
-    label: NDWI raster
-    doc: NDWI raster generated by normalized difference step
-    outputSource:
-    - normalized_difference/ndwi
-    type: File
-  requirements:
-  - class: ScatterFeatureRequirement
-  cwlVersion: v1.2
-  steps:
-  - id: crop
-    label: Crop spectral bands
-    doc: Crop and reproject each requested band to the area of interest.
-    in:
-    - id: item
-      source: item
-    - id: aoi
-      source: aoi
-    - id: epsg
-      source: epsg
-    - id: band
-      source: bands
-    out:
-    - cropped
-    run: '#crop'
-    scatter: crop/band
-    scatterMethod: dotproduct
-  - id: normalized_difference
-    label: Compute NDWI
-    doc: Compute the normalized difference water index from the cropped bands.
-    in:
-    - id: rasters
-      source: crop/cropped
-    out:
-    - ndwi
-    run: '#norm_diff'
-  - id: otsu
-    label: Detect water bodies
-    doc: Apply Otsu thresholding to the NDWI raster to produce a binary water mask.
-    in:
-    - id: raster
-      source: normalized_difference/ndwi
-    out:
-    - binary_mask_item
-    run: '#otsu'
 - id: build_api_endpoint
   class: ExpressionTool
   inputs:
@@ -1235,7 +2426,7 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/headers
         type:
         - 'null'
-        - name: _:09bdbc34-9834-4213-be87-4e492b1670fe
+        - name: _:01d51ed2-b196-4586-9beb-5df025a573c6
           items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
           type: array
       type: record
@@ -1247,1344 +2438,71 @@ $graph:
     string\") {\n    return { normalized_api_endpoint: { headers: headers, url: url\
     \ } };\n  }\n\n  throw new Error(\"stac_api_endpoint.url must be a string or an\
     \ object with a string 'value'\");\n}\n"
-- id: build_search_request
-  class: ExpressionTool
+- id: crop
+  class: CommandLineTool
   inputs:
-  - id: collection
-    label: STAC collection
-    doc: STAC collection identifier
+  - id: item
+    label: Input STAC item href
+    doc: STAC item href to crop
     type: string
+    inputBinding:
+      prefix: --input-item
   - id: aoi
     label: Area of interest
-    doc: Area of interest polygon with bbox [minx, miny, maxx, maxy]
-    type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
-  - id: start-datetime
-    label: Start time
-    doc: Start time
+    doc: Area of interest bbox as CSV
+    type: string
+    inputBinding:
+      prefix: --aoi
+  - id: epsg
+    label: Target EPSG
+    doc: Target EPSG code used for crop reprojection
+    type: string
+    inputBinding:
+      prefix: --epsg
+  - id: band
+    label: Band name
+    doc: Band identifier to crop
+    type: string
+    inputBinding:
+      prefix: --band
+  - id: asset_signing
+    label: Asset signing mode
+    doc: Internal cloud asset signing mode (auto, none, mspc)
+    default: auto
     type:
-    - 'null'
-    - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-  - id: end-datetime
-    label: End time
-    doc: End time
-    type:
-    - 'null'
-    - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-  - id: limit
-    label: limit
-    doc: limit
-    type: int
-  - id: max-items
-    label: max-items
-    doc: max-items
-    type: int
-  - id: filter-lang
-    label: Filter language
-    doc: Filter language
-    type:
-    - 'null'
-    - name: _:34505312-5c81-40ce-aea2-e9cdf817a007
+      name: _:f545a2d4-df25-459a-86cb-5ab79104cede
       symbols:
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#build_search_request/filter-lang/cql2-json
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#crop/asset_signing/auto
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#crop/asset_signing/none
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#crop/asset_signing/mspc
       type: enum
-  - id: filter
-    label: Filter
-    doc: Filter
-    type:
-    - 'null'
-    - Any
+    inputBinding:
+      prefix: --asset-signing
   outputs:
-  - id: search_request
-    label: STAC search request
-    doc: Normalized STACSearchSettings request object
-    type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
+  - id: cropped
+    label: Cropped raster
+    doc: Cropped raster output for one band
+    type: File
+    outputBinding:
+      glob: '*.tif'
   requirements:
   - class: InlineJavascriptRequirement
-  - class: SchemaDefRequirement
-    types:
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Date
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Date/value
-        doc: A date in the `YYYY-MM-DD` format.
-        type: string
-      type: record
-      doc: Represents a date in the `YYYY-MM-DD` format.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime/value
-        doc: A date-time in the `YYYY-MM-DDThh:mm:ss.sTZD` format.
-        type: string
-      type: record
-      doc: Represents a date-time in the `YYYY-MM-DDThh:mm:ss.sTZD` format.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Duration
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Duration/value
-        doc: A duration as specified by _ISO 8601_.
-        type: string
-      type: record
-      doc: Represents a duration as specified by _ISO 8601_.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Email
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Email/value
-        doc: A valid [e-mail address](https://www.rfc-editor.org/rfc/rfc5322.html#page-16)
-          address format.
-        type: string
-      type: record
-      doc: Represents a valid [e-mail address](https://www.rfc-editor.org/rfc/rfc5322.html#page-16)
-        format.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Hostname
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Hostname/value
-        doc: A valid [hostname](https://datatracker.ietf.org/doc/html/rfc1123).
-        type: string
-      type: record
-      doc: Represents a valid [hostname](https://datatracker.ietf.org/doc/html/rfc1123).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNEmail
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNEmail/value
-        doc: A valid idn e-mail address format.
-        type: string
-      type: record
-      doc: Represents a valid idn e-mail address format.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNHostname
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNHostname/value
-        doc: A valid IDN hostname.
-        type: string
-      type: record
-      doc: Represents a valid IDN hostname.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv4
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv4/value
-        doc: A valid [IPv4](https://www.rfc-editor.org/rfc/rfc791.html) address.
-        type: string
-      type: record
-      doc: Represents a valid [IPv4](https://www.rfc-editor.org/rfc/rfc791.html) address.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv6
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv6/value
-        doc: A valid [IPv6](https://www.rfc-editor.org/rfc/rfc4291.html) address.
-        type: string
-      type: record
-      doc: Represents a valid [IPv6](https://www.rfc-editor.org/rfc/rfc4291.html)
-        address.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRI
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRI/value
-        doc: A valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987).
-        type: string
-      type: record
-      doc: Represents a valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRIReference
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRIReference/value
-        doc: A valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987) reference.
-        type: string
-      type: record
-      doc: Represents a valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987)
-        reference.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Password
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Password/value
-        doc: A valid password.
-        type: string
-      type: record
-      doc: Represents a valid password.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#JsonPointer
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#JsonPointer/value
-        doc: A valid (absolute) [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-        type: string
-      type: record
-      doc: Represents a valid (absolute) [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#RelativeJsonPointer
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#RelativeJsonPointer/value
-        doc: A valid relative [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-        type: string
-      type: record
-      doc: Represents a valid relative [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#UUID
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#UUID/value
-        doc: A valid string representation of a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
-        type: string
-      type: record
-      doc: A valid string representation of a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI/value
-        doc: A valid [URI](https://datatracker.ietf.org/doc/html/rfc3986).
-        type: string
-      type: record
-      doc: Represents a valid [URI](https://datatracker.ietf.org/doc/html/rfc3986).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URIReference
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URIReference/value
-        doc: A valid [URI](https://datatracker.ietf.org/doc/html/rfc3986) reference.
-        type: string
-      type: record
-      doc: Represents a valid [URI](https://datatracker.ietf.org/doc/html/rfc3986)
-        reference.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URITemplate
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URITemplate/value
-        doc: A valid [URI template](https://datatracker.ietf.org/doc/html/rfc6570).
-        type: string
-      type: record
-      doc: Represents a valid [URI template](https://datatracker.ietf.org/doc/html/rfc6570).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Time
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Time/value
-        doc: A time in the `hh:mm:ss.sTZD` format.
-        type: string
-      type: record
-      doc: Represents a time in the `hh:mm:ss.sTZD` format.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern/value
-        doc: A generic string value.
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern/pattern
-        doc: A regular expression syntax based on the ECMA 262 (JavaScript) dialect.
-        type: string
-      type: record
-      doc: Validate string value against a regular expression syntax based on the
-        ECMA 262 (JavaScript) dialect.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType/Point
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/coordinates
-        type:
-          name: _:0c2b6fa2-a469-427a-bfa3-7f584b8840f1
-          items: double
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/bbox
-        type:
-          name: _:159c1760-9fc3-434a-a83d-11314f62143f
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType/LineString
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/coordinates
-        type:
-          name: _:35799887-4641-4f79-8e90-47792495b533
-          items: double
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/bbox
-        type:
-          name: _:9e4fa55a-5119-4efb-aef0-8d46e69a258e
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType/Polygon
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/coordinates
-        type:
-          name: _:244fbe65-de6a-4e1b-8f45-14d2dda99d72
-          items:
-            name: _:a95e67a3-d303-436f-959a-36e9d00952d2
-            items:
-              name: _:cb8c1b02-21c9-4556-8159-52220d84cc22
-              items: double
-              type: array
-            type: array
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/bbox
-        type:
-          name: _:9d41f1a7-387a-4ead-8803-745eee2a700e
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType/MultiPoint
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/coordinates
-        type:
-          name: _:3ba2af01-7fa0-44e4-99a1-0ac92afa38f8
-          items:
-            name: _:78e118bc-7ac7-47fb-9808-b2afd930bb11
-            items: double
-            type: array
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/bbox
-        type:
-          name: _:5f373b95-0c17-4cce-9225-3f46eb4dec62
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType/MultiLineString
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/coordinates
-        type:
-          name: _:957d262f-97f3-4cc4-8c07-6bfdd7617b51
-          items:
-            name: _:ea1916b4-85bb-4c70-9b53-9611ef18058e
-            items:
-              name: _:d8e3e9e4-021e-4144-a68f-6a5be6337a83
-              items: double
-              type: array
-            type: array
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/bbox
-        type:
-          name: _:9d8a35bc-958a-42de-af78-ab330a994596
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType/MultiPolygon
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/coordinates
-        type:
-          name: _:7d96304f-b969-490d-bb61-0a10af639521
-          items:
-            name: _:ff682ec5-032f-4524-87c7-c68740c5eea7
-            items:
-              name: _:b016b34a-b42c-42e3-ac08-c9800752967f
-              items:
-                name: _:6d9fa83d-f3e2-49b8-b1a1-b4701cbad4e1
-                items: double
-                type: array
-              type: array
-            type: array
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/bbox
-        type:
-          name: _:a6a8ba30-a527-44a2-859d-1c58e3bf9b99
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType/Feature
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/id
-        doc: Identifier
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/geometry
-        type:
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/bbox
-        type:
-          name: _:4f943f1e-4217-4890-b5ec-a5a0b4153835
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType/GeometryCollection
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/geometries
-        type:
-          name: _:3b9d7541-ea5a-46d7-8930-43531cea1fa3
-          items:
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/bbox
-        type:
-          name: _:9edb8d79-4068-4e88-a780-00762b40a607
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/href
-        doc: i.e. http://data.example.com/buildings/123
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/rel
-        doc: i.e. alternate
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/type
-        doc: i.e. application/geo+json
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/hreflang
-        doc: i.e. en
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/title
-        doc: i.e. Trierer Strasse 70, 53115 Bonn
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/length
-        type: int
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType/FeatureCollection
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/features
-        type:
-          name: _:55813fbd-6107-41f8-880a-a3deb7d1f7e5
-          items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/links
-        type:
-          name: _:8db7860e-5151-47e8-b295-328b96b41e3d
-          items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/timeStamp
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/numberMatched
-        type: int
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/numberReturned
-        type: int
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair/key
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair/value
-        type: string
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/url
-        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/headers
-        type:
-        - 'null'
-        - name: _:09bdbc34-9834-4213-be87-4e492b1670fe
-          items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval/start
-        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval/end
-        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/include
-        type:
-        - 'null'
-        - name: _:50d22398-9050-4253-9fe1-d643e3f8220a
-          items: string
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/exclude
-        type:
-        - 'null'
-        - name: _:edecaf25-27bd-4aa1-ba66-c55ff60b2732
-          items: string
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang/cql2-text
-      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang/cql2-json
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction/asc
-      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction/desc
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy/field
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy/direction
-        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/bbox
-        type:
-        - 'null'
-        - name: _:f17be808-6e80-48b4-bfc6-6ea468715b95
-          items: double
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime
-        type:
-        - 'null'
-        - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime-interval
-        type:
-        - 'null'
-        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/intersects
-        type:
-        - 'null'
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/collections
-        type:
-        - 'null'
-        - name: _:f1c9b8b6-7ff6-48f7-beba-2455d19c911d
-          items: string
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/ids
-        type:
-        - 'null'
-        - name: _:923c73d5-3bb4-47f6-98e8-205e20d44c9a
-          items: string
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/limit
-        type:
-        - 'null'
-        - int
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/max-items
-        type:
-        - 'null'
-        - int
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/fields
-        type:
-        - 'null'
-        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter
-        type:
-        - 'null'
-        - Any
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-lang
-        type:
-        - 'null'
-        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-crs
-        type:
-        - 'null'
-        - name: _:8133b7f7-99bc-4142-b064-96001f55ca21
-          items: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/sortby
-        type:
-        - 'null'
-        - name: _:db6d4e4d-6060-4bb9-92f2-1882be924fec
-          items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI/api_endpoint
-        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI/search_request
-        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
-      type: record
+  - class: EnvVarRequirement
+    envDef:
+    - envName: PATH
+      envValue: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - envName: PYTHONPATH
+      envValue: /app
+  - class: ResourceRequirement
+    coresMax: 1
+    ramMin: 2048
+    ramMax: 2048
+  - class: DockerRequirement
+    dockerPull: crop:latest
   cwlVersion: v1.2
-  expression: "${\n  var aoi = inputs.aoi;\n  var b = aoi && aoi.bbox;\n  if (!Array.isArray(b)\
-    \ || b.length !== 4) {\n    throw new Error(\"aoi.bbox must be [minx,miny,maxx,maxy]\"\
-    );\n  }\n\n  var searchRequest = {\n    collections: [inputs.collection],\n  \
-    \  bbox: b,\n    limit: inputs.limit,\n    \"max-items\": inputs[\"max-items\"\
-    ]\n  };\n\n  var startDatetime = inputs[\"start-datetime\"];\n  var endDatetime\
-    \ = inputs[\"end-datetime\"];\n  if (startDatetime !== null || endDatetime !==\
-    \ null) {\n    searchRequest.datetime_interval = {};\n    if (startDatetime !==\
-    \ null) {\n      searchRequest.datetime_interval.start = {\n        value: startDatetime.value\n\
-    \      };\n    }\n    if (endDatetime !== null) {\n      searchRequest.datetime_interval.end\
-    \ = {\n        value: endDatetime.value\n      };\n    }\n  }\n\n  if (inputs[\"\
-    filter-lang\"] !== null) {\n    searchRequest[\"filter-lang\"] = inputs[\"filter-lang\"\
-    ];\n  }\n  if (inputs.filter !== null) {\n    searchRequest.filter = inputs.filter;\n\
-    \  }\n\n  return { search_request: searchRequest };\n}\n"
-- id: water-bodies
-  class: Workflow
-  label: Water bodies detection based on NDWI and otsu threshold
-  doc: Water bodies detection based on NDWI and otsu threshold applied to Sentinel-2
-    COG STAC items
-  inputs:
-  - id: stac_api_endpoint
-    label: STAC API endpoint
-    doc: STAC API endpoint
-    default:
-      headers: []
-      url: https://planetarycomputer.microsoft.com/api/stac/v1
-    type: Any
-  - id: collection
-    label: STAC collection
-    doc: STAC collection identifier
-    default: sentinel-2-l2a
-    type: string
-  - id: aoi
-    label: Area of interest
-    doc: Area of interest polygon with bbox [minx, miny, maxx, maxy]
-    type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
-  - id: start-datetime
-    label: Start time
-    doc: Start time
-    type:
-    - 'null'
-    - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-  - id: end-datetime
-    label: End time
-    doc: End time
-    type:
-    - 'null'
-    - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-  - id: limit
-    label: limit
-    doc: limit
-    default: 20
-    type: int
-  - id: max-items
-    label: max-items
-    doc: max-items
-    default: 10
-    type: int
-  - id: filter-lang
-    label: Filter language
-    doc: Filter language
-    type:
-    - 'null'
-    - name: _:eb81f8ea-c144-4725-9fc9-8021d1d14605
-      symbols:
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/filter-lang/cql2-json
-      type: enum
-  - id: filter
-    label: Filter
-    doc: Filter
-    type:
-    - 'null'
-    - Any
-  - id: bands
-    label: bands used for the NDWI
-    doc: bands used for the NDWI
-    default:
-    - green
-    - nir
-    type:
-      name: _:219897bf-6602-4bf1-bb45-ea37221ba578
-      items: string
-      type: array
-  - id: overview_levels
-    label: Number of Zarr overview levels
-    doc: Number of multiscale overview levels generated by stac-zarr
-    default: 2
-    type: int
-  - id: continuous_overview_reducer
-    label: Overview reducer for continuous variables
-    doc: Reducer used for continuous variables when generating overviews (mean, max,
-      median, nearest)
-    default: mean
-    type:
-      name: _:da6183ca-d827-4464-bb6c-47ac95be2c57
-      symbols:
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/continuous_overview_reducer/mean
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/continuous_overview_reducer/max
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/continuous_overview_reducer/median
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/continuous_overview_reducer/nearest
-      type: enum
-  - id: categorical_overview_reducer
-    label: Overview reducer for categorical variables
-    doc: Reducer used for categorical variables when generating overviews (mean, max,
-      median, nearest)
-    default: nearest
-    type:
-      name: _:abf512dc-c107-459b-b482-9c02d67a3c10
-      symbols:
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/categorical_overview_reducer/mean
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/categorical_overview_reducer/max
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/categorical_overview_reducer/median
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/categorical_overview_reducer/nearest
-      type: enum
-  - id: stac_object_type
-    label: STAC object type
-    doc: Output STAC object type emitted by stac-zarr (collection or item)
-    default: item
-    type:
-      name: _:dad784f4-3e5a-474f-af32-610c48de6764
-      symbols:
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/stac_object_type/collection
-      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#water-bodies/stac_object_type/item
-      type: enum
-  outputs:
-  - id: zarr_stac_catalog
-    label: Zarr STAC catalog
-    doc: STAC catalog produced by the stac-zarr step
-    outputSource:
-    - stac_zarr/zarr_stac_catalog
-    type: Directory
-  requirements:
-  - class: ScatterFeatureRequirement
-  - class: SubworkflowFeatureRequirement
-  - class: SchemaDefRequirement
-    types:
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Date
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Date/value
-        doc: A date in the `YYYY-MM-DD` format.
-        type: string
-      type: record
-      doc: Represents a date in the `YYYY-MM-DD` format.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime/value
-        doc: A date-time in the `YYYY-MM-DDThh:mm:ss.sTZD` format.
-        type: string
-      type: record
-      doc: Represents a date-time in the `YYYY-MM-DDThh:mm:ss.sTZD` format.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Duration
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Duration/value
-        doc: A duration as specified by _ISO 8601_.
-        type: string
-      type: record
-      doc: Represents a duration as specified by _ISO 8601_.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Email
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Email/value
-        doc: A valid [e-mail address](https://www.rfc-editor.org/rfc/rfc5322.html#page-16)
-          address format.
-        type: string
-      type: record
-      doc: Represents a valid [e-mail address](https://www.rfc-editor.org/rfc/rfc5322.html#page-16)
-        format.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Hostname
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Hostname/value
-        doc: A valid [hostname](https://datatracker.ietf.org/doc/html/rfc1123).
-        type: string
-      type: record
-      doc: Represents a valid [hostname](https://datatracker.ietf.org/doc/html/rfc1123).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNEmail
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNEmail/value
-        doc: A valid idn e-mail address format.
-        type: string
-      type: record
-      doc: Represents a valid idn e-mail address format.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNHostname
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IDNHostname/value
-        doc: A valid IDN hostname.
-        type: string
-      type: record
-      doc: Represents a valid IDN hostname.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv4
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv4/value
-        doc: A valid [IPv4](https://www.rfc-editor.org/rfc/rfc791.html) address.
-        type: string
-      type: record
-      doc: Represents a valid [IPv4](https://www.rfc-editor.org/rfc/rfc791.html) address.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv6
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IPv6/value
-        doc: A valid [IPv6](https://www.rfc-editor.org/rfc/rfc4291.html) address.
-        type: string
-      type: record
-      doc: Represents a valid [IPv6](https://www.rfc-editor.org/rfc/rfc4291.html)
-        address.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRI
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRI/value
-        doc: A valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987).
-        type: string
-      type: record
-      doc: Represents a valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRIReference
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#IRIReference/value
-        doc: A valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987) reference.
-        type: string
-      type: record
-      doc: Represents a valid [IRI](https://datatracker.ietf.org/doc/html/rfc3987)
-        reference.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Password
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Password/value
-        doc: A valid password.
-        type: string
-      type: record
-      doc: Represents a valid password.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#JsonPointer
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#JsonPointer/value
-        doc: A valid (absolute) [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-        type: string
-      type: record
-      doc: Represents a valid (absolute) [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#RelativeJsonPointer
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#RelativeJsonPointer/value
-        doc: A valid relative [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-        type: string
-      type: record
-      doc: Represents a valid relative [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#UUID
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#UUID/value
-        doc: A valid string representation of a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
-        type: string
-      type: record
-      doc: A valid string representation of a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI/value
-        doc: A valid [URI](https://datatracker.ietf.org/doc/html/rfc3986).
-        type: string
-      type: record
-      doc: Represents a valid [URI](https://datatracker.ietf.org/doc/html/rfc3986).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URIReference
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URIReference/value
-        doc: A valid [URI](https://datatracker.ietf.org/doc/html/rfc3986) reference.
-        type: string
-      type: record
-      doc: Represents a valid [URI](https://datatracker.ietf.org/doc/html/rfc3986)
-        reference.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URITemplate
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URITemplate/value
-        doc: A valid [URI template](https://datatracker.ietf.org/doc/html/rfc6570).
-        type: string
-      type: record
-      doc: Represents a valid [URI template](https://datatracker.ietf.org/doc/html/rfc6570).
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Time
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Time/value
-        doc: A time in the `hh:mm:ss.sTZD` format.
-        type: string
-      type: record
-      doc: Represents a time in the `hh:mm:ss.sTZD` format.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern/value
-        doc: A generic string value.
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Pattern/pattern
-        doc: A regular expression syntax based on the ECMA 262 (JavaScript) dialect.
-        type: string
-      type: record
-      doc: Validate string value against a regular expression syntax based on the
-        ECMA 262 (JavaScript) dialect.
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType/Point
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/coordinates
-        type:
-          name: _:0c2b6fa2-a469-427a-bfa3-7f584b8840f1
-          items: double
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/bbox
-        type:
-          name: _:159c1760-9fc3-434a-a83d-11314f62143f
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType/LineString
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/coordinates
-        type:
-          name: _:35799887-4641-4f79-8e90-47792495b533
-          items: double
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/bbox
-        type:
-          name: _:9e4fa55a-5119-4efb-aef0-8d46e69a258e
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType/Polygon
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/coordinates
-        type:
-          name: _:244fbe65-de6a-4e1b-8f45-14d2dda99d72
-          items:
-            name: _:a95e67a3-d303-436f-959a-36e9d00952d2
-            items:
-              name: _:cb8c1b02-21c9-4556-8159-52220d84cc22
-              items: double
-              type: array
-            type: array
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/bbox
-        type:
-          name: _:9d41f1a7-387a-4ead-8803-745eee2a700e
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType/MultiPoint
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/coordinates
-        type:
-          name: _:3ba2af01-7fa0-44e4-99a1-0ac92afa38f8
-          items:
-            name: _:78e118bc-7ac7-47fb-9808-b2afd930bb11
-            items: double
-            type: array
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/bbox
-        type:
-          name: _:5f373b95-0c17-4cce-9225-3f46eb4dec62
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType/MultiLineString
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/coordinates
-        type:
-          name: _:957d262f-97f3-4cc4-8c07-6bfdd7617b51
-          items:
-            name: _:ea1916b4-85bb-4c70-9b53-9611ef18058e
-            items:
-              name: _:d8e3e9e4-021e-4144-a68f-6a5be6337a83
-              items: double
-              type: array
-            type: array
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/bbox
-        type:
-          name: _:9d8a35bc-958a-42de-af78-ab330a994596
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType/MultiPolygon
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/coordinates
-        type:
-          name: _:7d96304f-b969-490d-bb61-0a10af639521
-          items:
-            name: _:ff682ec5-032f-4524-87c7-c68740c5eea7
-            items:
-              name: _:b016b34a-b42c-42e3-ac08-c9800752967f
-              items:
-                name: _:6d9fa83d-f3e2-49b8-b1a1-b4701cbad4e1
-                items: double
-                type: array
-              type: array
-            type: array
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/bbox
-        type:
-          name: _:a6a8ba30-a527-44a2-859d-1c58e3bf9b99
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType/Feature
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/id
-        doc: Identifier
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/geometry
-        type:
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/bbox
-        type:
-          name: _:4f943f1e-4217-4890-b5ec-a5a0b4153835
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType/GeometryCollection
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/geometries
-        type:
-          name: _:3b9d7541-ea5a-46d7-8930-43531cea1fa3
-          items:
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
-          - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/bbox
-        type:
-          name: _:9edb8d79-4068-4e88-a780-00762b40a607
-          items: double
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/href
-        doc: i.e. http://data.example.com/buildings/123
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/rel
-        doc: i.e. alternate
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/type
-        doc: i.e. application/geo+json
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/hreflang
-        doc: i.e. en
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/title
-        doc: i.e. Trierer Strasse 70, 53115 Bonn
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link/length
-        type: int
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType/FeatureCollection
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/type
-        type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/features
-        type:
-          name: _:55813fbd-6107-41f8-880a-a3deb7d1f7e5
-          items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/links
-        type:
-          name: _:8db7860e-5151-47e8-b295-328b96b41e3d
-          items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/timeStamp
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/numberMatched
-        type: int
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/numberReturned
-        type: int
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair/key
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair/value
-        type: string
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/url
-        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/headers
-        type:
-        - 'null'
-        - name: _:09bdbc34-9834-4213-be87-4e492b1670fe
-          items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval/start
-        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval/end
-        type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/include
-        type:
-        - 'null'
-        - name: _:50d22398-9050-4253-9fe1-d643e3f8220a
-          items: string
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/exclude
-        type:
-        - 'null'
-        - name: _:edecaf25-27bd-4aa1-ba66-c55ff60b2732
-          items: string
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang/cql2-text
-      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang/cql2-json
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction
-      symbols:
-      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction/asc
-      - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction/desc
-      type: enum
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy/field
-        type: string
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy/direction
-        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Direction
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/bbox
-        type:
-        - 'null'
-        - name: _:f17be808-6e80-48b4-bfc6-6ea468715b95
-          items: double
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime
-        type:
-        - 'null'
-        - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime-interval
-        type:
-        - 'null'
-        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#DatetimeInterval
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/intersects
-        type:
-        - 'null'
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
-        - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/collections
-        type:
-        - 'null'
-        - name: _:f1c9b8b6-7ff6-48f7-beba-2455d19c911d
-          items: string
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/ids
-        type:
-        - 'null'
-        - name: _:923c73d5-3bb4-47f6-98e8-205e20d44c9a
-          items: string
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/limit
-        type:
-        - 'null'
-        - int
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/max-items
-        type:
-        - 'null'
-        - int
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/fields
-        type:
-        - 'null'
-        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter
-        type:
-        - 'null'
-        - Any
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-lang
-        type:
-        - 'null'
-        - https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#FilterLang
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-crs
-        type:
-        - 'null'
-        - name: _:8133b7f7-99bc-4142-b064-96001f55ca21
-          items: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
-          type: array
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/sortby
-        type:
-        - 'null'
-        - name: _:db6d4e4d-6060-4bb9-92f2-1882be924fec
-          items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
-          type: array
-      type: record
-    - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI
-      fields:
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI/api_endpoint
-        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
-      - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACAPI/search_request
-        type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
-      type: record
-  cwlVersion: v1.2
-  steps:
-  - id: build_api_endpoint
-    label: Build STAC API endpoint
-    doc: Normalize endpoint to APIEndpoint schema expected by discovery step
-    in:
-    - id: api_endpoint
-      source: stac_api_endpoint
-    out:
-    - normalized_api_endpoint
-    run: '#build_api_endpoint'
-  - id: build_search_request
-    label: Build STAC search request
-    doc: Build STACSearchSettings from AOI and query inputs
-    in:
-    - id: collection
-      source: collection
-    - id: aoi
-      source: aoi
-    - id: start-datetime
-      source: start-datetime
-    - id: end-datetime
-      source: end-datetime
-    - id: limit
-      source: limit
-    - id: max-items
-      source: max-items
-    - id: filter-lang
-      source: filter-lang
-    - id: filter
-      source: filter
-    out:
-    - search_request
-    run: '#build_search_request'
-  - id: discovery
-    label: STAC API discovery
-    doc: Discover STAC items from a STAC API endpoint based on a search request
-    in:
-    - id: api_endpoint
-      source: build_api_endpoint/normalized_api_endpoint
-    - id: search_request
-      source: build_search_request/search_request
-    out:
-    - search_output
-    run: '#stac-client'
-  - id: convert_search
-    label: Convert Search
-    doc: Convert Search results to get the item self hrefs and the area of interest
-    in:
-    - id: search_results
-      source: discovery/search_output
-    - id: search_request
-      source: build_search_request/search_request
-    out:
-    - items
-    - aoi
-    run: '#convert-search'
-  - id: water_bodies
-    label: Water bodies detection
-    doc: Water bodies detection based on NDWI and otsu threshold applied to each STAC
-      item (sub-workflow)
-    in:
-    - id: item
-      source: convert_search/items
-    - id: aoi
-      source: convert_search/aoi
-    - id: bands
-      source: bands
-    out:
-    - detected_water_body
-    - ndwi
-    run: '#detect_water_body'
-    scatter: water_bodies/item
-    scatterMethod: dotproduct
-  - id: stac-collection
-    label: Create a STAC catalog with COG outputs
-    doc: Create a STAC catalog with the detected water bodies COG outputs
-    in:
-    - id: item
-      source: convert_search/items
-    - id: rasters
-      source: water_bodies/detected_water_body
-    - id: ndwis
-      source: water_bodies/ndwi
-    out:
-    - temp_stac_catalog
-    run: '#stac-collection'
-  - id: stac_zarr
-    label: Create a STAC Catalog for the Zarr store
-    doc: Create a STAC Catalog for the Zarr store from the STAC catalog with COG outputs
-    in:
-    - id: stac_catalog
-      source: stac-collection/temp_stac_catalog
-    - id: overview_levels
-      source: overview_levels
-    - id: continuous_overview_reducer
-      source: continuous_overview_reducer
-    - id: categorical_overview_reducer
-      source: categorical_overview_reducer
-    - id: stac_object_type
-      source: stac_object_type
-    out:
-    - zarr_stac_catalog
-    run: '#stac-zarr'
-  - id: stac_eopf_product
-    label: Create a EOPF Zarr store from a STAC catalog
-    doc: Create a EOPF Zarr store from a STAC catalog with COG products
-    in:
-    - id: stac_catalog
-      source: stac-collection/temp_stac_catalog
-    out:
-    - eopf_product_stac_catalog
-    run: '#stac-eopf-product'
+  baseCommand:
+  - crop
+  arguments: []
 - id: convert-search
   class: CommandLineTool
   label: Gets the item self hrefs
@@ -2780,12 +2698,12 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/coordinates
         type:
-          name: _:0c2b6fa2-a469-427a-bfa3-7f584b8840f1
+          name: _:ecf8f94a-c460-4fa2-9c28-65a4560031be
           items: double
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/bbox
         type:
-          name: _:159c1760-9fc3-434a-a83d-11314f62143f
+          name: _:5a3b2b12-7e4b-4569-8e1c-47f15cc69828
           items: double
           type: array
       type: record
@@ -2799,12 +2717,12 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/coordinates
         type:
-          name: _:35799887-4641-4f79-8e90-47792495b533
+          name: _:c4b69baf-15fb-477b-9b76-d437f7b8ed13
           items: double
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/bbox
         type:
-          name: _:9e4fa55a-5119-4efb-aef0-8d46e69a258e
+          name: _:15a2845b-8e6f-4c7d-b1de-6cab2267704c
           items: double
           type: array
       type: record
@@ -2818,18 +2736,18 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/coordinates
         type:
-          name: _:244fbe65-de6a-4e1b-8f45-14d2dda99d72
+          name: _:59cc1759-04d8-4b7e-9747-85e98bc7be9b
           items:
-            name: _:a95e67a3-d303-436f-959a-36e9d00952d2
+            name: _:4dc81371-c70b-44f0-948b-fe539585ecdb
             items:
-              name: _:cb8c1b02-21c9-4556-8159-52220d84cc22
+              name: _:13214f2f-4698-48a6-bb0a-00fc39f1932a
               items: double
               type: array
             type: array
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/bbox
         type:
-          name: _:9d41f1a7-387a-4ead-8803-745eee2a700e
+          name: _:e12bd2c8-e14a-4b22-ad23-6b376afa3a5f
           items: double
           type: array
       type: record
@@ -2843,15 +2761,15 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/coordinates
         type:
-          name: _:3ba2af01-7fa0-44e4-99a1-0ac92afa38f8
+          name: _:b7b8c451-5dd5-4faf-8bc4-806b4367770f
           items:
-            name: _:78e118bc-7ac7-47fb-9808-b2afd930bb11
+            name: _:8b732067-8d70-4359-a546-0af1eca0e1ca
             items: double
             type: array
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/bbox
         type:
-          name: _:5f373b95-0c17-4cce-9225-3f46eb4dec62
+          name: _:aa209f40-ea30-4225-a640-9194c56500c8
           items: double
           type: array
       type: record
@@ -2865,18 +2783,18 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/coordinates
         type:
-          name: _:957d262f-97f3-4cc4-8c07-6bfdd7617b51
+          name: _:39e2dee1-26e0-4815-ac25-2ea3b5292838
           items:
-            name: _:ea1916b4-85bb-4c70-9b53-9611ef18058e
+            name: _:7461fe41-c3c2-45fc-85f0-e5a3a32b99d4
             items:
-              name: _:d8e3e9e4-021e-4144-a68f-6a5be6337a83
+              name: _:e0559f6c-2185-48cb-bfc0-dd40b91ea69c
               items: double
               type: array
             type: array
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/bbox
         type:
-          name: _:9d8a35bc-958a-42de-af78-ab330a994596
+          name: _:9166641f-0b6e-427d-832b-47344a7fab31
           items: double
           type: array
       type: record
@@ -2890,13 +2808,13 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/coordinates
         type:
-          name: _:7d96304f-b969-490d-bb61-0a10af639521
+          name: _:111c5691-1e70-4638-9958-aa53efcc2c63
           items:
-            name: _:ff682ec5-032f-4524-87c7-c68740c5eea7
+            name: _:f1f0aa86-81d2-4dd1-b116-d26af33d0213
             items:
-              name: _:b016b34a-b42c-42e3-ac08-c9800752967f
+              name: _:67c41f7d-c43c-4656-abb9-29fae625140a
               items:
-                name: _:6d9fa83d-f3e2-49b8-b1a1-b4701cbad4e1
+                name: _:891a5afe-fa74-4020-bc32-60d50c732e17
                 items: double
                 type: array
               type: array
@@ -2904,7 +2822,7 @@ $graph:
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/bbox
         type:
-          name: _:a6a8ba30-a527-44a2-859d-1c58e3bf9b99
+          name: _:e913c530-2959-4ae4-b90d-d0448020f7cb
           items: double
           type: array
       type: record
@@ -2929,7 +2847,7 @@ $graph:
         - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/bbox
         type:
-          name: _:4f943f1e-4217-4890-b5ec-a5a0b4153835
+          name: _:cdaccbc9-b806-42d5-9796-e4fe50ea664c
           items: double
           type: array
       type: record
@@ -2943,7 +2861,7 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/geometries
         type:
-          name: _:3b9d7541-ea5a-46d7-8930-43531cea1fa3
+          name: _:e97d424e-5728-4bdb-a3c5-3537b4cf663c
           items:
           - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
           - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
@@ -2954,7 +2872,7 @@ $graph:
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/bbox
         type:
-          name: _:9edb8d79-4068-4e88-a780-00762b40a607
+          name: _:7f2be3a6-65dd-4ff7-8f98-623956f7747e
           items: double
           type: array
       type: record
@@ -2988,12 +2906,12 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/features
         type:
-          name: _:55813fbd-6107-41f8-880a-a3deb7d1f7e5
+          name: _:3199e45b-9b2a-4a51-ad03-2746f62c5400
           items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/links
         type:
-          name: _:8db7860e-5151-47e8-b295-328b96b41e3d
+          name: _:9e678b6d-cb90-4862-a6b2-4e9a9f03e693
           items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/timeStamp
@@ -3017,7 +2935,7 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/headers
         type:
         - 'null'
-        - name: _:09bdbc34-9834-4213-be87-4e492b1670fe
+        - name: _:01d51ed2-b196-4586-9beb-5df025a573c6
           items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
           type: array
       type: record
@@ -3033,13 +2951,13 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/include
         type:
         - 'null'
-        - name: _:50d22398-9050-4253-9fe1-d643e3f8220a
+        - name: _:e5e222fe-daae-4bb2-a9ad-1344369a6b09
           items: string
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/exclude
         type:
         - 'null'
-        - name: _:edecaf25-27bd-4aa1-ba66-c55ff60b2732
+        - name: _:402e0717-45fd-4240-95c4-2cefd8daf5a2
           items: string
           type: array
       type: record
@@ -3065,7 +2983,7 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/bbox
         type:
         - 'null'
-        - name: _:f17be808-6e80-48b4-bfc6-6ea468715b95
+        - name: _:e6ec3b87-bfd0-4310-b896-1a9e722c6d83
           items: double
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime
@@ -3089,13 +3007,13 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/collections
         type:
         - 'null'
-        - name: _:f1c9b8b6-7ff6-48f7-beba-2455d19c911d
+        - name: _:5e1dd1d1-24cc-49e2-9572-0b0cd6294597
           items: string
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/ids
         type:
         - 'null'
-        - name: _:923c73d5-3bb4-47f6-98e8-205e20d44c9a
+        - name: _:06d65adf-d5bb-4e62-85f1-98c27882ba8f
           items: string
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/limit
@@ -3121,13 +3039,13 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-crs
         type:
         - 'null'
-        - name: _:8133b7f7-99bc-4142-b064-96001f55ca21
+        - name: _:e04710f0-311a-4aa3-ba86-9bfc1fbdcd4e
           items: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/sortby
         type:
         - 'null'
-        - name: _:db6d4e4d-6060-4bb9-92f2-1882be924fec
+        - name: _:84a95218-2074-44ff-9922-4333e38f10fc
           items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
           type: array
       type: record
@@ -3182,7 +3100,7 @@ $graph:
     doc: Chunking strategy for stac-load (manual or auto)
     default: manual
     type:
-      name: _:b87df23f-72bb-495d-8746-8a5425d2ebca
+      name: _:dee96e03-3b69-4d1f-8d97-4d530d07e080
       symbols:
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#stac-eopf-product/chunks/manual
       - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#stac-eopf-product/chunks/auto
@@ -3221,77 +3139,67 @@ $graph:
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     coresMax: 1
-    ramMax: 512
+    ramMin: 2048
+    ramMax: 2048
   - class: DockerRequirement
     dockerPull: stac-eopf-product:latest
   cwlVersion: v1.2
   baseCommand:
   - stac-eopf-product
   arguments: []
-- id: norm_diff
-  class: CommandLineTool
+- id: build_search_request
+  class: ExpressionTool
   inputs:
-  - id: rasters
-    label: Raster inputs
-    doc: Two raster inputs used to compute NDWI
+  - id: collection
+    label: STAC collection
+    doc: STAC collection identifier
+    type: string
+  - id: aoi
+    label: Area of interest
+    doc: Area of interest polygon with bbox [minx, miny, maxx, maxy]
+    type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon
+  - id: start-datetime
+    label: Start time
+    doc: Start time
     type:
-      name: _:d3bf3489-56b5-4bd0-8df0-366370216e53
-      items: File
-      type: array
-    inputBinding:
-      position: 1
+    - 'null'
+    - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+  - id: end-datetime
+    label: End time
+    doc: End time
+    type:
+    - 'null'
+    - https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#DateTime
+  - id: limit
+    label: limit
+    doc: limit
+    type: int
+  - id: max-items
+    label: max-items
+    doc: max-items
+    type: int
+  - id: filter-lang
+    label: Filter language
+    doc: Filter language
+    type:
+    - 'null'
+    - name: _:cf1a5640-1d20-43d1-87be-dc91e6bc8db5
+      symbols:
+      - file:///data/work/github-com/eoap/zarr-cloud-native-format/cwl-workflow/app-water-bodies.cwl#build_search_request/filter-lang/cql2-json
+      type: enum
+  - id: filter
+    label: Filter
+    doc: Filter
+    type:
+    - 'null'
+    - Any
   outputs:
-  - id: ndwi
-    label: NDWI output
-    doc: NDWI raster output
-    type: File
-    outputBinding:
-      glob: '*.tif'
-  requirements:
-  - class: InlineJavascriptRequirement
-  - class: EnvVarRequirement
-    envDef:
-    - envName: PATH
-      envValue: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-    - envName: PYTHONPATH
-      envValue: /app
-  - class: ResourceRequirement
-    coresMax: 1
-    ramMax: 512
-  - class: DockerRequirement
-    dockerPull: norm-diff:latest
-  cwlVersion: v1.2
-  baseCommand:
-  - norm-diff
-  arguments: []
-- id: stac-client
-  class: CommandLineTool
-  label: STAC Client Tool
-  doc: 'This tool uses the STAC Client to search for STAC items
-
-    '
-  inputs:
-  - id: api_endpoint
-    label: STAC API endpoint
-    doc: STAC API endpoint used to discover input items
-    type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint
   - id: search_request
-    label: STAC API settings
-    doc: STAC search settings including spatial, temporal, and collection filters
+    label: STAC search request
+    doc: Normalized STACSearchSettings request object
     type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
-  outputs:
-  - id: search_output
-    label: STAC search results
-    doc: GeoJSON feature collection containing the discovered STAC items.
-    type: File
-    outputBinding:
-      glob: discovery-output.json
   requirements:
-  - class: DockerRequirement
-    dockerPull: ghcr.io/eoap/schemas/stac-api-client@sha256:a7e346f704836d07f5dabc6b29ee3359e7253f4a294d74f3899973b8920da6f7
   - class: InlineJavascriptRequirement
-  - class: NetworkAccess
-    networkAccess: true
   - class: SchemaDefRequirement
     types:
     - name: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#Date
@@ -3453,12 +3361,12 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PointType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/coordinates
         type:
-          name: _:0c2b6fa2-a469-427a-bfa3-7f584b8840f1
+          name: _:ecf8f94a-c460-4fa2-9c28-65a4560031be
           items: double
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point/bbox
         type:
-          name: _:159c1760-9fc3-434a-a83d-11314f62143f
+          name: _:5a3b2b12-7e4b-4569-8e1c-47f15cc69828
           items: double
           type: array
       type: record
@@ -3472,12 +3380,12 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineStringType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/coordinates
         type:
-          name: _:35799887-4641-4f79-8e90-47792495b533
+          name: _:c4b69baf-15fb-477b-9b76-d437f7b8ed13
           items: double
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString/bbox
         type:
-          name: _:9e4fa55a-5119-4efb-aef0-8d46e69a258e
+          name: _:15a2845b-8e6f-4c7d-b1de-6cab2267704c
           items: double
           type: array
       type: record
@@ -3491,18 +3399,18 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#PolygonType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/coordinates
         type:
-          name: _:244fbe65-de6a-4e1b-8f45-14d2dda99d72
+          name: _:59cc1759-04d8-4b7e-9747-85e98bc7be9b
           items:
-            name: _:a95e67a3-d303-436f-959a-36e9d00952d2
+            name: _:4dc81371-c70b-44f0-948b-fe539585ecdb
             items:
-              name: _:cb8c1b02-21c9-4556-8159-52220d84cc22
+              name: _:13214f2f-4698-48a6-bb0a-00fc39f1932a
               items: double
               type: array
             type: array
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Polygon/bbox
         type:
-          name: _:9d41f1a7-387a-4ead-8803-745eee2a700e
+          name: _:e12bd2c8-e14a-4b22-ad23-6b376afa3a5f
           items: double
           type: array
       type: record
@@ -3516,15 +3424,15 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPointType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/coordinates
         type:
-          name: _:3ba2af01-7fa0-44e4-99a1-0ac92afa38f8
+          name: _:b7b8c451-5dd5-4faf-8bc4-806b4367770f
           items:
-            name: _:78e118bc-7ac7-47fb-9808-b2afd930bb11
+            name: _:8b732067-8d70-4359-a546-0af1eca0e1ca
             items: double
             type: array
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPoint/bbox
         type:
-          name: _:5f373b95-0c17-4cce-9225-3f46eb4dec62
+          name: _:aa209f40-ea30-4225-a640-9194c56500c8
           items: double
           type: array
       type: record
@@ -3538,18 +3446,18 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineStringType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/coordinates
         type:
-          name: _:957d262f-97f3-4cc4-8c07-6bfdd7617b51
+          name: _:39e2dee1-26e0-4815-ac25-2ea3b5292838
           items:
-            name: _:ea1916b4-85bb-4c70-9b53-9611ef18058e
+            name: _:7461fe41-c3c2-45fc-85f0-e5a3a32b99d4
             items:
-              name: _:d8e3e9e4-021e-4144-a68f-6a5be6337a83
+              name: _:e0559f6c-2185-48cb-bfc0-dd40b91ea69c
               items: double
               type: array
             type: array
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiLineString/bbox
         type:
-          name: _:9d8a35bc-958a-42de-af78-ab330a994596
+          name: _:9166641f-0b6e-427d-832b-47344a7fab31
           items: double
           type: array
       type: record
@@ -3563,13 +3471,13 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygonType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/coordinates
         type:
-          name: _:7d96304f-b969-490d-bb61-0a10af639521
+          name: _:111c5691-1e70-4638-9958-aa53efcc2c63
           items:
-            name: _:ff682ec5-032f-4524-87c7-c68740c5eea7
+            name: _:f1f0aa86-81d2-4dd1-b116-d26af33d0213
             items:
-              name: _:b016b34a-b42c-42e3-ac08-c9800752967f
+              name: _:67c41f7d-c43c-4656-abb9-29fae625140a
               items:
-                name: _:6d9fa83d-f3e2-49b8-b1a1-b4701cbad4e1
+                name: _:891a5afe-fa74-4020-bc32-60d50c732e17
                 items: double
                 type: array
               type: array
@@ -3577,7 +3485,7 @@ $graph:
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon/bbox
         type:
-          name: _:a6a8ba30-a527-44a2-859d-1c58e3bf9b99
+          name: _:e913c530-2959-4ae4-b90d-d0448020f7cb
           items: double
           type: array
       type: record
@@ -3602,7 +3510,7 @@ $graph:
         - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#MultiPolygon
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature/bbox
         type:
-          name: _:4f943f1e-4217-4890-b5ec-a5a0b4153835
+          name: _:cdaccbc9-b806-42d5-9796-e4fe50ea664c
           items: double
           type: array
       type: record
@@ -3616,7 +3524,7 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollectionType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/geometries
         type:
-          name: _:3b9d7541-ea5a-46d7-8930-43531cea1fa3
+          name: _:e97d424e-5728-4bdb-a3c5-3537b4cf663c
           items:
           - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Point
           - https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#LineString
@@ -3627,7 +3535,7 @@ $graph:
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#GeometryCollection/bbox
         type:
-          name: _:9edb8d79-4068-4e88-a780-00762b40a607
+          name: _:7f2be3a6-65dd-4ff7-8f98-623956f7747e
           items: double
           type: array
       type: record
@@ -3661,12 +3569,12 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollectionType
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/features
         type:
-          name: _:55813fbd-6107-41f8-880a-a3deb7d1f7e5
+          name: _:3199e45b-9b2a-4a51-ad03-2746f62c5400
           items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Feature
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/links
         type:
-          name: _:8db7860e-5151-47e8-b295-328b96b41e3d
+          name: _:9e678b6d-cb90-4862-a6b2-4e9a9f03e693
           items: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#Link
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml#FeatureCollection/timeStamp
@@ -3690,7 +3598,7 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#APIEndpoint/headers
         type:
         - 'null'
-        - name: _:09bdbc34-9834-4213-be87-4e492b1670fe
+        - name: _:01d51ed2-b196-4586-9beb-5df025a573c6
           items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml#KeyValuePair
           type: array
       type: record
@@ -3706,13 +3614,13 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/include
         type:
         - 'null'
-        - name: _:50d22398-9050-4253-9fe1-d643e3f8220a
+        - name: _:e5e222fe-daae-4bb2-a9ad-1344369a6b09
           items: string
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#Fields/exclude
         type:
         - 'null'
-        - name: _:edecaf25-27bd-4aa1-ba66-c55ff60b2732
+        - name: _:402e0717-45fd-4240-95c4-2cefd8daf5a2
           items: string
           type: array
       type: record
@@ -3738,7 +3646,7 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/bbox
         type:
         - 'null'
-        - name: _:f17be808-6e80-48b4-bfc6-6ea468715b95
+        - name: _:e6ec3b87-bfd0-4310-b896-1a9e722c6d83
           items: double
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/datetime
@@ -3762,13 +3670,13 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/collections
         type:
         - 'null'
-        - name: _:f1c9b8b6-7ff6-48f7-beba-2455d19c911d
+        - name: _:5e1dd1d1-24cc-49e2-9572-0b0cd6294597
           items: string
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/ids
         type:
         - 'null'
-        - name: _:923c73d5-3bb4-47f6-98e8-205e20d44c9a
+        - name: _:06d65adf-d5bb-4e62-85f1-98c27882ba8f
           items: string
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/limit
@@ -3794,13 +3702,13 @@ $graph:
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/filter-crs
         type:
         - 'null'
-        - name: _:8133b7f7-99bc-4142-b064-96001f55ca21
+        - name: _:e04710f0-311a-4aa3-ba86-9bfc1fbdcd4e
           items: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
           type: array
       - name: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings/sortby
         type:
         - 'null'
-        - name: _:db6d4e4d-6060-4bb9-92f2-1882be924fec
+        - name: _:84a95218-2074-44ff-9922-4333e38f10fc
           items: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#SortBy
           type: array
       type: record
@@ -3812,33 +3720,19 @@ $graph:
         type: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml#STACSearchSettings
       type: record
   cwlVersion: v1.2
-  baseCommand:
-  - stac-client
-  arguments:
-  - search
-  - $(inputs.api_endpoint.url.value)
-  - ${ var collections = inputs.search_request.collections; return ['--collections',
-    collections.join(",")]; }
-  - '${ var bbox = inputs.search_request.bbox; return Array.isArray(bbox) && bbox.length
-    >= 4 ? [''--bbox''].concat(bbox.map(String)) : []; }'
-  - '${ var limit = inputs.search_request.limit; return [''--limit'', String(limit
-    == null ? 10 : limit)]; }'
-  - '${ var maxItems = inputs.search_request[''max-items'']; return [''--max-items'',
-    String(maxItems == null ? 20 : maxItems)]; }'
-  - ${ var args = []; var filter = inputs.search_request.filter; var filterLang =
-    inputs.search_request['filter-lang']; if (filterLang) { args.push('--filter-lang',
-    filterLang); } if (filter) { args.push('--filter', JSON.stringify(filter)); }
-    return args; }
-  - ${ var datetime = inputs.search_request.datetime; var interval = inputs.search_request.datetime_interval;
-    if (datetime) { return ['--datetime', datetime]; } if (interval) { var start =
-    interval.start && interval.start.value || '..'; var end = interval.end && interval.end.value
-    || '..'; return ['--datetime', start + '/' + end]; } return []; }
-  - '${ var ids = inputs.search_request.ids; return Array.isArray(ids) && ids.length
-    > 0 ? [''--ids''].concat(ids.map(String)) : []; }'
-  - '${ var intersects = inputs.search_request.intersects; return intersects ? [''--intersects'',
-    JSON.stringify(intersects)] : []; }'
-  - --save
-  - discovery-output.json
+  expression: "${\n  var aoi = inputs.aoi;\n  var b = aoi && aoi.bbox;\n  if (!Array.isArray(b)\
+    \ || b.length !== 4) {\n    throw new Error(\"aoi.bbox must be [minx,miny,maxx,maxy]\"\
+    );\n  }\n\n  var searchRequest = {\n    collections: [inputs.collection],\n  \
+    \  bbox: b,\n    limit: inputs.limit,\n    \"max-items\": inputs[\"max-items\"\
+    ]\n  };\n\n  var startDatetime = inputs[\"start-datetime\"];\n  var endDatetime\
+    \ = inputs[\"end-datetime\"];\n  if (startDatetime !== null || endDatetime !==\
+    \ null) {\n    searchRequest.datetime_interval = {};\n    if (startDatetime !==\
+    \ null) {\n      searchRequest.datetime_interval.start = {\n        value: startDatetime.value\n\
+    \      };\n    }\n    if (endDatetime !== null) {\n      searchRequest.datetime_interval.end\
+    \ = {\n        value: endDatetime.value\n      };\n    }\n  }\n\n  if (inputs[\"\
+    filter-lang\"] !== null) {\n    searchRequest[\"filter-lang\"] = inputs[\"filter-lang\"\
+    ];\n  }\n  if (inputs.filter !== null) {\n    searchRequest.filter = inputs.filter;\n\
+    \  }\n\n  return { search_request: searchRequest };\n}\n"
 - id: stac-collection
   class: CommandLineTool
   inputs:
@@ -3846,7 +3740,7 @@ $graph:
     label: Input STAC items
     doc: Input STAC item href list
     type:
-      name: _:832affe6-2841-4855-beea-68f562e038a9
+      name: _:03203ef4-c89c-4ece-86b9-8e7c851e2153
       items: string
       type: array
       inputBinding:
@@ -3855,7 +3749,7 @@ $graph:
     label: Water body rasters
     doc: Otsu water-body raster outputs
     type:
-      name: _:ed5663cb-f71b-4cff-87a7-1120ded7d765
+      name: _:7d4f424a-ddc8-4400-b987-cedca0d90be8
       items: File
       type: array
       inputBinding:
@@ -3864,7 +3758,7 @@ $graph:
     label: NDWI rasters
     doc: NDWI raster outputs
     type:
-      name: _:64f4c6c6-7e6f-4f76-b2ea-5aa8d9850e12
+      name: _:33bb57c4-a4b0-4124-abdc-51304e698b67
       items: File
       type: array
       inputBinding:
@@ -3880,13 +3774,125 @@ $graph:
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     coresMax: 1
-    ramMax: 512
+    ramMin: 2048
+    ramMax: 2048
   - class: DockerRequirement
     dockerPull: stac-collection:latest
   cwlVersion: v1.2
   baseCommand:
   - stac-collection
   arguments: []
+- id: otsu
+  class: CommandLineTool
+  inputs:
+  - id: raster
+    label: NDWI raster
+    doc: NDWI raster input for Otsu thresholding
+    type: File
+    inputBinding:
+      position: 1
+  outputs:
+  - id: binary_mask_item
+    label: Binary mask output
+    doc: Binary water mask raster generated by Otsu
+    type: File
+    outputBinding:
+      glob: '*.tif'
+  requirements:
+  - class: InlineJavascriptRequirement
+  - class: EnvVarRequirement
+    envDef:
+    - envName: PATH
+      envValue: /app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - envName: PYTHONPATH
+      envValue: /app
+  - class: ResourceRequirement
+    coresMax: 1
+    ramMin: 2048
+    ramMax: 2048
+  - class: DockerRequirement
+    dockerPull: otsu:latest
+  cwlVersion: v1.2
+  baseCommand:
+  - otsu
+  arguments: []
+- id: detect_water_body
+  class: Workflow
+  label: Water body detection based on NDWI and otsu threshold
+  doc: Water body detection based on NDWI and otsu threshold
+  inputs:
+  - id: aoi
+    label: Area of interest
+    doc: area of interest as a bounding box
+    type: string
+  - id: epsg
+    label: EPSG code
+    doc: EPSG code
+    default: EPSG:4326
+    type: string
+  - id: bands
+    label: Input bands
+    doc: bands used for the NDWI
+    type:
+      name: _:2eec0163-0e15-4ce9-b845-0d5396cac3a5
+      items: string
+      type: array
+  - id: item
+    label: STAC item href
+    doc: STAC item
+    type: string
+  outputs:
+  - id: detected_water_body
+    label: Water body mask
+    doc: Binary water mask generated by the Otsu step
+    outputSource:
+    - otsu/binary_mask_item
+    type: File
+  - id: ndwi
+    label: NDWI raster
+    doc: NDWI raster generated by normalized difference step
+    outputSource:
+    - normalized_difference/ndwi
+    type: File
+  requirements:
+  - class: ScatterFeatureRequirement
+  cwlVersion: v1.2
+  steps:
+  - id: crop
+    label: Crop spectral bands
+    doc: Crop and reproject each requested band to the area of interest.
+    in:
+    - id: item
+      source: item
+    - id: aoi
+      source: aoi
+    - id: epsg
+      source: epsg
+    - id: band
+      source: bands
+    out:
+    - cropped
+    run: '#crop'
+    scatter: crop/band
+    scatterMethod: dotproduct
+  - id: normalized_difference
+    label: Compute NDWI
+    doc: Compute the normalized difference water index from the cropped bands.
+    in:
+    - id: rasters
+      source: crop/cropped
+    out:
+    - ndwi
+    run: '#norm_diff'
+  - id: otsu
+    label: Detect water bodies
+    doc: Apply Otsu thresholding to the NDWI raster to produce a binary water mask.
+    in:
+    - id: raster
+      source: normalized_difference/ndwi
+    out:
+    - binary_mask_item
+    run: '#otsu'
 - https://schema.org/name: Stage-out STAC results
   https://schema.org/description: Upload the results catalog and its assets to S3-compatible
     storage.

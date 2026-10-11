@@ -527,7 +527,8 @@ $graph:
           PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
         dockerPull: crop:latest
     baseCommand: ["crop"]
@@ -586,7 +587,8 @@ $graph:
           PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
         dockerPull: norm-diff:latest
     baseCommand: ["norm-diff"]
@@ -615,7 +617,8 @@ $graph:
           PYTHONPATH: /app
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
         dockerPull: otsu:latest
     baseCommand: ["otsu"]
@@ -640,7 +643,8 @@ $graph:
       InlineJavascriptRequirement: {}
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
         dockerPull: stac-collection:latest
     baseCommand: ["stac-collection"]
@@ -683,7 +687,8 @@ $graph:
       InlineJavascriptRequirement: {}
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
         dockerPull: stac-zarr:latest 
     baseCommand: ["stac-zarr"]
@@ -810,7 +815,8 @@ $graph:
       InlineJavascriptRequirement: {}
       ResourceRequirement:
         coresMax: 1
-        ramMax: 512
+        ramMin: 2048
+        ramMax: 2048
       DockerRequirement:
         dockerPull: stac-eopf-product:latest
     baseCommand: ["stac-eopf-product"]

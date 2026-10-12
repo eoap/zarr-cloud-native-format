@@ -92,6 +92,7 @@ $graph:
         coresMax: 1
         ramMin: 512
         ramMax: 1024
+        coresMin: 1
     baseCommand: ["occurrence"]
     arguments: []
     inputs:

@@ -1,10 +1,10 @@
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import numpy as np
 from xarray import DataArray
 
 
-def _coerce_time_values(values: np.ndarray) -> Tuple[np.ndarray, Dict[str, str]]:
+def _coerce_time_values(values: np.ndarray) -> tuple[np.ndarray, dict[str, str]]:
     """Convert time coordinates to CF-style numeric values when possible."""
     if np.issubdtype(values.dtype, np.datetime64):
         epoch_ns = values.astype("datetime64[ns]").astype(np.int64)
@@ -28,12 +28,14 @@ def _coerce_time_values(values: np.ndarray) -> Tuple[np.ndarray, Dict[str, str]]
 def write_cf_dataset_members(
     dataset_group: Any,
     da: DataArray,
-    transform_6: List[float],
+    transform_6: list[float],
     crs_wkt: str,
 ) -> None:
     """Write coordinate arrays and spatial_ref required by CF-style dataset layout."""
     if "time" in da.dims:
-        raw_time_vals = da.coords["time"].values if "time" in da.coords else np.arange(da.sizes["time"])
+        raw_time_vals = (
+            da.coords["time"].values if "time" in da.coords else np.arange(da.sizes["time"])
+        )
         time_vals, time_attrs = _coerce_time_values(np.asarray(raw_time_vals))
         time_arr = dataset_group.create(
             name="time",
@@ -91,7 +93,7 @@ def write_cf_dataset_members(
     spatial_ref_arr[...] = np.int32(0)
 
 
-def _iter_data_array_names(dataset_group: Any) -> List[str]:
+def _iter_data_array_names(dataset_group: Any) -> list[str]:
     """Return non-coordinate data array names from a dataset group."""
     names = list(dataset_group.array_keys())
     return [name for name in names if name not in {"time", "y", "x", "spatial_ref"}]
@@ -107,6 +109,19 @@ def check_grid_mapping(dataset_group: Any) -> None:
             raise ValueError(
                 f"Grid mapping variable '{grid_mapping}' declared by {name} was not found in dataset members"
             )
+
+
+def _check_coordinate_references(
+    coordinates_attr: object,
+    members: set[str],
+    name: str,
+) -> None:
+    if isinstance(coordinates_attr, str):
+        for coord_name in coordinates_attr.split():
+            if coord_name not in members:
+                raise ValueError(
+                    f"Coordinate '{coord_name}' for array '{name}' is not defined in the model members."
+                )
 
 
 def check_valid_coordinates(dataset_group: Any) -> None:
@@ -136,13 +151,7 @@ def check_valid_coordinates(dataset_group: Any) -> None:
                     f"{dim_member.shape[0]} != {arr.shape[idx]}."
                 )
 
-        coordinates_attr = arr.attrs.get("coordinates")
-        if isinstance(coordinates_attr, str):
-            for coord_name in coordinates_attr.split():
-                if coord_name not in members:
-                    raise ValueError(
-                        f"Coordinate '{coord_name}' for array '{name}' is not defined in the model members."
-                    )
+        _check_coordinate_references(arr.attrs.get("coordinates"), members, name)
 
 
 def validate_dataset_group(dataset_group: Any) -> None:

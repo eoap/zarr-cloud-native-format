@@ -11,4 +11,3 @@ from norm_diff_tool.writer import run_norm_diff
 def to_norm_diff(rasters: tuple[str, str]) -> None:
     """Compute normalized difference from two raster inputs."""
     run_norm_diff(rasters[0], rasters[1])
-

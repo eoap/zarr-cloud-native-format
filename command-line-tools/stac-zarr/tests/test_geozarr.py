@@ -36,9 +36,7 @@ def generated_store(tmp_path, monkeypatch):
         "sample",
         Extent(SpatialExtent([[0, 0, 1, 1]]), TemporalExtent([[None, None]])),
     )
-    collection.extra_fields["item_assets"] = {
-        "water": {"type": "image/tiff", "title": "Water"}
-    }
+    collection.extra_fields["item_assets"] = {"water": {"type": "image/tiff", "title": "Water"}}
     item = Item(
         "scene",
         None,
@@ -56,17 +54,13 @@ def generated_store(tmp_path, monkeypatch):
         .chunk({"time": 1, "y": 4, "x": 4})
     )
     monkeypatch.setattr(writer, "read_stac_file", lambda _: catalog)
-    monkeypatch.setattr(
-        writer, "stac_load", lambda *args, **kwargs: da.to_dataset(name="water")
-    )
+    monkeypatch.setattr(writer, "stac_load", lambda *args, **kwargs: da.to_dataset(name="water"))
     monkeypatch.chdir(tmp_path)
     validation = Mock(wraps=writer.validate_geozarr_store)
     monkeypatch.setattr(writer, "validate_geozarr_store", validation)
     writer.run_to_zarr(tmp_path, 2, "mean", "nearest")
     validation.assert_called_once()
-    return zarr.open_group(
-        tmp_path / "sample/sample.zarr", mode="r+", use_consolidated=False
-    )
+    return zarr.open_group(tmp_path / "sample/sample.zarr", mode="r+", use_consolidated=False)
 
 
 def test_writer_store_passes_toolkit(generated_store):
@@ -132,6 +126,21 @@ def test_module_api_and_cli(generated_store):
     assert "FAIL" in result.output
 
 
+def _remove_projection(array):
+    for key in list(array.attrs):
+        if key.startswith("proj:"):
+            del array.attrs[key]
+
+
+def _corrupt_multiscales(root, corruption):
+    metadata = dict(root.attrs["multiscales"])
+    if corruption == "path":
+        metadata["layout"][0]["asset"] = "missing/water"
+    else:
+        metadata["layout"][0]["spatial:transform"] = [1, 0, 0, 0, -1, 0]
+    root.attrs["multiscales"] = metadata
+
+
 @pytest.mark.parametrize(
     "corruption, message",
     [
@@ -159,19 +168,12 @@ def test_rejects_corrupted_store(generated_store, corruption, message):
     elif corruption == "dimensions":
         array.attrs["spatial:dimensions"] = ["lat", "lon"]
     elif corruption == "projection":
-        for key in list(array.attrs):
-            if key.startswith("proj:"):
-                del array.attrs[key]
+        _remove_projection(array)
     elif corruption == "missing_metadata":
         for key in list(array.attrs):
             if key.startswith(("proj:", "spatial:")) or key == "zarr_conventions":
                 del array.attrs[key]
     else:
-        metadata = dict(root.attrs["multiscales"])
-        if corruption == "path":
-            metadata["layout"][0]["asset"] = "missing/water"
-        else:
-            metadata["layout"][0]["spatial:transform"] = [1, 0, 0, 0, -1, 0]
-        root.attrs["multiscales"] = metadata
+        _corrupt_multiscales(root, corruption)
     with pytest.raises(ValueError, match=message):
         validate_geozarr_store(root)

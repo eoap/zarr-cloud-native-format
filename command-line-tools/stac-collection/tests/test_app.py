@@ -1,8 +1,7 @@
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
 
 import pytest
-from pystac import Asset, Catalog, Extent, Item, SpatialExtent, TemporalExtent, read_file
+from pystac import Asset, Catalog, Item, read_file
 
 from stac_collection.app import (
     get_spatial_extent,
@@ -17,7 +16,15 @@ def _make_item(item_id: str, dt: datetime, bbox):
         id=item_id,
         geometry={
             "type": "Polygon",
-            "coordinates": [[[bbox[0], bbox[1]], [bbox[0], bbox[3]], [bbox[2], bbox[3]], [bbox[2], bbox[1]], [bbox[0], bbox[1]]]],
+            "coordinates": [
+                [
+                    [bbox[0], bbox[1]],
+                    [bbox[0], bbox[3]],
+                    [bbox[2], bbox[3]],
+                    [bbox[2], bbox[1]],
+                    [bbox[0], bbox[1]],
+                ]
+            ],
         },
         bbox=bbox,
         datetime=dt,
@@ -27,8 +34,8 @@ def _make_item(item_id: str, dt: datetime, bbox):
 
 def test_get_temporal_extent():
     items = [
-        _make_item("a", datetime(2021, 1, 2, tzinfo=timezone.utc), [0, 0, 1, 1]),
-        _make_item("b", datetime(2021, 1, 1, tzinfo=timezone.utc), [0, 0, 1, 1]),
+        _make_item("a", datetime(2021, 1, 2, tzinfo=UTC), [0, 0, 1, 1]),
+        _make_item("b", datetime(2021, 1, 1, tzinfo=UTC), [0, 0, 1, 1]),
     ]
     start, end = get_temporal_extent(items)
     assert start.isoformat() == "2021-01-01T00:00:00+00:00"
@@ -37,8 +44,8 @@ def test_get_temporal_extent():
 
 def test_get_spatial_extent():
     items = [
-        _make_item("a", datetime(2021, 1, 1, tzinfo=timezone.utc), [1, 2, 3, 4]),
-        _make_item("b", datetime(2021, 1, 2, tzinfo=timezone.utc), [-1, 0, 2, 8]),
+        _make_item("a", datetime(2021, 1, 1, tzinfo=UTC), [1, 2, 3, 4]),
+        _make_item("b", datetime(2021, 1, 2, tzinfo=UTC), [-1, 0, 2, 8]),
     ]
     assert get_spatial_extent(items) == [-1, 0, 3, 8]
 
@@ -51,7 +58,7 @@ def test_validate_parallel_inputs_mismatch():
 def test_run_to_stac_builds_catalog(monkeypatch, tmp_path):
     item = _make_item(
         "S2A_TEST",
-        datetime(2021, 6, 28, tzinfo=timezone.utc),
+        datetime(2021, 6, 28, tzinfo=UTC),
         [1.0, 2.0, 3.0, 4.0],
     )
     item_path = tmp_path / "item.json"

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -27,7 +27,15 @@ def _make_item(item_id: str, bbox, dt: datetime, properties=None) -> Item:
         id=item_id,
         geometry={
             "type": "Polygon",
-            "coordinates": [[[bbox[0], bbox[1]], [bbox[0], bbox[3]], [bbox[2], bbox[3]], [bbox[2], bbox[1]], [bbox[0], bbox[1]]]],
+            "coordinates": [
+                [
+                    [bbox[0], bbox[1]],
+                    [bbox[0], bbox[3]],
+                    [bbox[2], bbox[3]],
+                    [bbox[2], bbox[1]],
+                    [bbox[0], bbox[1]],
+                ]
+            ],
         },
         bbox=bbox,
         datetime=dt,
@@ -39,7 +47,7 @@ def test_extract_crs_prefers_proj_epsg():
     item = _make_item(
         "a",
         [0, 0, 1, 1],
-        datetime(2021, 1, 1, tzinfo=timezone.utc),
+        datetime(2021, 1, 1, tzinfo=UTC),
         properties={"proj:epsg": 32610, "proj:code": "EPSG:9999"},
     )
     assert extract_crs(item) == "epsg:32610"
@@ -49,7 +57,7 @@ def test_extract_crs_uses_proj_code():
     item = _make_item(
         "a",
         [0, 0, 1, 1],
-        datetime(2021, 1, 1, tzinfo=timezone.utc),
+        datetime(2021, 1, 1, tzinfo=UTC),
         properties={"proj:code": "EPSG:32633"},
     )
     assert extract_crs(item) == "epsg:32633"
@@ -57,8 +65,8 @@ def test_extract_crs_uses_proj_code():
 
 def test_get_extents():
     items = [
-        _make_item("a", [1, 2, 3, 4], datetime(2021, 1, 2, tzinfo=timezone.utc)),
-        _make_item("b", [-1, 0, 2, 8], datetime(2021, 1, 1, tzinfo=timezone.utc)),
+        _make_item("a", [1, 2, 3, 4], datetime(2021, 1, 2, tzinfo=UTC)),
+        _make_item("b", [-1, 0, 2, 8], datetime(2021, 1, 1, tzinfo=UTC)),
     ]
     assert get_spatial_extent(items) == [-1, 0, 3, 8]
     start, end = get_temporal_extent(items)
@@ -114,8 +122,8 @@ def test_get_measurement_keys_requires_item_assets():
 
 def test_validate_items_have_measurements_reports_missing():
     items = [
-        _make_item("a", [0, 0, 1, 1], datetime(2021, 1, 1, tzinfo=timezone.utc), properties={}),
-        _make_item("b", [0, 0, 1, 1], datetime(2021, 1, 1, tzinfo=timezone.utc), properties={}),
+        _make_item("a", [0, 0, 1, 1], datetime(2021, 1, 1, tzinfo=UTC), properties={}),
+        _make_item("b", [0, 0, 1, 1], datetime(2021, 1, 1, tzinfo=UTC), properties={}),
     ]
     items[0].add_asset("water", Asset(href="file:///tmp/water_a.tif"))
     items[1].add_asset("water", Asset(href="file:///tmp/water_b.tif"))
@@ -123,6 +131,42 @@ def test_validate_items_have_measurements_reports_missing():
 
     with pytest.raises(ValueError, match="a: ndwi"):
         validate_items_have_measurements(items, ["water", "ndwi"])
+
+
+class FakeEOProduct(dict):
+    pass
+
+
+class FakeEOGroup(dict):
+    pass
+
+
+class FakeEOVariable:
+    def __init__(self, data, dims, attrs):
+        self.data = data
+        self.dims = dims
+        self.attrs = attrs
+
+
+class FakeEOZarrStore:
+    last_key = None
+    last_url = None
+
+    def __init__(self, url):
+        self.url = url
+
+    def open(self, mode):
+        return self
+
+    def __enter__(self):
+        FakeEOZarrStore.last_url = self.url
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        return False
+
+    def __setitem__(self, key, value):
+        FakeEOZarrStore.last_key = key
 
 
 def test_run_to_eopf_uses_collection_measurements_and_load_kwargs(monkeypatch, tmp_path: Path):
@@ -143,7 +187,7 @@ def test_run_to_eopf_uses_collection_measurements_and_load_kwargs(monkeypatch, t
     item = _make_item(
         "item-1",
         [10.0, 20.0, 11.0, 21.0],
-        datetime(2021, 1, 1, tzinfo=timezone.utc),
+        datetime(2021, 1, 1, tzinfo=UTC),
         properties={"proj:epsg": 32633},
     )
     item.add_asset("water", Asset(href="file:///tmp/water.tif"))
@@ -185,38 +229,6 @@ def test_run_to_eopf_uses_collection_measurements_and_load_kwargs(monkeypatch, t
         captured["item_count"] = len(items)
         captured["kwargs"] = kwargs
         return FakeDataset()
-
-    class FakeEOProduct(dict):
-        pass
-
-    class FakeEOGroup(dict):
-        pass
-
-    class FakeEOVariable:
-        def __init__(self, data, dims, attrs):
-            self.data = data
-            self.dims = dims
-            self.attrs = attrs
-
-    class FakeEOZarrStore:
-        last_key = None
-        last_url = None
-
-        def __init__(self, url):
-            self.url = url
-
-        def open(self, mode):
-            return self
-
-        def __enter__(self):
-            FakeEOZarrStore.last_url = self.url
-            return self
-
-        def __exit__(self, exc_type, exc, tb):
-            return False
-
-        def __setitem__(self, key, value):
-            FakeEOZarrStore.last_key = key
 
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr("stac_eopf_product.writer.read_stac_file", lambda _p: catalog)

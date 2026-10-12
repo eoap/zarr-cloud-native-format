@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+- Hash-locked Hatch development and publication environments with required quality gates.
+- Python 3.12 wheels and separate Rocky Linux 10.1 processing runtimes as UID/GID 2000.
+- Preserve shared schema imports when serializing wrapped workflows.
+- Regenerate GeoZarr models from published convention schemas with typed annotations.
+- Emit valid scalar STAC raster resolution metadata and preserve public helper exports.
+
 ## [2.0.0]
 
 - CWL v1.2 producer and typed application inputs with standalone schema definitions.

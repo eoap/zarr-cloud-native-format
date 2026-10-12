@@ -1,0 +1,10 @@
+numpy==2.3.5
+eopf
+odc-stac
+ipykernel
+cwltool
+loguru
+zarr
+matplotlib
+graphviz
+pillow

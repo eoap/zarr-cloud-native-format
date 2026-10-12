@@ -11,10 +11,16 @@ def aoi_to_box(aoi: str) -> list[float]:
 
 def read_input_item(item_url: str) -> Item:
     """Read input STAC item from an item URL or staged catalog directory."""
-    if os.path.isdir(item_url):
-        catalog = pystac.read_file(os.path.join(item_url, "catalog.json"))
-        return next(catalog.get_items())
-    return pystac.read_file(item_url)
+    source = os.path.join(item_url, "catalog.json") if os.path.isdir(item_url) else item_url
+    document = pystac.read_file(source)
+    if isinstance(document, pystac.Catalog):
+        item = next(document.get_items(), None)
+        if item is None:
+            raise ValueError("Input catalog must contain an item")
+        return item
+    if not isinstance(document, Item):
+        raise ValueError("Input must be a STAC item or catalog")
+    return document
 
 
 def get_asset_by_common_name(item: Item, common_name: str) -> Asset | None:

@@ -3,32 +3,25 @@
 
 from __future__ import annotations
 
-import json
-import urllib.request
-
+from eoap_http import read_json_object
 from jsonschema import ValidationError, validate
-
 from stac_zarr.constants import GEO_PROJ_CONVENTION
-
 from stac_zarr.models.generated.geo_proj import ConventionMetadata as GeoProjConventionMetadata
 
 GEO_PROJ_SCHEMA_URL = GEO_PROJ_CONVENTION["schema_url"]
 
 
-def fetch_schema(url: str) -> dict:
-    with urllib.request.urlopen(url, timeout=30) as response:
-        return json.loads(response.read().decode("utf-8"))
+def fetch_schema(url: str) -> dict[str, object]:
+    return read_json_object(url)
 
 
-def build_geo_proj_payload() -> dict:
+def build_geo_proj_payload() -> dict[str, object]:
     return {
         "zarr_format": 3,
         "node_type": "group",
         "attributes": {
             "zarr_conventions": [
-                GeoProjConventionMetadata.model_validate(
-                    GEO_PROJ_CONVENTION
-                ).model_dump()
+                GeoProjConventionMetadata.model_validate(GEO_PROJ_CONVENTION).model_dump()
             ],
             # Strict geo-proj oneOf: emit exactly one projection representation
             "proj:code": "EPSG:32633",

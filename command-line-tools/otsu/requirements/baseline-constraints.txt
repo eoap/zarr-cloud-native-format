@@ -1,0 +1,19 @@
+# Preserve scientific versions from previously validated local images.
+ImageIO==2.38.1
+affine==3.0.1
+attrs==26.1.0
+certifi==2026.7.22
+click-plugins==1.1.1.2
+click==8.2.1
+cligj==0.7.2
+lazy-loader==0.6
+loguru==0.7.3
+networkx==3.7
+numpy==2.2.6
+packaging==26.3
+pillow==12.3.0
+pyparsing==3.3.3
+rasterio==1.4.3
+scikit-image==0.25.2
+scipy==1.18.1
+tifffile==2026.9.20

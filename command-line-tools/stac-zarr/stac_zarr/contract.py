@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List
 
 from pystac import Collection, Item
 
@@ -10,20 +9,20 @@ def extract_crs(item: Item) -> str:
     if epsg:
         return f"epsg:{epsg}"
     code = item.properties.get("proj:code")
-    if code and code.upper().startswith("EPSG:"):
+    if isinstance(code, str) and code.upper().startswith("EPSG:"):
         return code.lower()
     raise ValueError("CRS not found in item properties")
 
 
-def get_temporal_extent(items: List[Item]) -> List[datetime]:
+def get_temporal_extent(items: list[Item]) -> list[datetime]:
     """Get temporal extent from a list of STAC items."""
-    times = [item.datetime for item in items]
+    times = [item.datetime for item in items if item.datetime is not None]
     if not times:
         raise ValueError("No datetime found in item properties")
     return [min(times), max(times)]
 
 
-def get_spatial_extent(items: List[Item]) -> List[float]:
+def get_spatial_extent(items: list[Item]) -> list[float]:
     """Get spatial extent from a list of STAC items."""
     bboxes = [item.bbox for item in items if item.bbox]
     if not bboxes:
@@ -35,7 +34,7 @@ def get_spatial_extent(items: List[Item]) -> List[float]:
     return [min_x, min_y, max_x, max_y]
 
 
-def get_measurement_keys(collection: Collection) -> List[str]:
+def get_measurement_keys(collection: Collection) -> list[str]:
     """Get measurement keys declared in Collection Item Assets."""
     if not collection.item_assets:
         raise ValueError(
@@ -51,7 +50,7 @@ def get_measurement_keys(collection: Collection) -> List[str]:
     return measurement_keys
 
 
-def validate_items_have_measurements(items: List[Item], measurement_keys: List[str]) -> None:
+def validate_items_have_measurements(items: list[Item], measurement_keys: list[str]) -> None:
     """Ensure each item includes all measurements declared in collection.item_assets."""
     missing_by_item = {}
     for item in items:
@@ -60,8 +59,7 @@ def validate_items_have_measurements(items: List[Item], measurement_keys: List[s
             missing_by_item[item.id] = missing
     if missing_by_item:
         details = "; ".join(
-            f"{item_id}: {', '.join(missing)}"
-            for item_id, missing in missing_by_item.items()
+            f"{item_id}: {', '.join(missing)}" for item_id, missing in missing_by_item.items()
         )
         raise ValueError(
             "Input STAC Items are missing required Item Assets declared in "

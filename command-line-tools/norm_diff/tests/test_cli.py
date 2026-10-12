@@ -16,4 +16,3 @@ def test_cli_invokes_writer(monkeypatch):
     result = runner.invoke(to_norm_diff, ["a.tif", "b.tif"])
     assert result.exit_code == 0
     assert captured == {"raster_a": "a.tif", "raster_b": "b.tif"}
-

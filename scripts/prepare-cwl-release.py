@@ -1,7 +1,10 @@
 """Pin release tools and validate standalone CWL without a packing command."""
+
 import argparse
-from pathlib import Path
 import re
+from pathlib import Path
+from shutil import copyfile
+
 import yaml
 from check_release_cwl import ENTRIES, validate
 
@@ -14,18 +17,22 @@ args.output.mkdir(parents=True, exist_ok=True)
 digests = {}
 for path in args.digests.glob("*.txt"):
     reference = path.read_text().strip()
-    if not re.fullmatch(r"ghcr\.io/eoap/zarr-cloud-native-format/[\w-]+@sha256:[a-f0-9]{64}", reference):
+    if not re.fullmatch(
+        r"ghcr\.io/eoap/zarr-cloud-native-format/[\w-]+@sha256:[a-f0-9]{64}", reference
+    ):
         raise ValueError(f"Invalid image digest: {path}")
     digests[path.stem] = reference
 
 
-def pin(value):
+def pin(value: object) -> None:
     if isinstance(value, dict):
         identifier = value.get("id", "").rsplit("/", 1)[-1].lstrip("#")
         if value.get("class") == "CommandLineTool" and identifier in digests:
             requirements = value.get("requirements", {})
             if isinstance(requirements, list):
-                docker = next(item for item in requirements if item.get("class") == "DockerRequirement")
+                docker = next(
+                    item for item in requirements if item.get("class") == "DockerRequirement"
+                )
             else:
                 docker = requirements["DockerRequirement"]
             docker["dockerPull"] = digests[identifier]
@@ -46,5 +53,5 @@ for name, entry in ENTRIES.items():
     output.write_text(yaml.safe_dump(document, sort_keys=False))
     validate(output, entry)
 
-from shutil import copyfile
+
 copyfile("cwl-tests/jobs/producer-job.yml", args.output / "producer-job.yaml")

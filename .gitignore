@@ -21,3 +21,5 @@ stac-collection-artifact
 /titiler-runs/
 
 /titiler-index/
+
+!docs/acceptance/*.json

@@ -3,268 +3,321 @@
 
 from __future__ import annotations
 
-from enum import Enum
-from typing import Any, Literal
+from enum import StrEnum
+from typing import Annotated, Any, Literal
 
-from pydantic import ConfigDict, Field, RootModel, conint
+from pydantic import ConfigDict, Field, RootModel
+
 from stac_zarr.models.base import GeoZarrBaseModel
 
 
-class NodeType(Enum):
-    array = 'array'
-    group = 'group'
+class NodeType(StrEnum):
+    array = "array"
+    group = "group"
 
 
-class SpatialShapeItem(RootModel[conint(ge=1)]):
-    root: conint(ge=1)
+class SpatialShapeItem(RootModel[int]):
+    root: Annotated[int, Field(ge=1)]
 
 
-class SpatialRegistration(Enum):
-    node = 'node'
-    pixel = 'pixel'
+class SpatialRegistration(StrEnum):
+    node = "node"
+    pixel = "pixel"
 
 
 class LayoutItem(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    spatial_shape: list[SpatialShapeItem] | None = Field(
-        None,
-        alias='spatial:shape',
-        description='Shape override for this resolution level [height, width]',
-        max_length=2,
-        min_length=2,
-    )
-    spatial_transform: list[float] | None = Field(
-        None,
-        alias='spatial:transform',
-        description='2D affine transform override for this resolution level [a, b, c, d, e, f]',
-        max_length=6,
-        min_length=6,
-    )
+    spatial_shape: Annotated[
+        list[SpatialShapeItem] | None,
+        Field(
+            alias="spatial:shape",
+            description="Shape override for this resolution level [height, width]",
+            max_length=2,
+            min_length=2,
+        ),
+    ] = None
+    spatial_transform: Annotated[
+        list[float] | None,
+        Field(
+            alias="spatial:transform",
+            description="2D affine transform override for this resolution level [a, b, c, d, e, f]",
+            max_length=6,
+            min_length=6,
+        ),
+    ] = None
 
 
 class Multiscales(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
     layout: list[LayoutItem] | None = None
 
 
 class Attributes(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    zarr_conventions: list[Any] = Field(
-        ..., description='Array of convention metadata objects'
-    )
-    spatial_dimensions: list[str] | None = Field(
-        None,
-        alias='spatial:dimensions',
-        description='Names of the two spatial (X/Y) dimensions, in row-major order (e.g., ["y", "x"]).',
-        max_length=2,
-        min_length=2,
-    )
-    spatial_bbox: list[float] | None = Field(
-        None,
-        alias='spatial:bbox',
-        description='2D bounding box in coordinate space: [xmin, ymin, xmax, ymax].',
-        max_length=4,
-        min_length=4,
-    )
-    spatial_transform_type: str | None = Field(
-        None,
-        alias='spatial:transform_type',
-        description="Type of transformation used to map array indices to coordinates. Defaults to 'affine' if not specified. Currently defined types: 'affine'. Additional transform types may be defined in future versions (e.g., 'rpc', 'polynomial', 'lookup'). Custom types are allowed for extensibility.",
-    )
-    spatial_transform: list[float] | None = Field(
-        None,
-        alias='spatial:transform',
-        description="2D affine transformation coefficients [a, b, c, d, e, f] mapping array indices to coordinates, where x = a*col_index + b*row_index + c and y = d*col_index + e*row_index + f. Used when transform_type is 'affine' (default).",
-        max_length=6,
-        min_length=6,
-    )
-    spatial_shape: list[SpatialShapeItem] | None = Field(
-        None,
-        alias='spatial:shape',
-        description='Shape of the two spatial dimensions [height, width], corresponding to [y, x].',
-        max_length=2,
-        min_length=2,
-    )
-    spatial_registration: SpatialRegistration | None = Field(
-        None,
-        alias='spatial:registration',
-        description="Grid cell registration type. 'node' (grid-registered) means cells are centered on coordinate points with footprints extending 1/2 cell width outside the range. 'pixel' (cell-registered) means cell boundaries align with coordinate points. Defaults to 'pixel' if not specified.",
-    )
-    multiscales: Multiscales | None = Field(
-        None,
-        description='When composing with multiscales convention, spatial: properties can be added to layout items',
-    )
+    zarr_conventions: Annotated[
+        list[Any], Field(description="Array of convention metadata objects")
+    ]
+    spatial_dimensions: Annotated[
+        list[str] | None,
+        Field(
+            alias="spatial:dimensions",
+            description='Names of the two spatial (X/Y) dimensions, in row-major order (e.g., ["y", "x"]).',
+            max_length=2,
+            min_length=2,
+        ),
+    ] = None
+    spatial_bbox: Annotated[
+        list[float] | None,
+        Field(
+            alias="spatial:bbox",
+            description="2D bounding box in coordinate space: [xmin, ymin, xmax, ymax].",
+            max_length=4,
+            min_length=4,
+        ),
+    ] = None
+    spatial_transform_type: Annotated[
+        str | None,
+        Field(
+            alias="spatial:transform_type",
+            description="Type of transformation used to map array indices to coordinates. Defaults to 'affine' if not specified. Currently defined types: 'affine'. Additional transform types may be defined in future versions (e.g., 'rpc', 'polynomial', 'lookup'). Custom types are allowed for extensibility.",
+        ),
+    ] = None
+    spatial_transform: Annotated[
+        list[float] | None,
+        Field(
+            alias="spatial:transform",
+            description="2D affine transformation coefficients [a, b, c, d, e, f] mapping array indices to coordinates, where x = a*col_index + b*row_index + c and y = d*col_index + e*row_index + f. Used when transform_type is 'affine' (default).",
+            max_length=6,
+            min_length=6,
+        ),
+    ] = None
+    spatial_shape: Annotated[
+        list[SpatialShapeItem] | None,
+        Field(
+            alias="spatial:shape",
+            description="Shape of the two spatial dimensions [height, width], corresponding to [y, x].",
+            max_length=2,
+            min_length=2,
+        ),
+    ] = None
+    spatial_registration: Annotated[
+        SpatialRegistration | None,
+        Field(
+            alias="spatial:registration",
+            description="Grid cell registration type. 'node' (grid-registered) means cells are centered on coordinate points with footprints extending 1/2 cell width outside the range. 'pixel' (cell-registered) means cell boundaries align with coordinate points. Defaults to 'pixel' if not specified.",
+        ),
+    ] = None
+    multiscales: Annotated[
+        Multiscales | None,
+        Field(
+            description="When composing with multiscales convention, spatial: properties can be added to layout items"
+        ),
+    ] = None
 
 
 class SpatialCoordinateConventionSpatial(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    zarr_format: int = Field(..., description='Zarr format version')
-    node_type: NodeType = Field(..., description='Type of Zarr node')
-    attributes: Attributes = Field(
-        ...,
-        description='Zarr attributes containing convention metadata and spatial: prefixed properties',
-    )
+    zarr_format: Annotated[int, Field(description="Zarr format version")]
+    node_type: Annotated[NodeType, Field(description="Type of Zarr node")]
+    attributes: Annotated[
+        Attributes,
+        Field(
+            description="Zarr attributes containing convention metadata and spatial: prefixed properties"
+        ),
+    ]
 
 
 class ConventionMetadata1(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    schema_url: Literal[
-        'https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v0.1/schema.json'
-    ] = Field(..., description='URL to the JSON Schema definition for this convention')
-    spec_url: (
-        Literal['https://github.com/zarr-conventions/spatial/blob/v0.1/README.md']
-        | None
-    ) = Field(None, description='URL to the full specification document')
-    uuid: Literal['689b58e2-cf7b-45e0-9fff-9cfc0883d6b4'] | None = Field(
-        None, description='UUID that permanently identifies this convention'
-    )
-    name: Literal['spatial'] | None = Field(
-        None, description='Human-readable name of the convention'
-    )
-    description: Literal['Spatial coordinate information'] | None = Field(
-        None, description="Brief description of the convention's purpose and usage"
-    )
+    schema_url: Annotated[
+        Literal[
+            "https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v0.1/schema.json"
+        ],
+        Field(description="URL to the JSON Schema definition for this convention"),
+    ]
+    spec_url: Annotated[
+        Literal["https://github.com/zarr-conventions/spatial/blob/v0.1/README.md"] | None,
+        Field(description="URL to the full specification document"),
+    ] = None
+    uuid: Annotated[
+        Literal["689b58e2-cf7b-45e0-9fff-9cfc0883d6b4"] | None,
+        Field(description="UUID that permanently identifies this convention"),
+    ] = None
+    name: Annotated[
+        Literal["spatial"] | None, Field(description="Human-readable name of the convention")
+    ] = None
+    description: Annotated[
+        Literal["Spatial coordinate information"] | None,
+        Field(description="Brief description of the convention's purpose and usage"),
+    ] = None
 
 
 class ConventionMetadata2(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    schema_url: (
+    schema_url: Annotated[
         Literal[
-            'https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v0.1/schema.json'
+            "https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v0.1/schema.json"
         ]
-        | None
-    ) = Field(None, description='URL to the JSON Schema definition for this convention')
-    spec_url: Literal[
-        'https://github.com/zarr-conventions/spatial/blob/v0.1/README.md'
-    ] = Field(..., description='URL to the full specification document')
-    uuid: Literal['689b58e2-cf7b-45e0-9fff-9cfc0883d6b4'] | None = Field(
-        None, description='UUID that permanently identifies this convention'
-    )
-    name: Literal['spatial'] | None = Field(
-        None, description='Human-readable name of the convention'
-    )
-    description: Literal['Spatial coordinate information'] | None = Field(
-        None, description="Brief description of the convention's purpose and usage"
-    )
+        | None,
+        Field(description="URL to the JSON Schema definition for this convention"),
+    ] = None
+    spec_url: Annotated[
+        Literal["https://github.com/zarr-conventions/spatial/blob/v0.1/README.md"],
+        Field(description="URL to the full specification document"),
+    ]
+    uuid: Annotated[
+        Literal["689b58e2-cf7b-45e0-9fff-9cfc0883d6b4"] | None,
+        Field(description="UUID that permanently identifies this convention"),
+    ] = None
+    name: Annotated[
+        Literal["spatial"] | None, Field(description="Human-readable name of the convention")
+    ] = None
+    description: Annotated[
+        Literal["Spatial coordinate information"] | None,
+        Field(description="Brief description of the convention's purpose and usage"),
+    ] = None
 
 
 class ConventionMetadata3(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
-    schema_url: (
+    schema_url: Annotated[
         Literal[
-            'https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v0.1/schema.json'
+            "https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v0.1/schema.json"
         ]
-        | None
-    ) = Field(None, description='URL to the JSON Schema definition for this convention')
-    spec_url: (
-        Literal['https://github.com/zarr-conventions/spatial/blob/v0.1/README.md']
-        | None
-    ) = Field(None, description='URL to the full specification document')
-    uuid: Literal['689b58e2-cf7b-45e0-9fff-9cfc0883d6b4'] = Field(
-        ..., description='UUID that permanently identifies this convention'
-    )
-    name: Literal['spatial'] | None = Field(
-        None, description='Human-readable name of the convention'
-    )
-    description: Literal['Spatial coordinate information'] | None = Field(
-        None, description="Brief description of the convention's purpose and usage"
-    )
+        | None,
+        Field(description="URL to the JSON Schema definition for this convention"),
+    ] = None
+    spec_url: Annotated[
+        Literal["https://github.com/zarr-conventions/spatial/blob/v0.1/README.md"] | None,
+        Field(description="URL to the full specification document"),
+    ] = None
+    uuid: Annotated[
+        Literal["689b58e2-cf7b-45e0-9fff-9cfc0883d6b4"],
+        Field(description="UUID that permanently identifies this convention"),
+    ]
+    name: Annotated[
+        Literal["spatial"] | None, Field(description="Human-readable name of the convention")
+    ] = None
+    description: Annotated[
+        Literal["Spatial coordinate information"] | None,
+        Field(description="Brief description of the convention's purpose and usage"),
+    ] = None
 
 
 class ConventionMetadata(
     RootModel[ConventionMetadata1 | ConventionMetadata2 | ConventionMetadata3]
 ):
-    root: ConventionMetadata1 | ConventionMetadata2 | ConventionMetadata3 = Field(
-        ...,
-        description='Spatial coordinate convention metadata object for use in zarr_conventions array',
-    )
+    root: Annotated[
+        ConventionMetadata1 | ConventionMetadata2 | ConventionMetadata3,
+        Field(
+            description="Spatial coordinate convention metadata object for use in zarr_conventions array"
+        ),
+    ]
 
 
 class LayoutItem1(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
-    spatial_shape: list[SpatialShapeItem] | None = Field(
-        None,
-        alias='spatial:shape',
-        description='Shape override for this resolution level [height, width]',
-        max_length=2,
-        min_length=2,
-    )
-    spatial_transform: list[float] | None = Field(
-        None,
-        alias='spatial:transform',
-        description='2D affine transform override for this resolution level [a, b, c, d, e, f]',
-        max_length=6,
-        min_length=6,
-    )
+    spatial_shape: Annotated[
+        list[SpatialShapeItem] | None,
+        Field(
+            alias="spatial:shape",
+            description="Shape override for this resolution level [height, width]",
+            max_length=2,
+            min_length=2,
+        ),
+    ] = None
+    spatial_transform: Annotated[
+        list[float] | None,
+        Field(
+            alias="spatial:transform",
+            description="2D affine transform override for this resolution level [a, b, c, d, e, f]",
+            max_length=6,
+            min_length=6,
+        ),
+    ] = None
 
 
 class Multiscales1(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
     layout: list[LayoutItem1] | None = None
 
 
 class SpatialAttributes(GeoZarrBaseModel):
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
     )
     zarr_conventions: Any | None = None
-    spatial_dimensions: list[str] | None = Field(
-        None,
-        alias='spatial:dimensions',
-        description='Names of the two spatial (X/Y) dimensions, in row-major order (e.g., ["y", "x"]).',
-        max_length=2,
-        min_length=2,
-    )
-    spatial_bbox: list[float] | None = Field(
-        None,
-        alias='spatial:bbox',
-        description='2D bounding box in coordinate space: [xmin, ymin, xmax, ymax].',
-        max_length=4,
-        min_length=4,
-    )
-    spatial_transform_type: str | None = Field(
-        None,
-        alias='spatial:transform_type',
-        description="Type of transformation used to map array indices to coordinates. Defaults to 'affine' if not specified. Currently defined types: 'affine'. Additional transform types may be defined in future versions (e.g., 'rpc', 'polynomial', 'lookup'). Custom types are allowed for extensibility.",
-    )
-    spatial_transform: list[float] | None = Field(
-        None,
-        alias='spatial:transform',
-        description="2D affine transformation coefficients [a, b, c, d, e, f] mapping array indices to coordinates, where x = a*col_index + b*row_index + c and y = d*col_index + e*row_index + f. Used when transform_type is 'affine' (default).",
-        max_length=6,
-        min_length=6,
-    )
-    spatial_shape: list[SpatialShapeItem] | None = Field(
-        None,
-        alias='spatial:shape',
-        description='Shape of the two spatial dimensions [height, width], corresponding to [y, x].',
-        max_length=2,
-        min_length=2,
-    )
-    spatial_registration: SpatialRegistration | None = Field(
-        None,
-        alias='spatial:registration',
-        description="Grid cell registration type. 'node' (grid-registered) means cells are centered on coordinate points with footprints extending 1/2 cell width outside the range. 'pixel' (cell-registered) means cell boundaries align with coordinate points. Defaults to 'pixel' if not specified.",
-    )
-    multiscales: Multiscales1 | None = Field(
-        None,
-        description='When composing with multiscales convention, spatial: properties can be added to layout items',
-    )
+    spatial_dimensions: Annotated[
+        list[str] | None,
+        Field(
+            alias="spatial:dimensions",
+            description='Names of the two spatial (X/Y) dimensions, in row-major order (e.g., ["y", "x"]).',
+            max_length=2,
+            min_length=2,
+        ),
+    ] = None
+    spatial_bbox: Annotated[
+        list[float] | None,
+        Field(
+            alias="spatial:bbox",
+            description="2D bounding box in coordinate space: [xmin, ymin, xmax, ymax].",
+            max_length=4,
+            min_length=4,
+        ),
+    ] = None
+    spatial_transform_type: Annotated[
+        str | None,
+        Field(
+            alias="spatial:transform_type",
+            description="Type of transformation used to map array indices to coordinates. Defaults to 'affine' if not specified. Currently defined types: 'affine'. Additional transform types may be defined in future versions (e.g., 'rpc', 'polynomial', 'lookup'). Custom types are allowed for extensibility.",
+        ),
+    ] = None
+    spatial_transform: Annotated[
+        list[float] | None,
+        Field(
+            alias="spatial:transform",
+            description="2D affine transformation coefficients [a, b, c, d, e, f] mapping array indices to coordinates, where x = a*col_index + b*row_index + c and y = d*col_index + e*row_index + f. Used when transform_type is 'affine' (default).",
+            max_length=6,
+            min_length=6,
+        ),
+    ] = None
+    spatial_shape: Annotated[
+        list[SpatialShapeItem] | None,
+        Field(
+            alias="spatial:shape",
+            description="Shape of the two spatial dimensions [height, width], corresponding to [y, x].",
+            max_length=2,
+            min_length=2,
+        ),
+    ] = None
+    spatial_registration: Annotated[
+        SpatialRegistration | None,
+        Field(
+            alias="spatial:registration",
+            description="Grid cell registration type. 'node' (grid-registered) means cells are centered on coordinate points with footprints extending 1/2 cell width outside the range. 'pixel' (cell-registered) means cell boundaries align with coordinate points. Defaults to 'pixel' if not specified.",
+        ),
+    ] = None
+    multiscales: Annotated[
+        Multiscales1 | None,
+        Field(
+            description="When composing with multiscales convention, spatial: properties can be added to layout items"
+        ),
+    ] = None

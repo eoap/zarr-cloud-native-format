@@ -1,19 +1,19 @@
 """Regenerate CWL documentation and render its diagrams locally with PlantUML."""
 
 import os
-from io import StringIO
-from pathlib import Path
 import subprocess
 import tempfile
-from urllib.request import urlopen
+from io import StringIO
+from pathlib import Path
 
 from cwl2puml import DiagramType, to_puml
 from cwl_loader import load_cwl_from_location
+from eoap_http import read_https
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def main():
+def main() -> None:
     cwl = ROOT / "cwl-workflow/app-water-bodies.cwl"
     docs = ROOT / "docs/design"
     subprocess.run(
@@ -58,14 +58,11 @@ validation scope and [CLI usage](../how-to/stac-zarr-usage.md) for runnable exam
 """
     path.write_text("\n".join(line.rstrip() for line in text.splitlines()) + "\n")
     jar = Path(
-        os.environ.get(
-            "PLANTUML_JAR", str(Path(tempfile.gettempdir()) / "eoap-plantuml.jar")
-        )
+        os.environ.get("PLANTUML_JAR", str(Path(tempfile.gettempdir()) / "eoap-plantuml.jar"))
     )
     if not jar.is_file():
         url = "https://repo.maven.apache.org/maven2/net/sourceforge/plantuml/plantuml/1.2025.10/plantuml-1.2025.10.jar"
-        with urlopen(url, timeout=30) as response:
-            jar.write_bytes(response.read())
+        jar.write_bytes(read_https(url))
     processes = load_cwl_from_location(path=str(cwl))
     for workflow in ("water-bodies", "detect_water_body"):
         folder = docs / workflow
@@ -73,9 +70,7 @@ validation scope and [CLI usage](../how-to/stac-zarr-usage.md) for runnable exam
         for kind in DiagramType:
             output = StringIO()
             to_puml(processes, kind, output, workflow_id=workflow)
-            source = output.getvalue().replace(
-                "@startuml", "@startuml\n!pragma layout smetana", 1
-            )
+            source = output.getvalue().replace("@startuml", "@startuml\n!pragma layout smetana", 1)
             result = subprocess.run(
                 [
                     "java",

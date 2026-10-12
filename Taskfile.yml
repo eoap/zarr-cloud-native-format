@@ -169,13 +169,15 @@ tasks:
     cmds:
       - |
         cd command-line-tools/stac-zarr && \
-        uv run --with "datamodel-code-generator[http]" datamodel-codegen \
+        uv tool run --python 3.12 --from "datamodel-code-generator[http]==0.83.0" datamodel-codegen \
           --url {{.SPATIAL_SCHEMA_URL}} \
           --input-file-type jsonschema \
           --output-model-type pydantic_v2.BaseModel \
           --base-class stac_zarr.models.base.GeoZarrBaseModel \
           --snake-case-field \
           --disable-timestamp \
+          --use-annotated --field-constraints --target-python-version 3.12 \
+          --use-standard-collections --use-union-operator --formatters builtin \
           --output stac_zarr/models/generated/spatial.py
     vars:
       SPATIAL_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v0.1/schema.json" .SPATIAL_SCHEMA_URL}}'
@@ -185,13 +187,15 @@ tasks:
     cmds:
       - |
         cd command-line-tools/stac-zarr && \
-        uv run --with "datamodel-code-generator[http]" datamodel-codegen \
+        uv tool run --python 3.12 --from "datamodel-code-generator[http]==0.83.0" datamodel-codegen \
           --url {{.GEO_PROJ_SCHEMA_URL}} \
           --input-file-type jsonschema \
           --output-model-type pydantic_v2.BaseModel \
           --base-class stac_zarr.models.base.GeoZarrBaseModel \
           --snake-case-field \
           --disable-timestamp \
+          --use-annotated --field-constraints --target-python-version 3.12 \
+          --use-standard-collections --use-union-operator --formatters builtin \
           --output stac_zarr/models/generated/geo_proj/
     vars:
       GEO_PROJ_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json" .GEO_PROJ_SCHEMA_URL}}'
@@ -201,13 +205,15 @@ tasks:
     cmds:
       - |
         cd command-line-tools/stac-zarr && \
-        uv run --with "datamodel-code-generator[http]" datamodel-codegen \
+        uv tool run --python 3.12 --from "datamodel-code-generator[http]==0.83.0" datamodel-codegen \
           --url {{.MULTISCALES_SCHEMA_URL}} \
           --input-file-type jsonschema \
           --output-model-type pydantic_v2.BaseModel \
           --base-class stac_zarr.models.base.GeoZarrBaseModel \
           --snake-case-field \
           --disable-timestamp \
+          --use-annotated --field-constraints --target-python-version 3.12 \
+          --use-standard-collections --use-union-operator --formatters builtin \
           --output stac_zarr/models/generated/multiscales.py
     vars:
       MULTISCALES_SCHEMA_URL: '{{default "https://raw.githubusercontent.com/zarr-conventions/multiscales/refs/tags/v0.1/schema.json" .MULTISCALES_SCHEMA_URL}}'
@@ -477,7 +483,7 @@ tasks:
     requires:
       vars: [JOB]
     cmds:
-      - uv run --frozen --with cwltool cwltool cwl-workflow/app-water-bodies-s3.cwl#main {{.JOB | shellQuote}} > cwl-tests/results-s3.json
+      - uv run --frozen --with cwltool cwltool cwl-workflow/app-water-bodies-s3.cwl#app-water-bodies-s3 {{.JOB | shellQuote}} > cwl-tests/results-s3.json
 
   labs:prepare:
     desc: Download and validate matching published application packages and lab inputs

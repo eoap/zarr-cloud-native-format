@@ -1,18 +1,17 @@
 from datetime import datetime
-from typing import List
 
 from pystac import Item
 
 
-def get_temporal_extent(items: List[Item]) -> List[datetime]:
+def get_temporal_extent(items: list[Item]) -> list[datetime]:
     """Get temporal extent from a list of STAC items."""
-    times = [item.datetime for item in items]
+    times = [item.datetime for item in items if item.datetime is not None]
     if not times:
         raise ValueError("No datetime found in item properties")
     return [min(times), max(times)]
 
 
-def get_spatial_extent(items: List[Item]) -> List[float]:
+def get_spatial_extent(items: list[Item]) -> list[float]:
     """Get spatial extent from a list of STAC items."""
     bboxes = [item.bbox for item in items if item.bbox]
     if not bboxes:
@@ -24,7 +23,9 @@ def get_spatial_extent(items: List[Item]) -> List[float]:
     return [min_x, min_y, max_x, max_y]
 
 
-def validate_parallel_inputs(item_urls: tuple[str, ...], otsu: tuple[str, ...], ndwi: tuple[str, ...]) -> None:
+def validate_parallel_inputs(
+    item_urls: tuple[str, ...], otsu: tuple[str, ...], ndwi: tuple[str, ...]
+) -> None:
     """Ensure all repeated CLI inputs have the same number of entries."""
     if not (len(item_urls) == len(otsu) == len(ndwi)):
         raise ValueError(

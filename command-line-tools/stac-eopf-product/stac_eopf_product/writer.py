@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import eopf.common.constants as c
 import numpy as np
@@ -16,6 +16,8 @@ from pystac import (
     Collection,
     Item,
     STACObject,
+)
+from pystac import (
     read_file as read_stac_file,
 )
 from pystac.extensions.datacube import DatacubeExtension
@@ -79,15 +81,15 @@ def raster_band_from_dataarray(da: DataArray) -> RasterBand:
 
 
 def build_stac_load_kwargs(
-    bands: List[str],
+    bands: list[str],
     crs: str,
     resolution: float | None,
     chunks: str,
     chunk_x: int,
     chunk_y: int,
     chunk_time: int,
-) -> Dict[str, Any]:
-    kwargs: Dict[str, Any] = {
+) -> dict[str, Any]:
+    kwargs: dict[str, Any] = {
         "bands": bands,
         "crs": crs,
         "groupby": "time",
@@ -115,13 +117,13 @@ def run_to_eopf(
             f"{stac_catalog} is not a valid STAC Catalog instance, found {type(catalog)}"
         )
 
-    collection = next(catalog.get_children())
+    collection = next(iter(catalog.get_children()))
     if not isinstance(collection, Collection):
         raise Exception(
             f"{stac_catalog} does not contain a valid STAC Collection instance, found {type(collection)}"
         )
 
-    items: List[Item] = list(collection.get_all_items())
+    items: list[Item] = list(collection.get_all_items())
     logger.info(f"Found {len(items)} STAC Items in {stac_catalog} STAC Catalog")
     if not items:
         raise ValueError("Input STAC Collection has no items")
@@ -180,7 +182,7 @@ def run_to_eopf(
         da: DataArray = stac_catalog_dataset[measurement]
         product[f"measurements/{measurement}"] = EOVariable(
             data=da.data,
-            dims=stac_catalog_dataset[measurement].dims,
+            dims=tuple(str(dim) for dim in stac_catalog_dataset[measurement].dims),
             attrs={
                 "description": get_measurement_text(collection, measurement)[1],
             },
@@ -216,7 +218,9 @@ def run_to_eopf(
         height, width = gbox.shape
         proj_ext.shape = [height, width]
 
-    output_cat = Catalog(id=collection.id, description=collection.description, title=collection.title)
+    output_cat = Catalog(
+        id=collection.id, description=collection.description, title=collection.title
+    )
     output_cat.add_child(output_collection)
     output_cat.normalize_and_save(root_href=str(Path(".")), catalog_type=CatalogType.SELF_CONTAINED)
 
@@ -225,6 +229,8 @@ def run_to_eopf(
     output_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"Writing EOPF Zarr product to {output_dir}")
 
-    with EOZarrStore(url=output_dir.absolute().as_uri()).open(mode=c.OpeningMode.CREATE_OVERWRITE) as store:
+    with EOZarrStore(url=output_dir.absolute().as_uri()).open(
+        mode=c.OpeningMode.CREATE_OVERWRITE
+    ) as store:
         store[zarr_store] = product
     logger.info("Done writing EOPF product!")

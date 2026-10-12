@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from pystac import Asset, Item
 
@@ -10,7 +10,7 @@ def _make_item_with_assets() -> Item:
         id="test-item",
         geometry={"type": "Point", "coordinates": [0.0, 0.0]},
         bbox=[0.0, 0.0, 0.0, 0.0],
-        datetime=datetime(2021, 1, 1, tzinfo=timezone.utc),
+        datetime=datetime(2021, 1, 1, tzinfo=UTC),
         properties={},
     )
     item.add_asset(

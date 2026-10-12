@@ -405,21 +405,27 @@ $graph:
       types:
       - $import: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml
       - $import: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml
-      - $import: |-
-          https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml
+      - $import: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml
       - $import: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml
     - class: InitialWorkDirRequirement
       listing:
       - entryname: run.sh
-        entry: |-
-          #!/usr/bin/env sh
+        entry: '#!/usr/bin/env sh
+
           set -x
+
           set -euo pipefail
 
-          yq '[.features[].links[] | select(.rel=="self") | .href]' "$(inputs.search_results.path)" > items.json
 
-          echo "$(inputs.search_request)" | yq '.bbox | @csv' - > aoi.txt
+          yq ''[.features[].links[] | select(.rel=="self") | .href]'' "$(inputs.search_results.path)" > items.json
 
+
+          echo "$(inputs.search_request)" | yq ''.bbox | @csv'' - > aoi.txt'
+    - class: ResourceRequirement
+      coresMin: 1
+      coresMax: 1
+      ramMin: 512
+      ramMax: 512
     inputs:
       search_request:
         label: Search Request
@@ -530,6 +536,7 @@ $graph:
         coresMax: 1
         ramMin: 2048
         ramMax: 2048
+        coresMin: 1
       DockerRequirement:
         dockerPull: crop:latest
     baseCommand: ["crop"]
@@ -590,6 +597,7 @@ $graph:
         coresMax: 1
         ramMin: 2048
         ramMax: 2048
+        coresMin: 1
       DockerRequirement:
         dockerPull: norm-diff:latest
     baseCommand: ["norm-diff"]
@@ -620,6 +628,7 @@ $graph:
         coresMax: 1
         ramMin: 2048
         ramMax: 2048
+        coresMin: 1
       DockerRequirement:
         dockerPull: otsu:latest
     baseCommand: ["otsu"]
@@ -646,6 +655,7 @@ $graph:
         coresMax: 1
         ramMin: 2048
         ramMax: 2048
+        coresMin: 1
       DockerRequirement:
         dockerPull: stac-collection:latest
     baseCommand: ["stac-collection"]
@@ -690,6 +700,7 @@ $graph:
         coresMax: 1
         ramMin: 2048
         ramMax: 2048
+        coresMin: 1
       DockerRequirement:
         dockerPull: stac-zarr:latest 
     baseCommand: ["stac-zarr"]
@@ -818,6 +829,7 @@ $graph:
         coresMax: 1
         ramMin: 2048
         ramMax: 2048
+        coresMin: 1
       DockerRequirement:
         dockerPull: stac-eopf-product:latest
     baseCommand: ["stac-eopf-product"]
@@ -894,11 +906,15 @@ $graph:
         networkAccess: true
       - class: SchemaDefRequirement
         types:
-          - $import: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml
-          - $import: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml
-          - $import: |-
-              https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml
-          - $import: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml
+        - $import: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml
+        - $import: https://raw.githubusercontent.com/eoap/schemas/main/geojson.yaml
+        - $import: https://raw.githubusercontent.com/eoap/schemas/main/experimental/api-endpoint.yaml
+        - $import: https://raw.githubusercontent.com/eoap/schemas/main/experimental/discovery.yaml
+      - class: ResourceRequirement
+        coresMin: 1
+        coresMax: 1
+        ramMin: 512
+        ramMax: 512
     inputs:
       api_endpoint:
         label: STAC API endpoint

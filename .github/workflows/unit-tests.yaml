@@ -29,6 +29,8 @@ jobs:
       fail-fast: false
       matrix:
         package-dir:
+          - .
+          - command-line-tools/occurrence
           - command-line-tools/stac-zarr
           - command-line-tools/stac-collection
           - command-line-tools/stac-eopf-product
@@ -50,9 +52,14 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Run unit tests
+      - name: Run locked quality and unit tests
         working-directory: ${{ matrix.package-dir }}
-        run: uv run --with pytest --with-editable . pytest -q tests
+        run: |
+          uv venv --python 3.12 .venv
+          uv pip install --require-hashes -r requirements/development.txt
+          uv pip install --no-deps --no-build-isolation -e .
+          .venv/bin/hatch run dev:check
+          .venv/bin/hatch run test:test
 
   multiscales-layout-profile:
     runs-on: ubuntu-latest

@@ -32,12 +32,10 @@ def publish(source: Path, destination: Path) -> list[str]:
     return [str(store.relative_to(source)) for store in stores]
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument(
-        "--results", type=Path, help="CWL results JSON containing zarr_stac_catalog"
-    )
+    mode.add_argument("--results", type=Path, help="CWL results JSON containing zarr_stac_catalog")
     mode.add_argument(
         "--data-root",
         type=Path,

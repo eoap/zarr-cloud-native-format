@@ -1,0 +1,13 @@
+-r runtime.in
+hatch==1.18.1
+hatchling>=1.27,<2
+editables>=0.5,<1
+uv
+pytest
+ruff
+mypy
+bandit
+bash-kernel>=0.10,<1
+eoap-cwlwrap==0.32.0
+cwl-loader==0.27.0
+cwl2puml==0.49.1

@@ -31,4 +31,3 @@ def run_norm_diff(raster_a: str, raster_b: str, output_path: str = "norm_diff.ti
         dst_dataset.write(normalized_difference(array1, array2), 1)
 
     logger.info("Done!")
-

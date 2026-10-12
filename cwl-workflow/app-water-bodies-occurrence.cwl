@@ -59,6 +59,8 @@ $graph:
     ResourceRequirement:
       ramMin: 2048
       ramMax: 2048
+      coresMin: 1
+      coresMax: 1
   baseCommand: occurrence
   inputs:
     stac_catalog:

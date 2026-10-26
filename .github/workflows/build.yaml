@@ -16,7 +16,7 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.13.5"
@@ -35,7 +35,7 @@ jobs:
       base-version: ${{ steps.metadata.outputs.base-version }}
       candidate: ${{ steps.metadata.outputs.candidate }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - id: metadata
         name: Check version and publication targets
         env:
@@ -84,7 +84,7 @@ jobs:
       VERSION: ${{ needs.version.outputs.version }}
       CANDIDATE: ${{ needs.version.outputs.candidate }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: oras-project/setup-oras@v1
         with:
           version: '1.3.0'
@@ -152,7 +152,7 @@ jobs:
       VERSION: ${{ needs.version.outputs.version }}
       REGISTRY: ${{ needs.version.outputs.registry }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -236,7 +236,7 @@ jobs:
       BASE_VERSION: ${{ needs.version.outputs.base-version }}
       CANDIDATE: ${{ needs.version.outputs.candidate }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/download-artifact@v4
         with:
           name: application-packages

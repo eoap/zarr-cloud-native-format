@@ -20,7 +20,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.13.5"
-      - uses: arduino/setup-task@v2
+      - uses: arduino/setup-task@v3
       - run: task test:unit:scoped
       - run: uv run --no-project --python 3.12 --with pytest --with PyYAML pytest -q tests/test_release_lab_preparation.py
       - run: task compliance:check:all

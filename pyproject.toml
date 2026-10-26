@@ -26,7 +26,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "numpy==2.3.5",
+  "numpy==2.5.4",
   "eopf",
   "odc-stac",
   "ipykernel",
